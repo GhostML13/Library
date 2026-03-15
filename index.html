@@ -1,0 +1,2848 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+    />
+    <title>Bodleian Library · Space Survey</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+      }
+      html,
+      body {
+        height: 100%;
+        background: #f7f3ec;
+        font-family: Georgia, serif;
+        color: #2c1a0e;
+        overflow-x: hidden;
+      }
+      /* ── SCREENS ── */
+      .screen {
+        display: none;
+        flex-direction: column;
+        min-height: 100vh;
+        padding: 24px 20px 32px;
+        max-width: 480px;
+        margin: 0 auto;
+      }
+      .screen.active {
+        display: flex;
+      }
+      /* ── TYPE ── */
+      .eyebrow {
+        font-size: 10px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #a08060;
+        margin-bottom: 8px;
+        font-family: system-ui, sans-serif;
+      }
+      h1 {
+        font-size: 26px;
+        line-height: 1.2;
+        margin-bottom: 6px;
+      }
+      h1 em {
+        color: #c4622d;
+        font-style: italic;
+      }
+      h2 {
+        font-size: 20px;
+        margin-bottom: 6px;
+        line-height: 1.25;
+      }
+      h2 em {
+        color: #c4622d;
+        font-style: italic;
+      }
+      .sub {
+        font-size: 13px;
+        color: #8a7060;
+        line-height: 1.6;
+        margin-bottom: 20px;
+        font-family: system-ui, sans-serif;
+      }
+      /* ── BUTTONS ── */
+      .btn-primary {
+        width: 100%;
+        padding: 16px;
+        background: #c4622d;
+        color: #faf5ee;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-family: Georgia, serif;
+        font-style: italic;
+        cursor: pointer;
+        transition: opacity 0.2s;
+        margin-top: 12px;
+        letter-spacing: 0.3px;
+      }
+      .btn-primary:hover {
+        opacity: 0.88;
+      }
+      .btn-primary:disabled {
+        background: #c8b8a4;
+        cursor: not-allowed;
+        opacity: 1;
+      }
+      .btn-sec {
+        width: 100%;
+        padding: 14px;
+        background: transparent;
+        color: #8a7060;
+        border: 1px solid #d0c0ac;
+        border-radius: 12px;
+        font-size: 14px;
+        font-family: system-ui, sans-serif;
+        cursor: pointer;
+        margin-top: 8px;
+      }
+      /* ── INPUTS ── */
+      select,
+      textarea {
+        width: 100%;
+        padding: 14px;
+        background: #fff;
+        border: 1.5px solid #e0d0bc;
+        border-radius: 10px;
+        color: #2c1a0e;
+        font-size: 15px;
+        margin-bottom: 12px;
+        outline: none;
+        font-family: system-ui, sans-serif;
+        appearance: none;
+      }
+      select:focus,
+      textarea:focus {
+        border-color: #c4622d;
+      }
+      textarea {
+        resize: none;
+        height: 88px;
+        line-height: 1.5;
+      }
+      /* ── STEP INDICATOR ── */
+      .steps {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 20px;
+      }
+      .step {
+        flex: 1;
+        height: 3px;
+        border-radius: 2px;
+        background: #e0d0bc;
+        transition: background 0.3s;
+      }
+      .step.done {
+        background: #c4622d;
+      }
+      /* ── LEADERBOARD ── */
+      .lb-card {
+        background: #fff;
+        border: 1px solid #e8ddd0;
+        border-radius: 14px;
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+      .lb-label {
+        font-size: 10px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: #a08060;
+        margin-bottom: 12px;
+        font-family: system-ui, sans-serif;
+      }
+      .lb-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 9px;
+      }
+      .lb-row:last-child {
+        margin-bottom: 0;
+      }
+      .lb-rank {
+        font-size: 12px;
+        color: #b0a090;
+        width: 18px;
+        text-align: center;
+        font-family: system-ui, sans-serif;
+      }
+      .lb-rank.gold {
+        color: #c4862d;
+        font-weight: 600;
+      }
+      .lb-name {
+        flex: 1;
+        font-size: 13px;
+        color: #2c1a0e;
+        font-family: system-ui, sans-serif;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .lb-name.me {
+        color: #c4622d;
+        font-weight: 600;
+      }
+      .lb-track {
+        width: 90px;
+        height: 6px;
+        background: #f0e8dc;
+        border-radius: 3px;
+        overflow: hidden;
+      }
+      .lb-fill {
+        height: 100%;
+        background: #c4622d;
+        border-radius: 3px;
+        transition: width 0.6s ease;
+      }
+      .lb-fill.me {
+        background: #4a9060;
+      }
+      .lb-val {
+        font-size: 11px;
+        color: #a08060;
+        font-family: system-ui, sans-serif;
+        width: 38px;
+        text-align: right;
+      }
+      .lb-empty {
+        font-size: 13px;
+        color: #b0a090;
+        font-family: system-ui, sans-serif;
+        text-align: center;
+        padding: 8px 0;
+      }
+      /* ── MAP ── */
+      .map-wrap {
+        background: #fff;
+        border: 1px solid #e0d4c0;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 12px;
+        touch-action: manipulation;
+      }
+      .map-wrap svg {
+        display: block;
+        width: 100%;
+      }
+      .map-legend {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+      }
+      .ml {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 10px;
+        color: #9a7a5a;
+        font-family: system-ui, sans-serif;
+      }
+      .mld {
+        width: 9px;
+        height: 9px;
+        border-radius: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+      }
+      /* ── FRICTION PANEL ── */
+      .f-panel {
+        background: #fffcf7;
+        border: 1.5px solid #e0d0bc;
+        border-radius: 12px;
+        padding: 14px;
+        margin-bottom: 10px;
+        display: none;
+      }
+      .f-zone-name {
+        font-size: 15px;
+        font-weight: 600;
+        color: #2c1a0e;
+        font-family: Georgia, serif;
+        font-style: italic;
+        margin-bottom: 2px;
+      }
+      .f-zone-desc {
+        font-size: 11px;
+        color: #9a7a5a;
+        margin-bottom: 10px;
+        font-family: system-ui, sans-serif;
+      }
+      .f-step {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #7a6050;
+        margin-bottom: 6px;
+        font-family: system-ui, sans-serif;
+      }
+      .flag-row {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+      }
+      .fbtn {
+        padding: 7px 13px;
+        border-radius: 16px;
+        border: 1.5px solid;
+        font-size: 11px;
+        font-weight: 500;
+        cursor: pointer;
+        background: transparent;
+        transition: all 0.15s;
+        font-family: system-ui, sans-serif;
+      }
+      .fbtn:hover {
+        transform: translateY(-1px);
+      }
+      .fc {
+        border-color: #5a8ab0;
+        color: #3a6a90;
+      }
+      .fc.on {
+        background: #3a6a90;
+        color: #fff;
+        border-color: #3a6a90;
+      }
+      .fn {
+        border-color: #c4622d;
+        color: #a04010;
+      }
+      .fn.on {
+        background: #a04010;
+        color: #fff;
+        border-color: #a04010;
+      }
+      .fd {
+        border-color: #9a8070;
+        color: #6a5040;
+      }
+      .fd.on {
+        background: #6a5040;
+        color: #fff;
+        border-color: #6a5040;
+      }
+      .fix-row {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .xbtn {
+        padding: 5px 11px;
+        border-radius: 12px;
+        border: 1px solid #d0c0a8;
+        font-size: 11px;
+        cursor: pointer;
+        background: transparent;
+        color: #6a5040;
+        font-family: system-ui, sans-serif;
+        transition: all 0.15s;
+      }
+      .xbtn:hover {
+        border-color: #c4622d;
+        color: #c4622d;
+      }
+      .xbtn.on {
+        background: #4a9060;
+        color: #fff;
+        border-color: #4a9060;
+      }
+      .pins {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+        min-height: 20px;
+        margin-bottom: 6px;
+      }
+      .pin {
+        font-size: 10px;
+        padding: 2px 8px;
+        border-radius: 8px;
+        font-weight: 500;
+        font-family: system-ui, sans-serif;
+      }
+      .pin-c {
+        background: #3a6a90;
+        color: #fff;
+      }
+      .pin-n {
+        background: #a04010;
+        color: #fff;
+      }
+      .pin-d {
+        background: #6a5040;
+        color: #fff;
+      }
+      .pin-f {
+        background: #4a9060;
+        color: #fff;
+      }
+      .map-hint {
+        font-size: 11px;
+        color: #9a7a5a;
+        font-family: system-ui, sans-serif;
+        margin-bottom: 8px;
+        min-height: 16px;
+      }
+      /* ── AUCTION ── */
+      .budget-wrap {
+        background: #fff;
+        border: 1px solid #e0d0bc;
+        border-radius: 14px;
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+      .budget-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 10px;
+      }
+      .budget-remaining {
+        font-size: 32px;
+        font-weight: 400;
+        color: #c4622d;
+        line-height: 1;
+      }
+      .budget-label {
+        font-size: 11px;
+        color: #a08060;
+        font-family: system-ui, sans-serif;
+        margin-bottom: 2px;
+      }
+      .budget-spent {
+        font-size: 18px;
+        color: #8a7060;
+      }
+      .budget-track {
+        height: 6px;
+        background: #f0e8dc;
+        border-radius: 3px;
+        overflow: hidden;
+      }
+      .budget-fill {
+        height: 100%;
+        background: #c4622d;
+        border-radius: 3px;
+        transition: width 0.4s ease;
+      }
+      .budget-fill.low {
+        background: #a04010;
+      }
+      .items-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      .item-card {
+        background: #fff;
+        border: 1.5px solid #e8ddd0;
+        border-radius: 12px;
+        padding: 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .item-card:hover {
+        border-color: #c4622d22;
+      }
+      .item-card.bought {
+        border-color: #4a9060;
+        background: #f4fbf6;
+      }
+      .item-card.cant {
+        opacity: 0.38;
+        cursor: not-allowed;
+      }
+      .item-check {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 1.5px solid #d0c0ac;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        flex-shrink: 0;
+        transition: all 0.2s;
+      }
+      .item-check.bought {
+        background: #4a9060;
+        border-color: #4a9060;
+        color: #fff;
+      }
+      .item-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .item-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: #2c1a0e;
+        font-family: system-ui, sans-serif;
+        margin-bottom: 2px;
+      }
+      .item-desc {
+        font-size: 11px;
+        color: #9a7a5a;
+        font-family: system-ui, sans-serif;
+      }
+      .item-cat {
+        display: inline-block;
+        font-size: 9px;
+        padding: 1px 7px;
+        border-radius: 8px;
+        margin-top: 3px;
+        font-weight: 500;
+        font-family: system-ui, sans-serif;
+      }
+      .cat-focus {
+        background: #eaf3de;
+        color: #3b6d11;
+      }
+      .cat-comfort {
+        background: #faeeda;
+        color: #854f0b;
+      }
+      .cat-social {
+        background: #e1f5ee;
+        color: #0f6e56;
+      }
+      .cat-access {
+        background: #faece7;
+        color: #993c1d;
+      }
+      .item-cost {
+        font-size: 16px;
+        font-weight: 600;
+        color: #c4622d;
+        white-space: nowrap;
+        font-family: system-ui, sans-serif;
+      }
+      .item-cost.bought {
+        color: #4a9060;
+      }
+      /* ── SLIDER ── */
+      .slider-section {
+        margin: 20px 0;
+      }
+      .slider-val {
+        font-size: 38px;
+        color: #c4622d;
+        text-align: center;
+        margin-bottom: 10px;
+      }
+      input[type='range'] {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 5px;
+        background: #e0d0bc;
+        border-radius: 3px;
+        outline: none;
+        margin-bottom: 8px;
+      }
+      input[type='range']::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 26px;
+        height: 26px;
+        background: #c4622d;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 3px solid #fff;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+      }
+      .slider-labs {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        color: #a08060;
+        font-family: system-ui, sans-serif;
+      }
+      /* ── RESULT ── */
+      .result-card {
+        background: #fff;
+        border: 1px solid #e8ddd0;
+        border-radius: 14px;
+        padding: 16px;
+        margin-bottom: 14px;
+      }
+      .result-label {
+        font-size: 10px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: #a08060;
+        margin-bottom: 10px;
+        font-family: system-ui, sans-serif;
+      }
+      .tag-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+      }
+      .rtag {
+        font-size: 11px;
+        padding: 3px 10px;
+        border-radius: 8px;
+        background: #faece7;
+        color: #993c1d;
+        font-family: system-ui, sans-serif;
+      }
+      .big-num {
+        font-size: 48px;
+        color: #c4622d;
+        text-align: center;
+        margin: 8px 0 4px;
+      }
+      .confetti-line {
+        text-align: center;
+        font-size: 42px;
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ════════════════════════════════════ -->
+    <!-- SCREEN 1 · LANDING                  -->
+    <!-- ════════════════════════════════════ -->
+    <div class="screen active" id="s1">
+      <div style="flex: 1">
+        <div class="eyebrow">Bodleian Libraries · Oxford</div>
+        <h1>Help us build a library you'll <em>actually use.</em></h1>
+        <p class="sub">
+          3 minutes. 500 credits to redesign the space. Your department competes
+          live against every other.
+        </p>
+        <div class="lb-card">
+          <div class="lb-label">Live participation race</div>
+          <div id="lb-landing">
+            <div class="lb-empty">Loading live board…</div>
+          </div>
+        </div>
+        <p
+          style="
+            font-size: 11px;
+            color: #b0a090;
+            text-align: center;
+            font-family: system-ui, sans-serif;
+            margin-bottom: 4px;
+          "
+        >
+          Anonymous · your department is the only thing recorded
+        </p>
+      </div>
+      <button class="btn-primary" onclick="go(2)">
+        Start — join the race →
+      </button>
+    </div>
+
+    <!-- ════════════════════════════════════ -->
+    <!-- SCREEN 2 · DEPT + YEAR              -->
+    <!-- ════════════════════════════════════ -->
+    <div class="screen" id="s2">
+      <div class="steps">
+        <div class="step done"></div>
+        <div class="step"></div>
+        <div class="step"></div>
+        <div class="step"></div>
+      </div>
+      <div style="flex: 1">
+        <div class="eyebrow">Step 1 of 4</div>
+        <h2>Which department <em>are you in?</em></h2>
+        <p class="sub">This links your response to the live leaderboard.</p>
+        <select id="dept">
+          <option value="">Select your department…</option>
+          <option>Computer Science</option>
+          <option>Engineering</option>
+          <option>Business & Management</option>
+          <option>Law</option>
+          <option>Medicine & Health Sciences</option>
+          <option>Arts & Humanities</option>
+          <option>Social Sciences</option>
+          <option>Natural Sciences</option>
+          <option>Education</option>
+          <option>Architecture</option>
+          <option>Economics</option>
+          <option>Philosophy</option>
+          <option>Other</option>
+        </select>
+        <select id="year">
+          <option value="">Select your year…</option>
+          <option>Year 1</option>
+          <option>Year 2</option>
+          <option>Year 3</option>
+          <option>Year 4+</option>
+          <option>Postgraduate</option>
+          <option>Staff</option>
+        </select>
+      </div>
+      <button class="btn-primary" onclick="saveDept()">Next →</button>
+    </div>
+
+    <!-- ════════════════════════════════════ -->
+    <!-- SCREEN 3 · FRICTION MAP             -->
+    <!-- ════════════════════════════════════ -->
+    <div class="screen" id="s3">
+      <div class="steps">
+        <div class="step done"></div>
+        <div class="step done"></div>
+        <div class="step"></div>
+        <div class="step"></div>
+      </div>
+      <div style="flex: 1">
+        <div class="eyebrow">Step 2 of 4</div>
+        <h2>Where does this space <em>fail you?</em></h2>
+        <p class="sub">
+          Tap a zone. Flag what's wrong. Pick a fix — your changes appear on the
+          map.
+        </p>
+        <div class="map-legend">
+          <div class="ml">
+            <div class="mld" style="background: #ede4d0"></div>
+            Untouched
+          </div>
+          <div class="ml">
+            <div class="mld" style="background: #b8d4ec"></div>
+            Cold
+          </div>
+          <div class="ml">
+            <div class="mld" style="background: #f4c4a0"></div>
+            Noisy
+          </div>
+          <div class="ml">
+            <div class="mld" style="background: #c8bdb0"></div>
+            Neglected
+          </div>
+          <div class="ml">
+            <div class="mld" style="background: #b0d4b8"></div>
+            Fixed by you
+          </div>
+        </div>
+        <div class="map-wrap">
+          <svg
+            id="floormap"
+            viewBox="0 0 600 500"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <defs>
+              <pattern
+                id="wall"
+                width="4"
+                height="4"
+                patternUnits="userSpaceOnUse"
+              >
+                <rect width="4" height="4" fill="#c8c0b0" />
+                <line
+                  x1="0"
+                  y1="4"
+                  x2="4"
+                  y2="0"
+                  stroke="#b0a898"
+                  stroke-width="0.6"
+                />
+              </pattern>
+              <pattern
+                id="grid"
+                width="20"
+                height="20"
+                patternUnits="userSpaceOnUse"
+              >
+                <rect width="20" height="20" fill="none" />
+                <path
+                  d="M20 0L0 0 0 20"
+                  stroke="#e8e0d4"
+                  stroke-width="0.3"
+                  fill="none"
+                />
+              </pattern>
+            </defs>
+            <!-- outer wall -->
+            <rect
+              x="20"
+              y="20"
+              width="560"
+              height="460"
+              rx="4"
+              fill="url(#wall)"
+              stroke="#9a9088"
+              stroke-width="1.5"
+            />
+            <!-- floor -->
+            <rect x="34" y="34" width="532" height="432" fill="#f5f0e4" />
+            <rect x="34" y="34" width="532" height="432" fill="url(#grid)" />
+            <!-- internal walls -->
+            <line
+              x1="160"
+              y1="34"
+              x2="160"
+              y2="260"
+              stroke="#9a9088"
+              stroke-width="3"
+            />
+            <line
+              x1="34"
+              y1="180"
+              x2="440"
+              y2="180"
+              stroke="#9a9088"
+              stroke-width="3"
+            />
+            <line
+              x1="440"
+              y1="34"
+              x2="440"
+              y2="260"
+              stroke="#9a9088"
+              stroke-width="3"
+            />
+            <line
+              x1="440"
+              y1="260"
+              x2="566"
+              y2="260"
+              stroke="#9a9088"
+              stroke-width="3"
+            />
+            <rect
+              x="264"
+              y="290"
+              width="72"
+              height="80"
+              fill="none"
+              stroke="#9a9088"
+              stroke-width="2"
+            />
+
+            <!-- ZONE: private study -->
+            <g id="z-study" onclick="tapZone('study')" style="cursor: pointer">
+              <rect
+                id="zf-study"
+                x="34"
+                y="34"
+                width="126"
+                height="146"
+                fill="#ede4d0"
+              />
+              <line
+                x1="97"
+                y1="34"
+                x2="97"
+                y2="180"
+                stroke="#c8bfaf"
+                stroke-width="1"
+              />
+              <line
+                x1="34"
+                y1="80"
+                x2="160"
+                y2="80"
+                stroke="#c8bfaf"
+                stroke-width="1"
+              />
+              <line
+                x1="34"
+                y1="127"
+                x2="160"
+                y2="127"
+                stroke="#c8bfaf"
+                stroke-width="1"
+              />
+              <rect
+                x="52"
+                y="47"
+                width="28"
+                height="18"
+                rx="2"
+                fill="#d4c4a0"
+                stroke="#b8a880"
+                stroke-width="0.8"
+              />
+              <rect
+                x="115"
+                y="47"
+                width="28"
+                height="18"
+                rx="2"
+                fill="#d4c4a0"
+                stroke="#b8a880"
+                stroke-width="0.8"
+              />
+              <rect
+                x="52"
+                y="94"
+                width="28"
+                height="18"
+                rx="2"
+                fill="#d4c4a0"
+                stroke="#b8a880"
+                stroke-width="0.8"
+              />
+              <rect
+                x="115"
+                y="94"
+                width="28"
+                height="18"
+                rx="2"
+                fill="#d4c4a0"
+                stroke="#b8a880"
+                stroke-width="0.8"
+              />
+              <rect
+                x="52"
+                y="140"
+                width="28"
+                height="18"
+                rx="2"
+                fill="#d4c4a0"
+                stroke="#b8a880"
+                stroke-width="0.8"
+              />
+              <rect
+                x="115"
+                y="140"
+                width="28"
+                height="18"
+                rx="2"
+                fill="#d4c4a0"
+                stroke="#b8a880"
+                stroke-width="0.8"
+              />
+              <rect
+                x="60"
+                y="68"
+                width="12"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <rect
+                x="123"
+                y="68"
+                width="12"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <rect
+                x="60"
+                y="115"
+                width="12"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <rect
+                x="123"
+                y="115"
+                width="12"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <rect
+                x="60"
+                y="161"
+                width="12"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <rect
+                x="123"
+                y="161"
+                width="12"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <rect x="64" y="32" width="30" height="4" fill="#f5f0e4" />
+              <text
+                x="97"
+                y="174"
+                text-anchor="middle"
+                font-size="9"
+                fill="#7a5828"
+                font-family="Georgia,serif"
+                font-style="italic"
+              >
+                Private study
+              </text>
+            </g>
+
+            <!-- ZONE: wall bookshelves -->
+            <g
+              id="z-shelves"
+              onclick="tapZone('shelves')"
+              style="cursor: pointer"
+            >
+              <rect
+                id="zf-shelves"
+                x="160"
+                y="34"
+                width="280"
+                height="80"
+                fill="#e8dfc8"
+              />
+              <rect
+                x="168"
+                y="42"
+                width="264"
+                height="14"
+                rx="1"
+                fill="#c8a060"
+                stroke="#a88040"
+                stroke-width="0.5"
+              />
+              <rect
+                x="168"
+                y="62"
+                width="264"
+                height="14"
+                rx="1"
+                fill="#c8a060"
+                stroke="#a88040"
+                stroke-width="0.5"
+              />
+              <rect
+                x="168"
+                y="82"
+                width="264"
+                height="14"
+                rx="1"
+                fill="#c8a060"
+                stroke="#a88040"
+                stroke-width="0.5"
+              />
+              <rect x="172" y="43" width="5" height="12" fill="#c03020" />
+              <rect x="179" y="43" width="4" height="12" fill="#3858a0" />
+              <rect x="185" y="43" width="5" height="12" fill="#78601c" />
+              <rect x="192" y="43" width="4" height="12" fill="#287848" />
+              <rect x="198" y="43" width="5" height="12" fill="#c03020" />
+              <rect x="215" y="43" width="4" height="12" fill="#3858a0" />
+              <rect x="235" y="43" width="5" height="12" fill="#78601c" />
+              <rect x="255" y="43" width="4" height="12" fill="#c03020" />
+              <rect x="275" y="43" width="5" height="12" fill="#287848" />
+              <rect x="295" y="43" width="4" height="12" fill="#3858a0" />
+              <rect x="320" y="43" width="5" height="12" fill="#c03020" />
+              <rect x="340" y="43" width="4" height="12" fill="#78601c" />
+              <rect x="360" y="43" width="5" height="12" fill="#287848" />
+              <rect x="385" y="43" width="4" height="12" fill="#c03020" />
+              <rect x="172" y="63" width="4" height="12" fill="#287848" />
+              <rect x="200" y="63" width="5" height="12" fill="#3858a0" />
+              <rect x="230" y="63" width="4" height="12" fill="#c03020" />
+              <rect x="265" y="63" width="5" height="12" fill="#78601c" />
+              <rect x="300" y="63" width="4" height="12" fill="#287848" />
+              <rect x="335" y="63" width="5" height="12" fill="#c03020" />
+              <rect x="370" y="63" width="4" height="12" fill="#3858a0" />
+              <rect x="400" y="63" width="5" height="12" fill="#78601c" />
+              <text
+                x="300"
+                y="108"
+                text-anchor="middle"
+                font-size="9"
+                fill="#7a5020"
+                font-family="Georgia,serif"
+                font-style="italic"
+              >
+                Wall bookshelves
+              </text>
+            </g>
+
+            <!-- ZONE: reception -->
+            <g
+              id="z-reception"
+              onclick="tapZone('reception')"
+              style="cursor: pointer"
+            >
+              <rect
+                id="zf-reception"
+                x="440"
+                y="34"
+                width="126"
+                height="226"
+                fill="#ece0cc"
+              />
+              <path
+                d="M470,90 Q510,72 548,88 Q548,120 510,130 Q472,120 470,90Z"
+                fill="#7ab870"
+                stroke="#5a9850"
+                stroke-width="1"
+              />
+              <circle
+                cx="509"
+                cy="97"
+                r="6"
+                fill="#c89060"
+                stroke="#a07040"
+                stroke-width="0.8"
+              />
+              <rect
+                x="550"
+                y="130"
+                width="12"
+                height="20"
+                rx="2"
+                fill="#d4c4a0"
+                stroke="#b8a880"
+                stroke-width="0.6"
+              />
+              <rect
+                x="450"
+                y="165"
+                width="100"
+                height="70"
+                rx="4"
+                fill="#e4d8c0"
+                stroke="#c8b898"
+                stroke-width="0.8"
+              />
+              <line
+                x1="450"
+                y1="185"
+                x2="550"
+                y2="185"
+                stroke="#c8b898"
+                stroke-width="0.5"
+              />
+              <line
+                x1="450"
+                y1="205"
+                x2="550"
+                y2="205"
+                stroke="#c8b898"
+                stroke-width="0.5"
+              />
+              <line
+                x1="500"
+                y1="165"
+                x2="500"
+                y2="235"
+                stroke="#c8b898"
+                stroke-width="0.5"
+              />
+              <rect
+                x="453"
+                y="168"
+                width="22"
+                height="14"
+                rx="1"
+                fill="#8aaccc"
+                stroke="#6888a8"
+                stroke-width="0.5"
+              />
+              <rect
+                x="503"
+                y="168"
+                width="22"
+                height="14"
+                rx="1"
+                fill="#8aaccc"
+                stroke="#6888a8"
+                stroke-width="0.5"
+              />
+              <rect x="536" y="32" width="24" height="4" fill="#f5f0e4" />
+              <text
+                x="503"
+                y="252"
+                text-anchor="middle"
+                font-size="9"
+                fill="#7a5828"
+                font-family="Georgia,serif"
+                font-style="italic"
+              >
+                Reception
+              </text>
+            </g>
+
+            <!-- ZONE: reading tables -->
+            <g
+              id="z-reading"
+              onclick="tapZone('reading')"
+              style="cursor: pointer"
+            >
+              <rect
+                id="zf-reading"
+                x="160"
+                y="180"
+                width="160"
+                height="160"
+                fill="#ede6d4"
+              />
+              <rect
+                x="176"
+                y="196"
+                width="56"
+                height="32"
+                rx="2"
+                fill="#d8c898"
+                stroke="#b8a870"
+                stroke-width="0.8"
+              />
+              <rect
+                x="182"
+                y="192"
+                width="10"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <rect
+                x="196"
+                y="192"
+                width="10"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <rect
+                x="210"
+                y="192"
+                width="10"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <rect
+                x="182"
+                y="231"
+                width="10"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <rect
+                x="196"
+                y="231"
+                width="10"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <rect
+                x="210"
+                y="231"
+                width="10"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <rect
+                x="250"
+                y="196"
+                width="56"
+                height="32"
+                rx="2"
+                fill="#d8c898"
+                stroke="#b8a870"
+                stroke-width="0.8"
+              />
+              <rect
+                x="256"
+                y="192"
+                width="10"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <rect
+                x="270"
+                y="192"
+                width="10"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <rect
+                x="284"
+                y="192"
+                width="10"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <rect
+                x="256"
+                y="231"
+                width="10"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <rect
+                x="270"
+                y="231"
+                width="10"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <rect
+                x="284"
+                y="231"
+                width="10"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <rect
+                x="176"
+                y="272"
+                width="56"
+                height="32"
+                rx="2"
+                fill="#d8c898"
+                stroke="#b8a870"
+                stroke-width="0.8"
+              />
+              <rect
+                x="182"
+                y="268"
+                width="10"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <rect
+                x="196"
+                y="268"
+                width="10"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <rect
+                x="210"
+                y="268"
+                width="10"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <rect
+                x="182"
+                y="307"
+                width="10"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <rect
+                x="196"
+                y="307"
+                width="10"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <rect
+                x="210"
+                y="307"
+                width="10"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <rect
+                x="250"
+                y="272"
+                width="56"
+                height="32"
+                rx="2"
+                fill="#d8c898"
+                stroke="#b8a870"
+                stroke-width="0.8"
+              />
+              <rect
+                x="256"
+                y="268"
+                width="10"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <rect
+                x="270"
+                y="268"
+                width="10"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <rect
+                x="284"
+                y="268"
+                width="10"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <rect
+                x="256"
+                y="307"
+                width="10"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <rect
+                x="270"
+                y="307"
+                width="10"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <rect
+                x="284"
+                y="307"
+                width="10"
+                height="8"
+                rx="1"
+                fill="#c4784a"
+                stroke="#a05828"
+                stroke-width="0.5"
+              />
+              <text
+                x="240"
+                y="334"
+                text-anchor="middle"
+                font-size="9"
+                fill="#7a5828"
+                font-family="Georgia,serif"
+                font-style="italic"
+              >
+                Reading tables
+              </text>
+            </g>
+
+            <!-- ZONE: s-curve shelves -->
+            <g
+              id="z-scurve"
+              onclick="tapZone('scurve')"
+              style="cursor: pointer"
+            >
+              <rect
+                id="zf-scurve"
+                x="160"
+                y="340"
+                width="160"
+                height="126"
+                fill="#e8dfc8"
+              />
+              <path
+                d="M175,370 Q200,355 225,365 Q250,375 270,360 Q285,350 300,358"
+                fill="none"
+                stroke="#c8a060"
+                stroke-width="10"
+                stroke-linecap="round"
+              />
+              <path
+                d="M175,400 Q200,385 225,395 Q250,405 270,390 Q285,380 300,388"
+                fill="none"
+                stroke="#c8a060"
+                stroke-width="10"
+                stroke-linecap="round"
+              />
+              <circle cx="185" cy="366" r="2" fill="#c03020" />
+              <circle cx="200" cy="361" r="2" fill="#3858a0" />
+              <circle cx="218" cy="362" r="2" fill="#287848" />
+              <circle cx="240" cy="367" r="2" fill="#78601c" />
+              <circle cx="260" cy="363" r="2" fill="#c03020" />
+              <circle cx="278" cy="357" r="2" fill="#3858a0" />
+              <circle cx="185" cy="396" r="2" fill="#3858a0" />
+              <circle cx="205" cy="392" r="2" fill="#c03020" />
+              <circle cx="228" cy="393" r="2" fill="#78601c" />
+              <circle cx="250" cy="397" r="2" fill="#287848" />
+              <circle cx="270" cy="391" r="2" fill="#c03020" />
+              <circle cx="288" cy="385" r="2" fill="#3858a0" />
+              <text
+                x="240"
+                y="454"
+                text-anchor="middle"
+                font-size="9"
+                fill="#7a5020"
+                font-family="Georgia,serif"
+                font-style="italic"
+              >
+                S-curve shelves
+              </text>
+            </g>
+
+            <!-- ZONE: staircase -->
+            <g
+              id="z-stairs"
+              onclick="tapZone('stairs')"
+              style="cursor: pointer"
+            >
+              <rect
+                id="zf-stairs"
+                x="264"
+                y="290"
+                width="72"
+                height="80"
+                fill="#e0d8cc"
+              />
+              <rect
+                x="270"
+                y="296"
+                width="60"
+                height="68"
+                rx="1"
+                fill="#d4ccc0"
+                stroke="#b8b0a4"
+                stroke-width="0.5"
+              />
+              <rect
+                x="276"
+                y="302"
+                width="48"
+                height="56"
+                rx="1"
+                fill="#ccc4b8"
+                stroke="#b4aca0"
+                stroke-width="0.5"
+              />
+              <rect
+                x="282"
+                y="308"
+                width="36"
+                height="44"
+                rx="1"
+                fill="#c4bcb0"
+                stroke="#b0a898"
+                stroke-width="0.5"
+              />
+              <rect
+                x="288"
+                y="314"
+                width="24"
+                height="32"
+                rx="1"
+                fill="#bcb4a8"
+                stroke="#a8a090"
+                stroke-width="0.5"
+              />
+              <rect
+                x="294"
+                y="320"
+                width="12"
+                height="20"
+                rx="1"
+                fill="#b4aca0"
+                stroke="#a09890"
+                stroke-width="0.5"
+              />
+              <text
+                x="300"
+                y="378"
+                text-anchor="middle"
+                font-size="9"
+                fill="#8a7860"
+                font-family="system-ui,sans-serif"
+              >
+                ↓ Stairs
+              </text>
+            </g>
+
+            <!-- ZONE: lounge left -->
+            <g
+              id="z-lounge-l"
+              onclick="tapZone('loungeL')"
+              style="cursor: pointer"
+            >
+              <rect
+                id="zf-loungeL"
+                x="34"
+                y="260"
+                width="126"
+                height="206"
+                fill="#eee5d0"
+              />
+              <circle
+                cx="97"
+                cy="345"
+                r="40"
+                fill="#e8dcc0"
+                stroke="#c8a870"
+                stroke-width="3"
+              />
+              <circle
+                cx="97"
+                cy="345"
+                r="28"
+                fill="#f5f0e4"
+                stroke="#d8c8a8"
+                stroke-width="1"
+              />
+              <ellipse
+                cx="82"
+                cy="337"
+                rx="10"
+                ry="7"
+                fill="#68b848"
+                stroke="#489828"
+                stroke-width="0.8"
+              />
+              <ellipse
+                cx="112"
+                cy="337"
+                rx="10"
+                ry="7"
+                fill="#68b848"
+                stroke="#489828"
+                stroke-width="0.8"
+              />
+              <ellipse
+                cx="97"
+                cy="355"
+                rx="10"
+                ry="7"
+                fill="#68b848"
+                stroke="#489828"
+                stroke-width="0.8"
+              />
+              <circle
+                cx="97"
+                cy="343"
+                r="7"
+                fill="#d4c4a0"
+                stroke="#b8a880"
+                stroke-width="0.8"
+              />
+              <text
+                x="97"
+                y="400"
+                text-anchor="middle"
+                font-size="9"
+                fill="#7a5020"
+                font-family="Georgia,serif"
+                font-style="italic"
+              >
+                Lounge pod
+              </text>
+            </g>
+
+            <!-- ZONE: group tables -->
+            <g id="z-group" onclick="tapZone('group')" style="cursor: pointer">
+              <rect
+                id="zf-group"
+                x="336"
+                y="260"
+                width="104"
+                height="80"
+                fill="#ece4d0"
+              />
+              <circle
+                cx="388"
+                cy="300"
+                r="26"
+                fill="#d8c890"
+                stroke="#b8a870"
+                stroke-width="1"
+              />
+              <circle
+                cx="388"
+                cy="300"
+                r="16"
+                fill="#e4d8a8"
+                stroke="#c8b880"
+                stroke-width="0.5"
+              />
+              <circle
+                cx="370"
+                cy="292"
+                r="5"
+                fill="#c83828"
+                stroke="#a02010"
+                stroke-width="0.5"
+              />
+              <circle
+                cx="388"
+                cy="286"
+                r="5"
+                fill="#c83828"
+                stroke="#a02010"
+                stroke-width="0.5"
+              />
+              <circle
+                cx="406"
+                cy="292"
+                r="5"
+                fill="#c83828"
+                stroke="#a02010"
+                stroke-width="0.5"
+              />
+              <circle
+                cx="406"
+                cy="308"
+                r="5"
+                fill="#c83828"
+                stroke="#a02010"
+                stroke-width="0.5"
+              />
+              <circle
+                cx="370"
+                cy="308"
+                r="5"
+                fill="#c83828"
+                stroke="#a02010"
+                stroke-width="0.5"
+              />
+              <text
+                x="388"
+                y="336"
+                text-anchor="middle"
+                font-size="9"
+                fill="#7a5020"
+                font-family="Georgia,serif"
+                font-style="italic"
+              >
+                Group tables
+              </text>
+            </g>
+
+            <!-- ZONE: lounge right -->
+            <g
+              id="z-lounge-r"
+              onclick="tapZone('loungeR')"
+              style="cursor: pointer"
+            >
+              <rect
+                id="zf-loungeR"
+                x="336"
+                y="340"
+                width="104"
+                height="126"
+                fill="#eee5d0"
+              />
+              <circle
+                cx="388"
+                cy="395"
+                r="36"
+                fill="#e8dcc0"
+                stroke="#c8a870"
+                stroke-width="3"
+              />
+              <circle
+                cx="388"
+                cy="395"
+                rx="25"
+                r="25"
+                fill="#f5f0e4"
+                stroke="#d8c8a8"
+                stroke-width="1"
+              />
+              <ellipse
+                cx="373"
+                cy="387"
+                rx="10"
+                ry="7"
+                fill="#e87830"
+                stroke="#c05010"
+                stroke-width="0.8"
+              />
+              <ellipse
+                cx="403"
+                cy="387"
+                rx="10"
+                ry="7"
+                fill="#e87830"
+                stroke="#c05010"
+                stroke-width="0.8"
+              />
+              <ellipse
+                cx="388"
+                cy="405"
+                rx="10"
+                ry="7"
+                fill="#e87830"
+                stroke="#c05010"
+                stroke-width="0.8"
+              />
+              <circle
+                cx="388"
+                cy="393"
+                r="7"
+                fill="#d4c4a0"
+                stroke="#b8a880"
+                stroke-width="0.8"
+              />
+              <text
+                x="388"
+                y="454"
+                text-anchor="middle"
+                font-size="9"
+                fill="#7a5020"
+                font-family="Georgia,serif"
+                font-style="italic"
+              >
+                Lounge pod
+              </text>
+            </g>
+
+            <!-- ZONE: digital suite -->
+            <g
+              id="z-digital"
+              onclick="tapZone('digital')"
+              style="cursor: pointer"
+            >
+              <rect
+                id="zf-digital"
+                x="440"
+                y="260"
+                width="126"
+                height="206"
+                fill="#e8e4dc"
+              />
+              <rect
+                x="452"
+                y="278"
+                width="20"
+                height="14"
+                rx="1"
+                fill="#8aaccc"
+                stroke="#6888a8"
+                stroke-width="0.6"
+              />
+              <rect
+                x="480"
+                y="278"
+                width="20"
+                height="14"
+                rx="1"
+                fill="#8aaccc"
+                stroke="#6888a8"
+                stroke-width="0.6"
+              />
+              <rect
+                x="508"
+                y="278"
+                width="20"
+                height="14"
+                rx="1"
+                fill="#8aaccc"
+                stroke="#6888a8"
+                stroke-width="0.6"
+              />
+              <rect
+                x="452"
+                y="314"
+                width="20"
+                height="14"
+                rx="1"
+                fill="#8aaccc"
+                stroke="#6888a8"
+                stroke-width="0.6"
+              />
+              <rect
+                x="480"
+                y="314"
+                width="20"
+                height="14"
+                rx="1"
+                fill="#8aaccc"
+                stroke="#6888a8"
+                stroke-width="0.6"
+              />
+              <rect
+                x="508"
+                y="314"
+                width="20"
+                height="14"
+                rx="1"
+                fill="#8aaccc"
+                stroke="#6888a8"
+                stroke-width="0.6"
+              />
+              <rect
+                x="452"
+                y="350"
+                width="20"
+                height="14"
+                rx="1"
+                fill="#8aaccc"
+                stroke="#6888a8"
+                stroke-width="0.6"
+              />
+              <rect
+                x="480"
+                y="350"
+                width="20"
+                height="14"
+                rx="1"
+                fill="#8aaccc"
+                stroke="#6888a8"
+                stroke-width="0.6"
+              />
+              <rect
+                x="508"
+                y="350"
+                width="20"
+                height="14"
+                rx="1"
+                fill="#8aaccc"
+                stroke="#6888a8"
+                stroke-width="0.6"
+              />
+              <rect
+                x="455"
+                y="296"
+                width="14"
+                height="10"
+                rx="1"
+                fill="#9090a0"
+                stroke="#707080"
+                stroke-width="0.4"
+              />
+              <rect
+                x="483"
+                y="296"
+                width="14"
+                height="10"
+                rx="1"
+                fill="#9090a0"
+                stroke="#707080"
+                stroke-width="0.4"
+              />
+              <rect
+                x="511"
+                y="296"
+                width="14"
+                height="10"
+                rx="1"
+                fill="#9090a0"
+                stroke="#707080"
+                stroke-width="0.4"
+              />
+              <rect
+                x="455"
+                y="332"
+                width="14"
+                height="10"
+                rx="1"
+                fill="#9090a0"
+                stroke="#707080"
+                stroke-width="0.4"
+              />
+              <rect
+                x="483"
+                y="332"
+                width="14"
+                height="10"
+                rx="1"
+                fill="#9090a0"
+                stroke="#707080"
+                stroke-width="0.4"
+              />
+              <rect
+                x="511"
+                y="332"
+                width="14"
+                height="10"
+                rx="1"
+                fill="#9090a0"
+                stroke="#707080"
+                stroke-width="0.4"
+              />
+              <rect
+                x="455"
+                y="380"
+                width="90"
+                height="50"
+                rx="3"
+                fill="#c0b8a8"
+                stroke="#a8a090"
+                stroke-width="0.8"
+              />
+              <rect
+                x="463"
+                y="386"
+                width="36"
+                height="24"
+                rx="1"
+                fill="#d4e8f8"
+                stroke="#a0c0d8"
+                stroke-width="0.5"
+              />
+              <text
+                x="503"
+                y="418"
+                text-anchor="middle"
+                font-size="8"
+                fill="#6a6060"
+                font-family="system-ui,sans-serif"
+              >
+                printer
+              </text>
+              <text
+                x="503"
+                y="452"
+                text-anchor="middle"
+                font-size="9"
+                fill="#7a5828"
+                font-family="Georgia,serif"
+                font-style="italic"
+              >
+                Digital suite
+              </text>
+            </g>
+
+            <!-- entrance marker -->
+            <rect x="272" y="462" width="56" height="4" fill="#c4622d" rx="1" />
+            <text
+              x="300"
+              y="478"
+              text-anchor="middle"
+              font-size="8"
+              fill="#c4622d"
+              font-family="system-ui,sans-serif"
+              font-weight="600"
+            >
+              ENTRANCE
+            </text>
+            <!-- compass & scale -->
+            <text
+              x="558"
+              y="480"
+              font-size="10"
+              fill="#b0a090"
+              font-family="system-ui,sans-serif"
+              text-anchor="middle"
+            >
+              N↑
+            </text>
+            <line
+              x1="38"
+              y1="478"
+              x2="78"
+              y2="478"
+              stroke="#b0a090"
+              stroke-width="1"
+            />
+            <line
+              x1="38"
+              y1="474"
+              x2="38"
+              y2="482"
+              stroke="#b0a090"
+              stroke-width="1"
+            />
+            <line
+              x1="78"
+              y1="474"
+              x2="78"
+              y2="482"
+              stroke="#b0a090"
+              stroke-width="1"
+            />
+            <text
+              x="58"
+              y="492"
+              text-anchor="middle"
+              font-size="8"
+              fill="#b0a090"
+              font-family="system-ui,sans-serif"
+            >
+              10m
+            </text>
+            <!-- highlight overlay -->
+            <rect
+              id="hl"
+              x="0"
+              y="0"
+              width="0"
+              height="0"
+              fill="none"
+              stroke="#c4622d"
+              stroke-width="2.5"
+              stroke-dasharray="6 3"
+              rx="3"
+              opacity="0"
+            />
+          </svg>
+        </div>
+
+        <div class="f-panel" id="f-panel">
+          <div class="f-zone-name" id="f-name"></div>
+          <div class="f-zone-desc" id="f-desc"></div>
+          <div class="f-step">What's wrong here?</div>
+          <div class="flag-row">
+            <button class="fbtn fc" id="bf-cold" onclick="setFlag('cold')">
+              ❄ Cold
+            </button>
+            <button class="fbtn fn" id="bf-noisy" onclick="setFlag('noisy')">
+              Noisy
+            </button>
+            <button class="fbtn fd" id="bf-dead" onclick="setFlag('dead')">
+              Neglected
+            </button>
+          </div>
+          <div class="f-step" id="fix-step" style="display: none">
+            How would you fix it?
+          </div>
+          <div class="fix-row" id="fix-row"></div>
+        </div>
+        <div class="pins" id="pins"></div>
+        <div class="map-hint" id="map-hint">Tap any zone on the plan</div>
+      </div>
+      <button class="btn-primary" id="map-next" disabled onclick="go(4)">
+        Next →
+      </button>
+    </div>
+
+    <!-- ════════════════════════════════════ -->
+    <!-- SCREEN 4 · CREDIT AUCTION           -->
+    <!-- ════════════════════════════════════ -->
+    <div class="screen" id="s4">
+      <div class="steps">
+        <div class="step done"></div>
+        <div class="step done"></div>
+        <div class="step done"></div>
+        <div class="step"></div>
+      </div>
+      <div style="flex: 1">
+        <div class="eyebrow">Step 3 of 4</div>
+        <h2>Spend your <em>500 credits</em></h2>
+        <p class="sub">
+          Buy improvements. Budget is strict — you can't have everything. Tap a
+          bought item to sell it back.
+        </p>
+        <div class="budget-wrap">
+          <div class="budget-top">
+            <div>
+              <div class="budget-label">Credits remaining</div>
+              <div class="budget-remaining" id="budget-num">500</div>
+            </div>
+            <div style="text-align: right">
+              <div class="budget-label">Spent</div>
+              <div class="budget-spent" id="spent-num">0</div>
+            </div>
+          </div>
+          <div class="budget-track">
+            <div class="budget-fill" id="budget-bar" style="width: 100%"></div>
+          </div>
+        </div>
+        <div class="items-list" id="items-list"></div>
+      </div>
+      <button class="btn-primary" onclick="go(5)">Next →</button>
+    </div>
+
+    <!-- ════════════════════════════════════ -->
+    <!-- SCREEN 5 · RETURN SLIDER            -->
+    <!-- ════════════════════════════════════ -->
+    <div class="screen" id="s5">
+      <div class="steps">
+        <div class="step done"></div>
+        <div class="step done"></div>
+        <div class="step done"></div>
+        <div class="step done"></div>
+      </div>
+      <div style="flex: 1">
+        <div class="eyebrow">Step 4 of 4</div>
+        <h2>If this library <em>existed…</em></h2>
+        <p class="sub">
+          Based on the improvements you just bought — how often would you
+          actually come?
+        </p>
+        <div class="slider-section">
+          <div class="slider-val" id="slider-display">Never</div>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value="0"
+            step="1"
+            id="ret-slider"
+            oninput="updateSlider(this.value)"
+          />
+          <div class="slider-labs">
+            <span>Never</span><span>Monthly</span><span>Weekly</span
+            ><span>Daily</span>
+          </div>
+        </div>
+        <div style="margin-top: 20px">
+          <p
+            style="
+              font-size: 13px;
+              color: #8a7060;
+              margin-bottom: 8px;
+              font-family: system-ui, sans-serif;
+            "
+          >
+            One sentence: why did you prioritise those improvements?
+          </p>
+          <textarea
+            id="justification"
+            placeholder="e.g. I chose privacy pods over coffee because I need focus more than comfort…"
+          ></textarea>
+        </div>
+      </div>
+      <button class="btn-primary" id="submit-btn" onclick="submitSurvey()">
+        Submit & see results →
+      </button>
+    </div>
+
+    <!-- ════════════════════════════════════ -->
+    <!-- SCREEN 6 · RESULT + LEADERBOARD     -->
+    <!-- ════════════════════════════════════ -->
+    <div class="screen" id="s6">
+      <div style="flex: 1">
+        <div class="confetti-line">🎉</div>
+        <h2 style="text-align: center">You're in!</h2>
+        <p class="sub" style="text-align: center" id="dept-msg"></p>
+
+        <div class="result-card">
+          <div class="result-label">Your allocation</div>
+          <div class="tag-row" id="purchase-tags">
+            <span
+              style="
+                font-size: 13px;
+                color: #b0a090;
+                font-family: system-ui, sans-serif;
+              "
+              >No items purchased</span
+            >
+          </div>
+        </div>
+
+        <div class="result-card">
+          <div class="result-label">Your flagged zones</div>
+          <div class="tag-row" id="friction-tags"></div>
+        </div>
+
+        <div class="lb-card">
+          <div class="lb-label">
+            Participation race — responses per department
+          </div>
+          <div id="lb-result-count"></div>
+        </div>
+
+        <div class="lb-card">
+          <div class="lb-label">Average credits spent per department</div>
+          <div id="lb-result-spend"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════ FIREBASE + APP LOGIC ════════ -->
+    <script type="module">
+      import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+      import {
+        getFirestore,
+        collection,
+        addDoc,
+        onSnapshot,
+        query,
+        orderBy,
+      } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+
+      // ╔══════════════════════════════════════╗
+      // ║  PASTE YOUR FIREBASE CONFIG BELOW   ║
+      // ╚══════════════════════════════════════╝
+      const firebaseConfig = {
+        apiKey: 'PASTE_YOUR_API_KEY',
+        authDomain: 'PASTE_YOUR_AUTH_DOMAIN',
+        projectId: 'PASTE_YOUR_PROJECT_ID',
+        storageBucket: 'PASTE_YOUR_STORAGE_BUCKET',
+        messagingSenderId: 'PASTE_YOUR_MESSAGING_SENDER_ID',
+        appId: 'PASTE_YOUR_APP_ID',
+      };
+      const fbApp = initializeApp(firebaseConfig);
+      const db = getFirestore(fbApp);
+
+      // ── CONSTANTS ──
+      const TOTAL = 500;
+      const ITEMS = [
+        {
+          id: 'wifi',
+          name: 'WiFi upgrade',
+          desc: 'Fast, reliable across all floors',
+          cost: 80,
+          cat: 'access',
+        },
+        {
+          id: 'pods',
+          name: 'Privacy pods',
+          desc: '4 enclosed solo study booths',
+          cost: 180,
+          cat: 'focus',
+        },
+        {
+          id: 'coffee',
+          name: 'Coffee station',
+          desc: 'Free hot drinks all day',
+          cost: 100,
+          cat: 'comfort',
+        },
+        {
+          id: 'quiet',
+          name: 'Quiet zone',
+          desc: 'Enforced silent reading floor',
+          cost: 60,
+          cat: 'focus',
+        },
+        {
+          id: 'collab',
+          name: 'Collab tables',
+          desc: 'Large bookable group work areas',
+          cost: 120,
+          cat: 'social',
+        },
+        {
+          id: 'lockers',
+          name: 'Lockers',
+          desc: 'Secure day-use bag storage',
+          cost: 70,
+          cat: 'access',
+        },
+        {
+          id: 'lighting',
+          name: 'Better lighting',
+          desc: 'Warm adjustable reading lamps',
+          cost: 90,
+          cat: 'comfort',
+        },
+        {
+          id: 'hours',
+          name: 'Extended hours',
+          desc: 'Open until midnight daily',
+          cost: 140,
+          cat: 'access',
+        },
+      ];
+
+      const ZONES = {
+        study: {
+          n: 'Private study rooms',
+          d: 'Enclosed booths · top-left',
+          f: [
+            'Add sound panels',
+            'Better desk lamps',
+            'More plug sockets',
+            'Add whiteboards',
+          ],
+        },
+        shelves: {
+          n: 'Wall bookshelves',
+          d: 'Back-wall stacks, full width',
+          f: [
+            'Better subject signs',
+            'Catalogue screens',
+            'Reorganise shelves',
+            'Add step stools',
+          ],
+        },
+        reception: {
+          n: 'Reception desk',
+          d: 'Help & enquiries · top-right',
+          f: [
+            'Extend opening hours',
+            'Self-service kiosk',
+            'Friendlier signage',
+            'Move to entrance',
+          ],
+        },
+        reading: {
+          n: 'Reading tables',
+          d: 'Open study desks · centre-left',
+          f: [
+            'Privacy dividers',
+            'Replace chairs',
+            'More power points',
+            'Enforce quiet rule',
+          ],
+        },
+        scurve: {
+          n: 'S-curve shelves',
+          d: 'Curved shelving · centre-south',
+          f: [
+            'Add seating alongside',
+            'Better lighting',
+            'Clear floor markers',
+            'Widen aisle',
+          ],
+        },
+        stairs: {
+          n: 'Staircase',
+          d: 'Down to Gladstone Link · centre',
+          f: [
+            'Better wayfinding',
+            'Improve lighting',
+            'Add nearby lift',
+            'Widen steps',
+          ],
+        },
+        loungeL: {
+          n: 'Left lounge pod',
+          d: 'Green soft seating · west',
+          f: [
+            'Add USB charging',
+            'Replace seating',
+            'Add side tables',
+            'Better lamps',
+          ],
+        },
+        group: {
+          n: 'Group work tables',
+          d: 'Round tables · east centre',
+          f: [
+            'Add whiteboards',
+            'Soundproofing',
+            'More tables',
+            'Add booking system',
+          ],
+        },
+        loungeR: {
+          n: 'Right lounge pod',
+          d: 'Orange soft seating · south-east',
+          f: [
+            'Add USB charging',
+            'Replace seating',
+            'Add side tables',
+            'Better lamps',
+          ],
+        },
+        digital: {
+          n: 'Digital suite',
+          d: 'PCs & printing · right wing',
+          f: [
+            'Newer computers',
+            'Fix the printer',
+            'Better chairs',
+            'Extend access hours',
+          ],
+        },
+      };
+
+      const FLAG_STYLE = {
+        cold: {
+          fill: '#b8d4ec',
+          stroke: '#5a8ab0',
+          cls: 'pin-c',
+          lbl: '❄ Cold',
+        },
+        noisy: {
+          fill: '#f4c4a0',
+          stroke: '#c4622d',
+          cls: 'pin-n',
+          lbl: 'Noisy',
+        },
+        dead: {
+          fill: '#c8bdb0',
+          stroke: '#9a8070',
+          cls: 'pin-d',
+          lbl: 'Neglected',
+        },
+      };
+      const FIXED_STYLE = { fill: '#b0d4b8', stroke: '#4a9060' };
+
+      const SLIDER_LABS = [
+        'Never',
+        'Rarely',
+        'Monthly',
+        'Fortnightly',
+        'Weekly',
+        'Several times a week',
+        'Daily',
+      ];
+
+      // ── STATE ──
+      const S = {
+        dept: '',
+        year: '',
+        friction: {}, // { zoneId: { flag, fix } }
+        purchases: new Set(),
+        credits: TOTAL,
+        returnVal: 0,
+        justification: '',
+        activeZone: null,
+      };
+
+      // ── NAVIGATION ──
+      window.go = (n) => {
+        document
+          .querySelectorAll('.screen')
+          .forEach((s) => s.classList.remove('active'));
+        document.getElementById('s' + n).classList.add('active');
+        window.scrollTo(0, 0);
+      };
+
+      // ── SCREEN 2: DEPT ──
+      window.saveDept = () => {
+        const d = document.getElementById('dept').value;
+        const y = document.getElementById('year').value;
+        if (!d || !y) {
+          alert('Please select both fields');
+          return;
+        }
+        S.dept = d;
+        S.year = y;
+        go(3);
+      };
+
+      // ── SCREEN 3: FRICTION MAP ──
+      window.tapZone = (id) => {
+        S.activeZone = id;
+        const z = ZONES[id];
+        document.getElementById('f-name').textContent = z.n;
+        document.getElementById('f-desc').textContent = z.d;
+        document.getElementById('f-panel').style.display = 'block';
+        ['cold', 'noisy', 'dead'].forEach((f) => {
+          document
+            .getElementById('bf-' + f)
+            .classList.toggle('on', S.friction[id]?.flag === f);
+        });
+        const hasFlag = !!S.friction[id]?.flag;
+        document.getElementById('fix-step').style.display = hasFlag
+          ? 'block'
+          : 'none';
+        if (hasFlag) renderFixes(id, S.friction[id]?.fix);
+        else document.getElementById('fix-row').innerHTML = '';
+        // highlight
+        const zf =
+          document.getElementById('zf-' + id) ||
+          document.getElementById(
+            'zf-' + id.charAt(0).toUpperCase() + id.slice(1)
+          );
+        const el = document.getElementById('zf-' + id);
+        if (el) {
+          const hl = document.getElementById('hl');
+          hl.setAttribute('x', +el.getAttribute('x') + 2);
+          hl.setAttribute('y', +el.getAttribute('y') + 2);
+          hl.setAttribute('width', +el.getAttribute('width') - 4);
+          hl.setAttribute('height', +el.getAttribute('height') - 4);
+          hl.setAttribute('opacity', '1');
+        }
+      };
+
+      window.setFlag = (flag) => {
+        const id = S.activeZone;
+        if (!id) return;
+        if (!S.friction[id]) S.friction[id] = {};
+        S.friction[id].flag = flag;
+        S.friction[id].fix = null;
+        ['cold', 'noisy', 'dead'].forEach((f) =>
+          document.getElementById('bf-' + f).classList.toggle('on', f === flag)
+        );
+        paintZone(id, FLAG_STYLE[flag].fill, FLAG_STYLE[flag].stroke);
+        document.getElementById('fix-step').style.display = 'block';
+        renderFixes(id, null);
+        updatePins();
+      };
+
+      function renderFixes(id, cur) {
+        document.getElementById('fix-row').innerHTML = ZONES[id].f
+          .map(
+            (fx) =>
+              `<button class="xbtn${
+                cur === fx ? ' on' : ''
+              }" onclick="applyFix(${JSON.stringify(fx)})">${fx}</button>`
+          )
+          .join('');
+      }
+
+      window.applyFix = (fx) => {
+        const id = S.activeZone;
+        if (!id) return;
+        if (!S.friction[id]) S.friction[id] = {};
+        S.friction[id].fix = fx;
+        paintZone(id, FIXED_STYLE.fill, FIXED_STYLE.stroke);
+        document.getElementById('hl').setAttribute('opacity', '0');
+        document.getElementById('f-panel').style.display = 'none';
+        S.activeZone = null;
+        updatePins();
+      };
+
+      function paintZone(id, fill, stroke) {
+        // handles both zf-study and zf-loungeL style ids
+        const candidates = [`zf-${id}`, `zf-lounge-l`, `zf-lounge-r`];
+        let el = document.getElementById(`zf-${id}`);
+        if (!el) {
+          // try capitalised first char
+          el = document.getElementById(
+            'zf-' + id.charAt(0).toUpperCase() + id.slice(1)
+          );
+        }
+        if (el) {
+          el.setAttribute('fill', fill);
+          el.setAttribute('stroke', stroke);
+        }
+      }
+
+      function updatePins() {
+        const entries = Object.entries(S.friction).filter(([, v]) => v.flag);
+        const row = document.getElementById('pins');
+        row.innerHTML = entries
+          .map(([id, v]) => {
+            const st = FLAG_STYLE[v.flag];
+            const fixTxt = v.fix ? ` → ${v.fix}` : '';
+            return `<span class="pin ${st.cls}">${
+              ZONES[id].n.split(' ')[0]
+            }${fixTxt}</span>`;
+          })
+          .join('');
+        const n = entries.length;
+        const hint = document.getElementById('map-hint');
+        const btn = document.getElementById('map-next');
+        if (n === 0) {
+          hint.textContent = 'Tap any zone on the plan';
+          btn.disabled = true;
+        } else if (n === 1) {
+          hint.textContent = 'Mark one more zone to continue';
+          btn.disabled = true;
+        } else {
+          hint.textContent = n + ' zones flagged — ready to continue';
+          btn.disabled = false;
+        }
+      }
+
+      // ── SCREEN 4: AUCTION ──
+      function renderAuction() {
+        const list = document.getElementById('items-list');
+        list.innerHTML = '';
+        ITEMS.forEach((item) => {
+          const bought = S.purchases.has(item.id);
+          const cantAfford = !bought && item.cost > S.credits;
+          const div = document.createElement('div');
+          div.className = `item-card${
+            bought ? ' bought' : cantAfford ? ' cant' : ''
+          }`;
+          div.onclick = () => toggleItem(item.id);
+          div.innerHTML = `
+      <div class="item-check${bought ? ' bought' : ''}"> ${
+            bought ? '✓' : ''
+          }</div>
+      <div class="item-info">
+        <div class="item-name">${item.name}</div>
+        <div class="item-desc">${item.desc}</div>
+        <span class="item-cat cat-${item.cat}">${item.cat}</span>
+      </div>
+      <div class="item-cost${bought ? ' bought' : ''}">${item.cost} cr</div>`;
+          list.appendChild(div);
+        });
+        updateBudget();
+      }
+
+      window.toggleItem = (id) => {
+        const item = ITEMS.find((i) => i.id === id);
+        if (S.purchases.has(id)) {
+          S.purchases.delete(id);
+          S.credits += item.cost;
+        } else {
+          if (item.cost > S.credits) return;
+          S.purchases.add(id);
+          S.credits -= item.cost;
+        }
+        renderAuction();
+      };
+
+      function updateBudget() {
+        const spent = TOTAL - S.credits;
+        const pct = Math.round((S.credits / TOTAL) * 100);
+        document.getElementById('budget-num').textContent = S.credits;
+        document.getElementById('spent-num').textContent = spent;
+        const bar = document.getElementById('budget-bar');
+        bar.style.width = pct + '%';
+        bar.className = 'budget-fill' + (pct < 20 ? ' low' : '');
+      }
+
+      // ── SCREEN 5: SLIDER ──
+      window.updateSlider = (v) => {
+        S.returnVal = parseInt(v);
+        const idx = Math.round((v / 100) * (SLIDER_LABS.length - 1));
+        document.getElementById('slider-display').textContent =
+          SLIDER_LABS[idx];
+      };
+
+      // ── SUBMIT ──
+      window.submitSurvey = async () => {
+        S.justification = document.getElementById('justification').value.trim();
+        const btn = document.getElementById('submit-btn');
+        btn.textContent = 'Submitting…';
+        btn.disabled = true;
+        try {
+          await addDoc(collection(db, 'responses'), {
+            department: S.dept,
+            year: S.year,
+            friction: S.friction,
+            purchases: [...S.purchases],
+            creditsSpent: TOTAL - S.credits,
+            returnLikelihood: S.returnVal,
+            justification: S.justification,
+            submittedAt: Date.now(),
+          });
+          renderResult();
+          go(6);
+        } catch (e) {
+          alert(
+            'Submission error — check your Firebase config.\n\n' + e.message
+          );
+          btn.textContent = 'Submit & see results →';
+          btn.disabled = false;
+        }
+      };
+
+      function renderResult() {
+        document.getElementById('dept-msg').textContent =
+          S.dept + ' just got one more response. Watch the board!';
+        // purchases
+        const ptags = document.getElementById('purchase-tags');
+        if (S.purchases.size > 0) {
+          ptags.innerHTML = [...S.purchases]
+            .map((id) => {
+              const it = ITEMS.find((i) => i.id === id);
+              return `<span class="rtag">${it.name} (${it.cost}cr)</span>`;
+            })
+            .join('');
+        }
+        // friction
+        const ftags = document.getElementById('friction-tags');
+        const frEntries = Object.entries(S.friction).filter(([, v]) => v.flag);
+        ftags.innerHTML = frEntries.length
+          ? frEntries
+              .map(
+                ([id, v]) =>
+                  `<span class="rtag">${ZONES[id].n.split(' ')[0]} — ${
+                    FLAG_STYLE[v.flag].lbl
+                  }${v.fix ? ': ' + v.fix : ''}</span>`
+              )
+              .join('')
+          : '<span style="font-size:13px;color:#b0a090;font-family:system-ui,sans-serif">No zones flagged</span>';
+      }
+
+      // ── LEADERBOARD ──
+      function renderLB(elId, responses, mode) {
+        const depts = {};
+        responses.forEach((r) => {
+          if (!r.department) return;
+          if (!depts[r.department])
+            depts[r.department] = { count: 0, totalSpent: 0 };
+          depts[r.department].count++;
+          depts[r.department].totalSpent += r.creditsSpent || 0;
+        });
+        let rows = Object.entries(depts).map(([name, d]) => ({
+          name,
+          count: d.count,
+          avg: Math.round(d.totalSpent / d.count),
+        }));
+        rows.sort((a, b) =>
+          mode === 'spend' ? b.avg - a.avg : b.count - a.count
+        );
+        const maxVal = Math.max(
+          ...rows.map((r) => (mode === 'spend' ? r.avg : r.count)),
+          1
+        );
+        const el = document.getElementById(elId);
+        if (!el) return;
+        if (rows.length === 0) {
+          el.innerHTML =
+            '<div class="lb-empty">No responses yet — be the first!</div>';
+          return;
+        }
+        el.innerHTML = rows
+          .slice(0, 8)
+          .map((r, i) => {
+            const val = mode === 'spend' ? r.avg : r.count;
+            const label = mode === 'spend' ? r.avg + 'cr' : r.count;
+            const pct = Math.round((val / maxVal) * 100);
+            const isMe = r.name === S.dept;
+            return `<div class="lb-row">
+      <div class="lb-rank${i === 0 ? ' gold' : ''}">${
+              i === 0 ? '①' : i + 1
+            }</div>
+      <div class="lb-name${isMe ? ' me' : ''}">${r.name}</div>
+      <div class="lb-track"><div class="lb-fill${
+        isMe ? ' me' : ''
+      }" style="width:${pct}%"></div></div>
+      <div class="lb-val">${label}</div>
+    </div>`;
+          })
+          .join('');
+      }
+
+      // ── LIVE LISTENER ──
+      onSnapshot(query(collection(db, 'responses')), (snap) => {
+        const responses = snap.docs.map((d) => d.data());
+        renderLB('lb-landing', responses, 'count');
+        renderLB('lb-result-count', responses, 'count');
+        renderLB('lb-result-spend', responses, 'spend');
+      });
+
+      // ── INIT ──
+      renderAuction();
+    </script>
+  </body>
+</html>
