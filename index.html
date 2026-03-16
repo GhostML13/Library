@@ -2,2233 +2,1739 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Lib's Library World</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-/* ============================================================
-   GLOBAL TOKENS
-   ============================================================ */
 :root {
-  --cream:    #F5ECD7;
-  --parchment:#EAD9BC;
-  --warm-tan: #D4B896;
-  --bark:     #8B6B47;
-  --deep-bark:#5C3D1E;
-  --ink:      #2C1A0E;
-  --sky:      #A8C5DA;
-  --sky-deep: #6A9BB5;
-  --moss:     #7A9E6F;
-  --moss-deep:#4E6E44;
-  --amber:    #E8A23C;
-  --ember:    #D4622A;
-  --blush:    #E8B4A0;
-  --dust:     rgba(212,184,150,0.18);
-  --shadow:   rgba(44,26,14,0.18);
+  --ink:    #16100a;
+  --cream:  #faf6ee;
+  --yellow: #f0b429;
+  --terra:  #d95f2b;
+  --sky:    #4a9fd4;
+  --green:  #3a8c5c;
+  --blush:  #f5c4a1;
+  --lemon:  #f9ef90;
+  --stroke: 3px;
+  --r:      16px;
+  --sh:     4px 4px 0 var(--ink);
+  --sh-lg:  6px 6px 0 var(--ink);
 }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background:var(--cream);color:var(--ink)}
+body{-webkit-font-smoothing:antialiased}
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* ── SCREENS ── */
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .45s ease;overflow-y:auto;overflow-x:hidden;padding:16px 16px 32px}
+.screen.on{opacity:1;pointer-events:all}
 
-html, body {
-  width: 100%; height: 100%; overflow: hidden;
-  font-family: 'Nunito', sans-serif;
-  background: var(--cream);
-  color: var(--ink);
-  cursor: none;
-}
+/* ── BG ── */
+#bg{position:fixed;inset:0;z-index:-1;overflow:hidden;background:linear-gradient(160deg,#fdf8ee 0%,#f5edd8 60%,#eee4d0 100%)}
+#bg .dot{position:absolute;border-radius:50%;background:rgba(240,180,41,.08)}
+#bg .line{position:absolute;background:rgba(26,16,10,.04);border-radius:2px}
 
-/* ============================================================
-   CUSTOM CURSOR
-   ============================================================ */
-.cursor {
-  width: 14px; height: 14px;
-  border: 2px solid var(--bark);
-  border-radius: 50%;
-  position: fixed; top: 0; left: 0;
-  pointer-events: none;
-  z-index: 9999;
-  transform: translate(-50%,-50%);
-  transition: transform 0.08s ease, background 0.2s;
-  mix-blend-mode: multiply;
-}
-.cursor.hover { transform: translate(-50%,-50%) scale(2.2); background: var(--amber); border-color: var(--ember); }
+/* ── KEYFRAMES ── */
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes blink{0%,88%,100%{transform:scaleY(1)}94%{transform:scaleY(.05)}}
+@keyframes lean-f{0%,100%{transform:rotate(0deg)}50%{transform:rotate(5deg)}}
+@keyframes lean-b{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-6deg)}}
+@keyframes wiggle{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+@keyframes stamp{0%{transform:scale(2.2) rotate(-8deg);opacity:0}65%{transform:scale(.96) rotate(1deg);opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes popIn{0%{transform:scale(0) rotate(-6deg);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideRight{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:translateX(0)}}
+@keyframes shimmer{0%{opacity:.5}50%{opacity:1}100%{opacity:.5}}
+@keyframes walk{0%,100%{transform:rotate(0deg)}25%{transform:rotate(8deg)}75%{transform:rotate(-8deg)}}
+@keyframes leaf{0%{transform:translateY(-10px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(500deg);opacity:0}}
+@keyframes pulse-ring{0%{transform:scale(1);opacity:.7}100%{transform:scale(2.2);opacity:0}}
+@keyframes typeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+@keyframes draw{from{stroke-dashoffset:600}to{stroke-dashoffset:0}}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 
-/* ============================================================
-   SCREEN MANAGER
-   ============================================================ */
-.screen {
-  position: fixed; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.8s ease;
-}
-.screen.active { opacity: 1; pointer-events: all; }
+/* ── CHAIR LIB SVG sizes ── */
+.lib-xl{width:160px;height:180px}
+.lib-lg{width:100px;height:112px}
+.lib-md{width:70px;height:78px}
+.lib-sm{width:48px;height:54px}
 
-/* ============================================================
-   ANIMATED BACKGROUND — PARALLAX GHIBLI LAYERS
-   ============================================================ */
-.bg-world {
-  position: fixed; inset: 0;
-  overflow: hidden;
-  background: linear-gradient(180deg, #C8DFF0 0%, #A8C5DA 30%, #B8D4A0 60%, #D4C898 80%, var(--cream) 100%);
-}
+/* ── CARDS ── */
+.card{background:#fff;border:var(--stroke) solid var(--ink);border-radius:var(--r);box-shadow:var(--sh-lg)}
+.card-yellow{background:var(--yellow)}
+.card-sky{background:#dff0fa}
+.card-green{background:#d6f0e3}
 
-/* Clouds */
-.cloud {
-  position: absolute;
-  background: rgba(255,255,255,0.75);
-  border-radius: 50px;
-  filter: blur(2px);
-  animation: drift linear infinite;
-}
-.cloud::before, .cloud::after {
-  content: '';
-  position: absolute;
-  background: inherit;
-  border-radius: 50%;
-}
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 26px;border:var(--stroke) solid var(--ink);border-radius:40px;font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:var(--ink);background:var(--yellow);box-shadow:var(--sh);cursor:pointer;transition:transform .12s,box-shadow .12s;text-decoration:none;white-space:nowrap;-webkit-tap-highlight-color:transparent;user-select:none}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:var(--sh-lg)}
+.btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+.btn.lg{font-size:1.05rem;padding:14px 32px}
+.btn.full{width:100%}
+.btn.sky{background:var(--sky);color:#fff}
+.btn.green{background:var(--green);color:#fff}
+.btn.terra{background:var(--terra);color:#fff}
+.btn.ghost{background:var(--cream)}
+.btn.ink{background:var(--ink);color:var(--cream)}
+.btn:disabled{opacity:.45;pointer-events:none}
 
-/* Trees silhouette */
-.tree-layer {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-}
+/* ── INPUTS ── */
+.inp{width:100%;padding:12px 16px;background:var(--cream);border:var(--stroke) solid var(--ink);border-radius:12px;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:600;color:var(--ink);outline:none;transition:box-shadow .2s}
+.inp:focus{box-shadow:var(--sh)}
+.inp-lbl{display:block;font-family:'Syne',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;opacity:.75}
+textarea.inp{resize:vertical;min-height:90px;line-height:1.6}
 
-/* Floating dust motes */
-.mote {
-  position: absolute;
-  width: 3px; height: 3px;
-  background: rgba(232,162,60,0.5);
-  border-radius: 50%;
-  animation: float-mote linear infinite;
-}
+/* ═══════════════════════════════
+   SCREEN 1 — LANDING
+═══════════════════════════════ */
+#s0 .hero{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;max-width:520px}
+#s0 h1{font-family:'Syne',sans-serif;font-size:clamp(2.2rem,7vw,4rem);font-weight:800;line-height:1;letter-spacing:-.02em}
+#s0 h1 em{font-style:normal;background:var(--yellow);border:3px solid var(--ink);border-radius:10px;padding:0 10px;display:inline-block;transform:rotate(-1.5deg);box-shadow:3px 3px 0 var(--ink)}
+#s0 p{font-size:1rem;opacity:.65;font-family:'Syne',sans-serif;margin:4px 0 20px}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 
-@keyframes drift {
-  from { transform: translateX(-120%); }
-  to   { transform: translateX(110vw); }
-}
-@keyframes float-mote {
-  0%   { transform: translateY(0) translateX(0); opacity: 0; }
-  20%  { opacity: 1; }
-  80%  { opacity: 0.6; }
-  100% { transform: translateY(-60px) translateX(20px); opacity: 0; }
-}
-@keyframes sway {
-  0%, 100% { transform: rotate(-1deg); }
-  50%       { transform: rotate(1.5deg); }
-}
-@keyframes bob {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-8px); }
-}
-@keyframes blink {
-  0%, 90%, 100% { transform: scaleY(1); }
-  95%            { transform: scaleY(0.08); }
-}
-@keyframes tail-wag {
-  0%, 100% { transform: rotate(-15deg); }
-  50%       { transform: rotate(15deg); }
-}
-@keyframes page-turn {
-  0%   { transform: rotateY(0deg); }
-  50%  { transform: rotateY(-40deg); }
-  100% { transform: rotateY(0deg); }
-}
-@keyframes candle-flicker {
-  0%,100% { transform: scaleY(1) scaleX(1); opacity: 1; }
-  33%     { transform: scaleY(1.15) scaleX(0.88); opacity: 0.85; }
-  66%     { transform: scaleY(0.9) scaleX(1.08); opacity: 0.95; }
-}
-@keyframes shimmer {
-  0%   { background-position: -200% center; }
-  100% { background-position: 200% center; }
-}
-@keyframes reveal-up {
-  from { opacity: 0; transform: translateY(24px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes stamp {
-  0%   { transform: scale(2.5) rotate(-8deg); opacity: 0; }
-  60%  { transform: scale(0.95) rotate(1deg); opacity: 1; }
-  80%  { transform: scale(1.04) rotate(-0.5deg); }
-  100% { transform: scale(1) rotate(0deg); opacity: 1; }
-}
-@keyframes orb-pulse {
-  0%,100% { box-shadow: 0 0 0 0 rgba(232,162,60,0.4); }
-  50%      { box-shadow: 0 0 0 8px rgba(232,162,60,0); }
-}
-@keyframes lantern-swing {
-  0%,100% { transform: rotate(-4deg) translateY(0); }
-  50%      { transform: rotate(4deg) translateY(2px); }
-}
-@keyframes leaf-fall {
-  0%   { transform: translateY(-10px) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-}
-@keyframes writing {
-  from { stroke-dashoffset: 1000; }
-  to   { stroke-dashoffset: 0; }
-}
+/* ═══════════════════════════════
+   SCREEN 2 — REGISTER
+═══════════════════════════════ */
+#s1 .rg-wrap{width:100%;max-width:660px;display:grid;grid-template-columns:180px 1fr;gap:20px;align-items:start}
+@media(max-width:580px){#s1 .rg-wrap{grid-template-columns:1fr}}
+.lib-col{display:flex;flex-direction:column;align-items:center;gap:12px;position:sticky;top:20px}
+.speech{background:#fff;border:2.5px solid var(--ink);border-radius:4px 16px 16px 16px;padding:12px 14px;font-family:'Nunito',sans-serif;font-size:.92rem;line-height:1.55;max-width:180px;box-shadow:var(--sh);animation:slideUp .5s ease both}
+.fac-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px}
+@media(max-width:480px){.fac-grid{grid-template-columns:repeat(2,1fr)}}
+.fac{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;background:var(--cream);border:2.5px solid var(--ink);border-radius:14px;cursor:pointer;transition:transform .14s,box-shadow .14s,background .14s;text-align:center;box-shadow:2px 2px 0 var(--ink);-webkit-tap-highlight-color:transparent;user-select:none}
+.fac:hover{transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--ink)}
+.fac.sel{background:var(--yellow);transform:translate(-2px,-3px);box-shadow:4px 5px 0 var(--ink)}
+.fac-icon{font-size:1.5rem}
+.fac-name{font-family:'Syne',sans-serif;font-size:.72rem;font-weight:700;line-height:1.2}
 
-/* ============================================================
-   SCREEN 1 — LANDING / SPLASH
-   ============================================================ */
-#screen-landing {
-  flex-direction: column;
-  gap: 0;
-}
-.landing-library {
-  position: relative;
-  width: min(560px, 90vw);
-  text-align: center;
-}
-.library-building {
-  position: relative;
-  width: 100%;
-}
-.landing-title {
-  font-family: 'Lora', serif;
-  font-size: clamp(2rem, 5vw, 3.2rem);
-  color: var(--deep-bark);
-  letter-spacing: -0.01em;
-  line-height: 1.1;
-  text-shadow: 0 2px 0 rgba(255,255,255,0.5);
-  animation: reveal-up 1s ease 0.3s both;
-}
-.landing-subtitle {
-  font-size: 1rem;
-  color: var(--bark);
-  margin-top: 8px;
-  animation: reveal-up 1s ease 0.6s both;
-}
-.begin-btn {
-  margin-top: 28px;
-  padding: 14px 42px;
-  background: var(--deep-bark);
-  color: var(--cream);
-  border: none;
-  border-radius: 40px;
-  font-family: 'Nunito', sans-serif;
-  font-size: 1.05rem;
-  font-weight: 600;
-  cursor: none;
-  position: relative;
-  overflow: hidden;
-  animation: reveal-up 1s ease 0.9s both;
-  transition: transform 0.2s, box-shadow 0.2s;
-  box-shadow: 0 4px 20px var(--shadow);
-}
-.begin-btn::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%);
-  background-size: 200% 100%;
-  animation: shimmer 2.5s ease infinite;
-}
-.begin-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--shadow); }
+/* ═══════════════════════════════
+   SCREEN 3 — SURVEY (cinematic)
+═══════════════════════════════ */
+#s2{background:transparent}
+.sv-wrap{width:100%;max-width:600px}
+.sv-hdr{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.prog-track{flex:1;height:10px;background:#fff;border:2.5px solid var(--ink);border-radius:10px;overflow:hidden}
+.prog-fill{height:100%;background:var(--yellow);border-radius:10px;transition:width .55s cubic-bezier(.34,1.56,.64,1)}
+.prog-lbl{font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;white-space:nowrap;min-width:36px;text-align:right}
+.q-card{background:#fff;border:3px solid var(--ink);border-radius:22px;padding:22px 22px 18px;box-shadow:var(--sh-lg)}
+.lib-q-row{display:flex;align-items:flex-end;gap:12px;margin-bottom:16px}
+.q-bubble{flex:1;background:var(--cream);border:2.5px solid var(--ink);border-radius:6px 18px 18px 18px;padding:14px 16px;font-family:'Syne',sans-serif;font-size:1.05rem;line-height:1.55;min-height:60px}
+.q-tag{display:inline-block;padding:4px 12px;background:var(--sky);border:2px solid var(--ink);border-radius:20px;font-family:'Syne',sans-serif;font-size:.78rem;font-weight:700;margin-bottom:14px;box-shadow:2px 2px 0 var(--ink);color:#fff}
 
-/* ============================================================
-   SCREEN 2 — REGISTRATION
-   ============================================================ */
-#screen-register {
-  align-items: flex-start;
-  justify-content: center;
-  padding: 20px;
-  overflow-y: auto;
-  gap: 24px;
-}
-.register-scene {
-  width: min(700px, 100%);
-  display: grid;
-  grid-template-columns: 1fr 1.4fr;
-  gap: 24px;
-  align-items: start;
-}
-.lib-companion {
-  position: sticky;
-  top: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-.speech-bubble {
-  background: white;
-  border: 2px solid var(--parchment);
-  border-radius: 18px 18px 18px 4px;
-  padding: 14px 16px;
-  font-size: 0.88rem;
-  line-height: 1.6;
-  color: var(--ink);
-  position: relative;
-  box-shadow: 0 4px 20px var(--shadow);
-  max-width: 220px;
-  min-height: 60px;
-}
-.register-form-card {
-  background: rgba(255,255,255,0.72);
-  backdrop-filter: blur(12px);
-  border: 1.5px solid rgba(255,255,255,0.9);
-  border-radius: 24px;
-  padding: 28px;
-  box-shadow: 0 8px 40px var(--shadow);
-}
-.form-section-title {
-  font-family: 'Lora', serif;
-  font-size: 1.4rem;
-  color: var(--deep-bark);
-  margin-bottom: 20px;
-}
-.form-field {
-  margin-bottom: 18px;
-}
-.form-label {
-  display: block;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--bark);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  margin-bottom: 7px;
-}
-.form-input {
-  width: 100%;
-  padding: 12px 16px;
-  background: rgba(245,236,215,0.6);
-  border: 1.5px solid var(--parchment);
-  border-radius: 12px;
-  font-family: 'Nunito', sans-serif;
-  font-size: 0.95rem;
-  color: var(--ink);
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-}
-.form-input:focus {
-  border-color: var(--bark);
-  background: rgba(245,236,215,0.9);
-  box-shadow: 0 0 0 3px rgba(139,107,71,0.12);
-}
-/* Faculty lanterns grid */
-.faculty-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  margin-top: 8px;
-}
-.faculty-lantern {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 6px;
-  background: rgba(245,236,215,0.5);
-  border: 1.5px solid var(--parchment);
-  border-radius: 14px;
-  cursor: none;
-  transition: all 0.25s;
-  text-align: center;
-}
-.faculty-lantern:hover {
-  background: rgba(232,162,60,0.15);
-  border-color: var(--amber);
-  transform: translateY(-3px);
-}
-.faculty-lantern.selected {
-  background: linear-gradient(135deg, rgba(232,162,60,0.3), rgba(212,98,42,0.2));
-  border-color: var(--ember);
-  box-shadow: 0 4px 16px rgba(232,162,60,0.3);
-  transform: translateY(-3px);
-}
-.lantern-icon { font-size: 1.5rem; animation: lantern-swing 3s ease-in-out infinite; }
-.lantern-name { font-size: 0.65rem; font-weight: 600; color: var(--bark); line-height: 1.2; }
-.faculty-lantern.selected .lantern-name { color: var(--deep-bark); }
+/* chips */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:9px 16px;background:var(--cream);border:2.5px solid var(--ink);border-radius:30px;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .13s;box-shadow:2px 2px 0 var(--ink);user-select:none;-webkit-tap-highlight-color:transparent}
+.chip:hover{transform:translate(-1px,-2px);box-shadow:3px 4px 0 var(--ink)}
+.chip.sel{background:var(--yellow);transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--ink)}
 
-.submit-btn {
-  width: 100%;
-  padding: 14px;
-  background: linear-gradient(135deg, var(--deep-bark), var(--bark));
-  color: var(--cream);
-  border: none;
-  border-radius: 14px;
-  font-family: 'Nunito', sans-serif;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: none;
-  margin-top: 8px;
-  transition: transform 0.2s, box-shadow 0.2s;
-  box-shadow: 0 4px 18px var(--shadow);
-  position: relative;
-  overflow: hidden;
-}
-.submit-btn::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite;
-}
-.submit-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 28px var(--shadow); }
-.submit-btn:disabled { opacity: 0.5; }
+/* rank */
+.rank-list{display:flex;flex-direction:column;gap:8px}
+.rank-row{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--cream);border:2.5px solid var(--ink);border-radius:14px;cursor:grab;box-shadow:2px 2px 0 var(--ink);transition:all .14s;user-select:none;touch-action:none}
+.rank-row:hover{transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--ink);background:var(--lemon)}
+.rank-row.dragging{opacity:.45;cursor:grabbing}
+.rank-num{width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--cream);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.8rem;flex-shrink:0}
+.rank-txt{font-weight:700;font-size:.92rem}
 
-/* ============================================================
-   SCREEN 3 — SURVEY (LIB CONVERSATION)
-   ============================================================ */
-#screen-survey {
-  flex-direction: column;
-  padding: 20px;
-  overflow-y: auto;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 0;
-}
-.survey-wrap {
-  width: min(680px, 100%);
-  padding-top: 16px;
-}
-.survey-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 20px;
-}
-.progress-track {
-  flex: 1;
-  height: 6px;
-  background: var(--parchment);
-  border-radius: 3px;
-  overflow: hidden;
-}
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--amber), var(--ember));
-  border-radius: 3px;
-  transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.progress-label {
-  font-size: 0.75rem;
-  color: var(--bark);
-  font-weight: 600;
-  white-space: nowrap;
-}
-.survey-card {
-  background: rgba(255,255,255,0.78);
-  backdrop-filter: blur(14px);
-  border: 1.5px solid rgba(255,255,255,0.9);
-  border-radius: 28px;
-  padding: 28px;
-  box-shadow: 0 8px 48px var(--shadow);
-  animation: reveal-up 0.5s ease both;
-}
-.lib-row {
-  display: flex;
-  align-items: flex-end;
-  gap: 14px;
-  margin-bottom: 22px;
-}
-.lib-question-bubble {
-  flex: 1;
-  background: var(--cream);
-  border: 1.5px solid var(--parchment);
-  border-radius: 4px 18px 18px 18px;
-  padding: 16px 18px;
-  font-family: 'Lora', serif;
-  font-size: 1.05rem;
-  line-height: 1.6;
-  color: var(--ink);
-  box-shadow: 0 2px 12px var(--shadow);
-  min-height: 60px;
-}
-.q-category {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--bark);
-  margin-bottom: 14px;
-  padding: 4px 10px;
-  background: rgba(139,107,71,0.1);
-  border-radius: 20px;
-  display: inline-block;
-}
-/* Multi-choice chips */
-.choice-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-.choice-chip {
-  padding: 9px 16px;
-  background: rgba(245,236,215,0.6);
-  border: 1.5px solid var(--parchment);
-  border-radius: 24px;
-  font-size: 0.88rem;
-  font-weight: 500;
-  color: var(--ink);
-  cursor: none;
-  transition: all 0.2s;
-  user-select: none;
-}
-.choice-chip:hover { border-color: var(--amber); background: rgba(232,162,60,0.12); transform: translateY(-1px); }
-.choice-chip.selected { background: linear-gradient(135deg, rgba(232,162,60,0.35), rgba(212,98,42,0.2)); border-color: var(--ember); color: var(--deep-bark); font-weight: 600; }
+/* likert 2-col */
+.likert-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:400px){.likert-grid{grid-template-columns:1fr}}
+.lk-item{background:var(--cream);border:2.5px solid var(--ink);border-radius:14px;padding:10px 12px;box-shadow:2px 2px 0 var(--ink)}
+.lk-lbl{font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;margin-bottom:7px}
+.lk-stars{display:flex;gap:5px}
+.lstar{width:28px;height:28px;border-radius:50%;background:#fff;border:2px solid var(--ink);display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;cursor:pointer;transition:all .12s;box-shadow:1px 1px 0 var(--ink);-webkit-tap-highlight-color:transparent}
+.lstar:hover{transform:scale(1.2);background:var(--lemon)}
+.lstar.lit{background:var(--yellow);transform:scale(1.1);box-shadow:2px 2px 0 var(--ink)}
 
-/* Star/orb rating */
-.orb-row {
-  display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
-}
-.orb-item {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  align-items: center;
-  flex: 1;
-  min-width: 90px;
-}
-.orb-label { font-size: 0.72rem; font-weight: 600; color: var(--bark); text-align: center; }
-.orb-stars { display: flex; gap: 4px; }
-.orb-star {
-  width: 22px; height: 22px;
-  border-radius: 50%;
-  background: var(--parchment);
-  border: 1.5px solid var(--warm-tan);
-  cursor: none;
-  transition: all 0.15s;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 10px;
-}
-.orb-star.lit { background: var(--amber); border-color: var(--ember); box-shadow: 0 0 8px rgba(232,162,60,0.5); animation: orb-pulse 1.5s ease infinite; }
-.orb-star:hover { transform: scale(1.25); }
+/* ═══════════════════════════════
+   SCREEN 4 — MOOD MAP
+═══════════════════════════════ */
+#s3{padding:0;justify-content:flex-start}
+.map-hdr{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 16px 8px;flex-wrap:wrap;flex-shrink:0}
+.fl-btn{padding:8px 18px;background:#fff;border:2.5px solid var(--ink);border-radius:30px;font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 var(--ink);transition:all .14s;-webkit-tap-highlight-color:transparent}
+.fl-btn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--ink)}
+.fl-btn.active{background:var(--ink);color:var(--cream);transform:translate(-2px,-2px)}
+.map-info{text-align:center;font-family:'Syne',sans-serif;font-size:.82rem;opacity:.6;padding:0 16px 8px;flex-shrink:0}
+.map-box{flex:1;position:relative;margin:0 12px;background:#fff;border:3px solid var(--ink);border-radius:20px;box-shadow:var(--sh-lg);overflow:hidden;min-height:0}
+#map-svg{width:100%;height:100%;display:block}
+.map-tip{position:absolute;background:#fff;border:2.5px solid var(--ink);border-radius:12px;padding:10px 13px;font-family:'Syne',sans-serif;font-size:.82rem;line-height:1.4;box-shadow:var(--sh);pointer-events:none;display:none;z-index:20;max-width:190px}
+.mood-picker{position:absolute;background:#fff;border:2.5px solid var(--ink);border-radius:16px;padding:10px 14px;box-shadow:var(--sh-lg);display:none;z-index:30;flex-wrap:nowrap;gap:6px}
+.mood-btn{font-size:1.3rem;cursor:pointer;padding:4px;border-radius:8px;transition:transform .12s;-webkit-tap-highlight-color:transparent}
+.mood-btn:hover{transform:scale(1.3)}
+.map-legend{display:flex;gap:14px;justify-content:center;padding:8px 16px 6px;flex-shrink:0;flex-wrap:wrap}
+.leg-item{display:flex;align-items:center;gap:5px;font-family:'Syne',sans-serif;font-size:.75rem;font-weight:700}
+.leg-dot{width:14px;height:14px;border-radius:3px;border:2px solid var(--ink)}
+.map-lib-wrap{position:absolute;bottom:12px;right:12px;display:flex;flex-direction:column;align-items:flex-end;gap:6px;pointer-events:none}
+.map-speech{background:#fff;border:2.5px solid var(--ink);border-radius:16px 16px 4px 16px;padding:9px 13px;font-family:'Syne',sans-serif;font-size:.8rem;line-height:1.4;max-width:175px;box-shadow:var(--sh)}
+.map-ftr{padding:10px 16px 14px;display:flex;justify-content:center;flex-shrink:0}
 
-/* Ranking drag */
-.rank-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.rank-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 11px 16px;
-  background: rgba(245,236,215,0.6);
-  border: 1.5px solid var(--parchment);
-  border-radius: 14px;
-  cursor: grab;
-  transition: all 0.2s;
-  user-select: none;
-}
-.rank-item:hover { border-color: var(--amber); background: rgba(232,162,60,0.1); }
-.rank-item.dragging { opacity: 0.5; transform: scale(0.97); cursor: grabbing; }
-.rank-num {
-  width: 26px; height: 26px;
-  background: var(--deep-bark);
-  color: var(--cream);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-.rank-text { font-size: 0.9rem; font-weight: 500; }
-
-/* Textarea */
-.form-textarea {
-  width: 100%;
-  padding: 14px 16px;
-  background: rgba(245,236,215,0.6);
-  border: 1.5px solid var(--parchment);
-  border-radius: 14px;
-  font-family: 'Nunito', sans-serif;
-  font-size: 0.93rem;
-  color: var(--ink);
-  outline: none;
-  resize: vertical;
-  min-height: 90px;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  line-height: 1.6;
-}
-.form-textarea:focus {
-  border-color: var(--bark);
-  box-shadow: 0 0 0 3px rgba(139,107,71,0.12);
-  background: rgba(245,236,215,0.9);
-}
-
-.next-btn {
-  margin-top: 20px;
-  padding: 13px 36px;
-  background: linear-gradient(135deg, var(--deep-bark), var(--bark));
-  color: var(--cream);
-  border: none;
-  border-radius: 40px;
-  font-family: 'Nunito', sans-serif;
-  font-size: 0.95rem;
-  font-weight: 700;
-  cursor: none;
-  transition: all 0.2s;
-  box-shadow: 0 4px 18px var(--shadow);
-  float: right;
-  position: relative;
-  overflow: hidden;
-}
-.next-btn::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite;
-}
-.next-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px var(--shadow); }
-
-/* ============================================================
-   SCREEN 4 — STACKS QUEST MAP
-   ============================================================ */
-#screen-quest {
-  flex-direction: column;
-  overflow: hidden;
-  padding: 0;
-}
-.quest-ui {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-.floor-tabs {
-  position: absolute;
-  top: 16px; left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 8px;
-  z-index: 10;
-  background: rgba(255,255,255,0.7);
-  backdrop-filter: blur(10px);
-  border-radius: 40px;
-  padding: 5px;
-  border: 1px solid rgba(255,255,255,0.9);
-  box-shadow: 0 4px 20px var(--shadow);
-}
-.floor-tab {
-  padding: 8px 20px;
-  border-radius: 30px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--bark);
-  cursor: none;
-  transition: all 0.2s;
-}
-.floor-tab.active {
-  background: var(--deep-bark);
-  color: var(--cream);
-  box-shadow: 0 2px 10px var(--shadow);
-}
-.map-canvas {
-  width: 100%;
-  height: 100%;
-}
-.map-room {
-  cursor: none;
-  transition: all 0.25s;
-}
-.map-room:hover rect { filter: brightness(1.08); }
-.map-room.recommended rect { filter: drop-shadow(0 0 8px rgba(232,162,60,0.8)); animation: orb-pulse 2s ease infinite; }
-.room-tooltip {
-  position: absolute;
-  background: rgba(255,255,255,0.92);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--parchment);
-  border-radius: 14px;
-  padding: 10px 14px;
-  font-size: 0.82rem;
-  font-weight: 500;
-  color: var(--ink);
-  box-shadow: 0 4px 20px var(--shadow);
-  pointer-events: none;
-  z-index: 20;
-  display: none;
-  max-width: 200px;
-  line-height: 1.5;
-}
-.quest-lib-guide {
-  position: absolute;
-  bottom: 80px;
-  right: 24px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
-  z-index: 15;
-}
-.quest-bubble {
-  background: white;
-  border: 1.5px solid var(--parchment);
-  border-radius: 18px 18px 4px 18px;
-  padding: 12px 16px;
-  font-size: 0.82rem;
-  max-width: 200px;
-  line-height: 1.5;
-  box-shadow: 0 4px 16px var(--shadow);
-  color: var(--ink);
-}
-.continue-quest-btn {
-  position: absolute;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 13px 40px;
-  background: linear-gradient(135deg, var(--deep-bark), var(--bark));
-  color: var(--cream);
-  border: none;
-  border-radius: 40px;
-  font-family: 'Nunito', sans-serif;
-  font-size: 0.95rem;
-  font-weight: 700;
-  cursor: none;
-  box-shadow: 0 4px 20px var(--shadow);
-  z-index: 15;
-  transition: all 0.2s;
-}
-.continue-quest-btn:hover { transform: translateX(-50%) translateY(-2px); }
-
-/* ============================================================
+/* ═══════════════════════════════
    SCREEN 5 — SCORECARD
-   ============================================================ */
-#screen-scorecard {
-  flex-direction: column;
-  padding: 20px;
-  overflow-y: auto;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 0;
-}
-.scorecard-wrap {
-  width: min(540px, 100%);
-  padding-top: 16px;
-  padding-bottom: 40px;
-}
-.scroll-unfurl {
-  background: linear-gradient(170deg, rgba(255,252,244,0.92), rgba(245,236,215,0.88));
-  backdrop-filter: blur(14px);
-  border: 2px solid rgba(212,184,150,0.8);
-  border-radius: 28px;
-  padding: 32px;
-  box-shadow:
-    0 12px 50px var(--shadow),
-    inset 0 1px 0 rgba(255,255,255,0.7),
-    inset 0 -1px 0 rgba(139,107,71,0.15);
-  animation: reveal-up 0.7s ease both;
-  position: relative;
-  overflow: hidden;
-}
-.scroll-unfurl::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--bark), var(--amber), var(--bark));
-}
-.card-lib-row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-.persona-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 7px 14px;
-  background: linear-gradient(135deg, rgba(232,162,60,0.25), rgba(212,98,42,0.15));
-  border: 1.5px solid var(--amber);
-  border-radius: 24px;
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--deep-bark);
-  animation: stamp 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.4s both;
-}
-.score-section {
-  margin-top: 20px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-.score-cell {
-  background: rgba(255,255,255,0.6);
-  border: 1px solid rgba(212,184,150,0.5);
-  border-radius: 16px;
-  padding: 14px;
-  text-align: center;
-}
-.score-val {
-  font-family: 'Lora', serif;
-  font-size: 2rem;
-  font-weight: 600;
-  color: var(--deep-bark);
-}
-.score-lbl {
-  font-size: 0.72rem;
-  color: var(--bark);
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  margin-top: 4px;
-}
-.qr-section {
-  margin-top: 24px;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 18px;
-  background: white;
-  border-radius: 18px;
-  border: 1px solid var(--parchment);
-}
-.qr-text h4 {
-  font-family: 'Lora', serif;
-  font-size: 1rem;
-  color: var(--deep-bark);
-  margin-bottom: 4px;
-}
-.qr-text p { font-size: 0.78rem; color: var(--bark); line-height: 1.5; }
-.credits-pill {
-  margin-top: 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  background: linear-gradient(135deg, rgba(122,158,111,0.2), rgba(78,110,68,0.1));
-  border: 1.5px solid var(--moss);
-  border-radius: 24px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--moss-deep);
-}
-.share-btn {
-  width: 100%;
-  margin-top: 20px;
-  padding: 14px;
-  background: linear-gradient(135deg, var(--moss-deep), var(--moss));
-  color: white;
-  border: none;
-  border-radius: 14px;
-  font-family: 'Nunito', sans-serif;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: none;
-  transition: all 0.2s;
-  box-shadow: 0 4px 18px rgba(78,110,68,0.3);
-}
-.share-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(78,110,68,0.4); }
+═══════════════════════════════ */
+#s4 .sc-wrap{width:100%;max-width:500px}
+.sc-card{background:#fff;border:3px solid var(--ink);border-radius:24px;box-shadow:var(--sh-lg);overflow:hidden;animation:slideUp .6s ease both}
+.sc-hdr{background:var(--yellow);border-bottom:3px solid var(--ink);padding:20px 22px;display:flex;align-items:center;gap:14px}
+.sc-name{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800}
+.sc-fac{font-family:'Syne',sans-serif;font-size:.88rem;opacity:.75;margin-top:2px}
+.persona{display:inline-block;padding:5px 14px;background:#fff;border:2.5px solid var(--ink);border-radius:24px;font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;box-shadow:2px 2px 0 var(--ink);margin-top:8px;animation:stamp .5s cubic-bezier(.34,1.56,.64,1) .3s both}
+.sc-body{padding:18px 22px}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat-box{background:var(--cream);border:2.5px solid var(--ink);border-radius:14px;padding:14px;text-align:center;box-shadow:2px 2px 0 var(--ink)}
+.stat-val{font-family:'Syne',sans-serif;font-size:1.9rem;font-weight:800;line-height:1}
+.stat-lbl{font-family:'Syne',sans-serif;font-size:.72rem;font-weight:700;opacity:.6;margin-top:4px;text-transform:uppercase;letter-spacing:.04em}
+.qr-row{background:var(--cream);border:2.5px solid var(--ink);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:14px;margin-bottom:12px;box-shadow:2px 2px 0 var(--ink)}
+.qr-box{width:82px;height:82px;flex-shrink:0;background:#fff;border:2px solid var(--ink);border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.qr-info h4{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700}
+.qr-info p{font-family:'Nunito',sans-serif;font-size:.82rem;opacity:.7;line-height:1.4;margin-top:2px}
+.credits-tag{display:inline-flex;align-items:center;gap:4px;margin-top:6px;padding:4px 10px;background:var(--green);color:#fff;border:2px solid var(--ink);border-radius:20px;font-family:'Syne',sans-serif;font-size:.8rem;font-weight:700;box-shadow:1px 1px 0 var(--ink)}
 
-/* ============================================================
-   ADMIN SCREEN
-   ============================================================ */
-#screen-admin {
-  flex-direction: column;
-  overflow-y: auto;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 24px;
-  gap: 16px;
-}
-.admin-wrap { width: min(900px,100%); }
-.admin-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-}
-.admin-title {
-  font-family: 'Lora', serif;
-  font-size: 1.8rem;
-  color: var(--deep-bark);
-}
-.admin-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px,1fr));
-  gap: 14px;
-  margin-bottom: 24px;
-}
-.admin-stat {
-  background: rgba(255,255,255,0.72);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.9);
-  border-radius: 18px;
-  padding: 18px;
-  text-align: center;
-  box-shadow: 0 4px 20px var(--shadow);
-}
-.admin-stat-num {
-  font-family: 'Lora', serif;
-  font-size: 2.4rem;
-  font-weight: 600;
-  color: var(--deep-bark);
-}
-.admin-stat-lbl {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--bark);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  margin-top: 4px;
-}
-.admin-chart-card {
-  background: rgba(255,255,255,0.72);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.9);
-  border-radius: 20px;
-  padding: 20px;
-  box-shadow: 0 4px 20px var(--shadow);
-  margin-bottom: 16px;
-}
-.admin-chart-title {
-  font-family: 'Lora', serif;
-  font-size: 1rem;
-  color: var(--deep-bark);
-  margin-bottom: 14px;
-}
-.bar-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-.bar-label { font-size: 0.78rem; color: var(--bark); min-width: 110px; font-weight: 500; }
-.bar-track { flex: 1; height: 10px; background: var(--parchment); border-radius: 5px; overflow: hidden; }
-.bar-fill { height: 100%; border-radius: 5px; background: linear-gradient(90deg, var(--amber), var(--ember)); transition: width 1s cubic-bezier(0.34,1.56,0.64,1); }
-.bar-count { font-size: 0.78rem; color: var(--bark); font-weight: 600; min-width: 30px; text-align: right; }
+/* ═══════════════════════════════
+   SCREEN 6 — LEADERBOARD
+═══════════════════════════════ */
+#s5 .lb-wrap{width:100%;max-width:580px}
+.lb-title{font-family:'Syne',sans-serif;font-size:1.9rem;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+.lb-sub{font-family:'Nunito',sans-serif;font-size:.88rem;opacity:.6;margin-bottom:16px}
+.lb-card{background:#fff;border:3px solid var(--ink);border-radius:20px;box-shadow:var(--sh-lg);overflow:hidden;margin-bottom:14px}
+.lb-thead{background:var(--sky);border-bottom:3px solid var(--ink);padding:10px 18px;display:grid;grid-template-columns:44px 1fr 90px 70px;gap:8px;font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;color:#fff}
+.lb-row{display:grid;grid-template-columns:44px 1fr 90px 70px;gap:8px;padding:11px 18px;border-bottom:2px solid rgba(22,16,10,.08);align-items:center;font-family:'Syne',sans-serif;font-size:.9rem;transition:background .14s;cursor:default}
+.lb-row:last-child{border-bottom:none}
+.lb-row:hover{background:var(--cream)}
+.lb-row.gold{background:rgba(240,180,41,.18)}
+.lb-row.silver{background:rgba(180,180,180,.15)}
+.lb-row.bronze{background:rgba(205,127,50,.12)}
+.lb-medal{font-size:1.2rem}
+.lb-bar-wrap{height:8px;background:var(--cream);border:1.5px solid var(--ink);border-radius:6px;overflow:hidden;margin-top:4px}
+.lb-bar{height:100%;background:var(--terra);border-radius:6px;transition:width 1s cubic-bezier(.34,1.56,.64,1)}
+.lb-breakdown{background:#fff;border:2.5px solid var(--ink);border-radius:16px;padding:16px 18px;box-shadow:var(--sh);font-family:'Nunito',sans-serif;font-size:.92rem;line-height:1.6}
 
-/* Admin login */
-.admin-login-card {
-  background: rgba(255,255,255,0.78);
-  backdrop-filter: blur(14px);
-  border: 1.5px solid rgba(255,255,255,0.9);
-  border-radius: 24px;
-  padding: 32px;
-  box-shadow: 0 8px 40px var(--shadow);
-  width: min(360px, 90vw);
-  text-align: center;
-}
+/* ═══════════════════════════════
+   KIOSK MODE — live leaderboard
+═══════════════════════════════ */
+#s-kiosk{background:var(--ink);color:var(--cream);padding:40px}
+.kiosk-title{font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;text-align:center;margin-bottom:8px}
+.kiosk-sub{font-family:'Nunito',sans-serif;font-size:1.1rem;opacity:.6;text-align:center;margin-bottom:40px}
+.kiosk-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;width:100%;max-width:1000px}
+.kiosk-fac{background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.15);border-radius:20px;padding:22px 20px;display:flex;flex-direction:column;gap:8px;transition:transform .3s}
+.kiosk-fac.top1{background:rgba(240,180,41,.18);border-color:rgba(240,180,41,.5)}
+.kiosk-fac-name{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700}
+.kiosk-fac-score{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;color:var(--yellow)}
+.kiosk-bar-track{height:10px;background:rgba(255,255,255,.1);border-radius:6px;overflow:hidden}
+.kiosk-bar-fill{height:100%;background:var(--yellow);border-radius:6px;transition:width 1.2s cubic-bezier(.34,1.56,.64,1)}
+.kiosk-count{font-family:'Nunito',sans-serif;font-size:.85rem;opacity:.55}
+.kiosk-ticker{position:fixed;bottom:0;left:0;right:0;background:rgba(240,180,41,.15);border-top:1px solid rgba(240,180,41,.3);padding:10px 24px;font-family:'Syne',sans-serif;font-size:.9rem;overflow:hidden;white-space:nowrap}
+.ticker-inner{display:inline-block;animation:ticker 30s linear infinite}
+@keyframes ticker{from{transform:translateX(100vw)}to{transform:translateX(-100%)}}
+.kiosk-refresh{position:fixed;top:20px;right:20px;font-family:'Syne',sans-serif;font-size:.78rem;opacity:.4}
 
-/* ============================================================
-   LIB CHARACTER SVG — inline
-   ============================================================ */
-.lib-svg { width: 90px; height: 110px; }
-.lib-svg-small { width: 60px; height: 74px; }
-.lib-svg-mini { width: 44px; height: 54px; }
+/* ═══════════════════════════════
+   ADMIN LOGIN
+═══════════════════════════════ */
+#s-al .al-box{background:#fff;border:3px solid var(--ink);border-radius:24px;padding:32px 28px;box-shadow:var(--sh-lg);width:100%;max-width:340px;text-align:center}
+#s-al h2{font-family:'Syne',sans-serif;font-size:1.7rem;font-weight:800;margin-bottom:6px}
+#s-al p{font-family:'Nunito',sans-serif;font-size:.88rem;opacity:.6;margin-bottom:20px}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.shake{animation:shake .4s ease}
 
-/* Leaf particles */
-.leaf {
-  position: fixed;
-  font-size: 14px;
-  pointer-events: none;
-  z-index: 2;
-  animation: leaf-fall linear forwards;
-}
+/* ═══════════════════════════════
+   ADMIN DASHBOARD
+═══════════════════════════════ */
+#s-adm{align-items:flex-start;justify-content:flex-start}
+.adm-wrap{width:100%;max-width:900px}
+.adm-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.adm-title{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800}
+.adm-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.atab{padding:8px 18px;background:#fff;border:2.5px solid var(--ink);border-radius:30px;font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 var(--ink);transition:all .13s}
+.atab:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--ink)}
+.atab.on{background:var(--ink);color:var(--cream)}
+.adm-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:16px}
+.astat{background:#fff;border:2.5px solid var(--ink);border-radius:16px;padding:16px;text-align:center;box-shadow:var(--sh)}
+.astat-n{font-family:'Syne',sans-serif;font-size:2.1rem;font-weight:800;line-height:1}
+.astat-l{font-family:'Syne',sans-serif;font-size:.75rem;font-weight:700;opacity:.6;margin-top:4px;text-transform:uppercase;letter-spacing:.04em}
+.achart{background:#fff;border:2.5px solid var(--ink);border-radius:16px;padding:18px;box-shadow:var(--sh);margin-bottom:14px}
+.achart-title{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:14px}
+.abar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.abar-lbl{font-family:'Syne',sans-serif;font-size:.85rem;min-width:110px;font-weight:600}
+.abar-track{flex:1;height:12px;background:var(--cream);border:2px solid var(--ink);border-radius:8px;overflow:hidden}
+.abar-fill{height:100%;background:var(--terra);border-radius:8px;transition:width 1s cubic-bezier(.34,1.56,.64,1)}
+.abar-n{font-family:'Syne',sans-serif;font-size:.85rem;min-width:30px;text-align:right;font-weight:700}
+.resp-item{padding:10px 14px;background:var(--cream);border-left:4px solid var(--yellow);border-radius:0 10px 10px 0;margin-bottom:8px;font-size:.88rem;line-height:1.5}
+.resp-meta{font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;margin-bottom:3px}
+.kiosk-launch-box{background:var(--lemon);border:2.5px solid var(--ink);border-radius:16px;padding:18px;box-shadow:var(--sh);margin-bottom:14px}
+.kiosk-launch-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:6px}
+.kiosk-launch-desc{font-family:'Nunito',sans-serif;font-size:.85rem;opacity:.7;margin-bottom:12px;line-height:1.5}
 
-/* Admin response feed */
-.response-item {
-  padding: 10px 14px;
-  background: rgba(245,236,215,0.5);
-  border-radius: 12px;
-  border-left: 3px solid var(--amber);
-  margin-bottom: 8px;
-  font-size: 0.83rem;
-  line-height: 1.5;
-  color: var(--ink);
-}
-.response-meta { font-size: 0.7rem; color: var(--bark); margin-bottom: 3px; font-weight: 600; }
-.referral-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 14px;
-  background: rgba(245,236,215,0.4);
-  border-radius: 10px;
-  margin-bottom: 6px;
-  font-size: 0.83rem;
-}
-.referral-points {
-  font-weight: 700;
-  color: var(--moss-deep);
-  font-size: 0.88rem;
-}
-.export-btn {
-  padding: 10px 24px;
-  background: var(--deep-bark);
-  color: var(--cream);
-  border: none;
-  border-radius: 24px;
-  font-family: 'Nunito', sans-serif;
-  font-size: 0.88rem;
-  font-weight: 600;
-  cursor: none;
-  transition: all 0.2s;
-}
-.export-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px var(--shadow); }
+/* ═══════════════════════════════
+   TOAST
+═══════════════════════════════ */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:var(--cream);font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;padding:10px 22px;border-radius:30px;box-shadow:var(--sh);z-index:9999;transition:transform .4s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;max-width:90vw;text-align:center;pointer-events:none}
+#toast.show{transform:translateX(-50%) translateY(0)}
 
-/* Admin nav */
-.admin-nav {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
-}
-.admin-nav-btn {
-  padding: 8px 18px;
-  border-radius: 24px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  border: 1.5px solid var(--parchment);
-  background: transparent;
-  color: var(--bark);
-  cursor: none;
-  transition: all 0.2s;
-}
-.admin-nav-btn.active, .admin-nav-btn:hover {
-  background: var(--deep-bark);
-  color: var(--cream);
-  border-color: var(--deep-bark);
-}
+/* ═══════════════════════════════
+   FAB
+═══════════════════════════════ */
+#fab{position:fixed;top:14px;right:14px;z-index:500;padding:8px 16px;background:rgba(255,255,255,.85);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:2px solid var(--ink);border-radius:30px;font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 var(--ink);transition:all .13s}
+#fab:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--ink)}
 
-/* tiny top nav */
-.top-nav {
-  position: fixed;
-  top: 14px; right: 16px;
-  z-index: 100;
-  display: flex;
-  gap: 8px;
-}
-.nav-pill {
-  padding: 6px 14px;
-  background: rgba(255,255,255,0.6);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.8);
-  border-radius: 24px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--bark);
-  cursor: none;
-  transition: all 0.2s;
-  box-shadow: 0 2px 10px var(--shadow);
-}
-.nav-pill:hover { background: rgba(255,255,255,0.9); color: var(--deep-bark); }
-
-/* ============================================================
-   QR placeholder style
-   ============================================================ */
-#qr-canvas { border-radius: 10px; }
+/* ═══════════════════════════════
+   MOOD HEATMAP COLORS
+═══════════════════════════════ */
+.mood-none{fill:#f0ebe0}
+.mood-😊{fill:#a8e6c3}
+.mood-🤓{fill:#a8d4f0}
+.mood-😴{fill:#d4c8f0}
+.mood-😤{fill:#f0b8a8}
+.mood-😰{fill:#f0d8a8}
+.mood-☕{fill:#d4a870}
 </style>
 </head>
 <body>
 
-<!-- CURSOR -->
-<div class="cursor" id="cursor"></div>
+<!-- Background -->
+<div id="bg" aria-hidden="true"></div>
 
-<!-- ANIMATED BACKGROUND -->
-<div class="bg-world" id="bg-world">
-  <!-- JS-injected clouds, trees, motes -->
-</div>
+<!-- FAB -->
+<button id="fab" onclick="G.goAdminLogin()">🔑 Admin</button>
 
-<!-- TOP NAV -->
-<div class="top-nav" id="top-nav">
-  <span class="nav-pill" onclick="goAdmin()">🔑 Admin</span>
-</div>
+<!-- Toast -->
+<div id="toast" role="alert" aria-live="assertive"></div>
 
-<!-- ======================================================
-     SCREEN 1 — LANDING
-     ====================================================== -->
-<div class="screen active" id="screen-landing">
-  <div class="landing-library">
-    <!-- Big Ghibli library SVG illustration -->
-    <svg viewBox="0 0 500 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;filter:drop-shadow(0 8px 30px rgba(44,26,14,0.25));animation:bob 4s ease-in-out infinite">
-      <!-- Sky glow -->
-      <ellipse cx="250" cy="280" rx="220" ry="30" fill="rgba(212,184,150,0.4)"/>
-      <!-- Main building -->
-      <rect x="60" y="80" width="380" height="180" rx="8" fill="#D4B896"/>
-      <rect x="60" y="80" width="380" height="180" rx="8" fill="none" stroke="#8B6B47" stroke-width="2"/>
-      <!-- Roof -->
-      <path d="M40 82 L250 18 L460 82Z" fill="#8B6B47"/>
-      <path d="M40 82 L250 18 L460 82Z" fill="none" stroke="#5C3D1E" stroke-width="2"/>
-      <!-- Roof tiles suggested -->
-      <path d="M70 75 L250 18 L430 75" fill="none" stroke="rgba(92,61,30,0.3)" stroke-width="1" stroke-dasharray="12 8"/>
-      <!-- Tower left -->
-      <rect x="80" y="40" width="50" height="60" rx="4" fill="#C4A882"/>
-      <path d="M75 42 L105 8 L135 42Z" fill="#8B6B47"/>
-      <!-- Tower right -->
-      <rect x="370" y="40" width="50" height="60" rx="4" fill="#C4A882"/>
-      <path d="M365 42 L395 8 L425 42Z" fill="#8B6B47"/>
-      <!-- Windows — warm glow -->
-      <rect x="100" y="110" width="44" height="54" rx="4" fill="#F5C842" opacity="0.85"/>
-      <rect x="100" y="110" width="44" height="54" rx="4" fill="none" stroke="#8B6B47" stroke-width="1.5"/>
-      <line x1="122" y1="110" x2="122" y2="164" stroke="#8B6B47" stroke-width="1"/>
-      <line x1="100" y1="137" x2="144" y2="137" stroke="#8B6B47" stroke-width="1"/>
+<!-- ════════════════════════════
+     S0 — LANDING
+════════════════════════════ -->
+<section class="screen on" id="s0" aria-label="Welcome">
+  <div class="hero">
 
-      <rect x="178" y="100" width="50" height="64" rx="6" fill="#F5C842" opacity="0.9"/>
-      <rect x="178" y="100" width="50" height="64" rx="6" fill="none" stroke="#8B6B47" stroke-width="1.5"/>
-      <line x1="203" y1="100" x2="203" y2="164" stroke="#8B6B47" stroke-width="1"/>
-      <line x1="178" y1="132" x2="228" y2="132" stroke="#8B6B47" stroke-width="1"/>
-
-      <rect x="253" y="100" width="50" height="64" rx="6" fill="#F5C842" opacity="0.9"/>
-      <rect x="253" y="100" width="50" height="64" rx="6" fill="none" stroke="#8B6B47" stroke-width="1.5"/>
-      <line x1="278" y1="100" x2="278" y2="164" stroke="#8B6B47" stroke-width="1"/>
-      <line x1="253" y1="132" x2="303" y2="132" stroke="#8B6B47" stroke-width="1"/>
-
-      <rect x="360" y="110" width="44" height="54" rx="4" fill="#F5C842" opacity="0.85"/>
-      <rect x="360" y="110" width="44" height="54" rx="4" fill="none" stroke="#8B6B47" stroke-width="1.5"/>
-      <line x1="382" y1="110" x2="382" y2="164" stroke="#8B6B47" stroke-width="1"/>
-      <line x1="360" y1="137" x2="404" y2="137" stroke="#8B6B47" stroke-width="1"/>
-      <!-- Door arch -->
-      <path d="M204 260 L204 185 Q204 168 222 168 Q240 168 240 185 L240 260Z" fill="#7A5C3A"/>
-      <path d="M265 260 L265 185 Q265 168 283 168 Q301 168 301 185 L301 260Z" fill="#7A5C3A"/>
-      <!-- Steps -->
-      <rect x="180" y="256" width="142" height="8" rx="2" fill="#B89060"/>
-      <rect x="170" y="264" width="162" height="8" rx="2" fill="#A07848"/>
-      <!-- Hanging lanterns -->
-      <line x1="160" y1="82" x2="160" y2="112" stroke="#5C3D1E" stroke-width="1.5"/>
-      <ellipse cx="160" cy="120" rx="10" ry="14" fill="#F5C842" opacity="0.9" style="animation:candle-flicker 0.8s ease-in-out infinite"/>
-      <ellipse cx="160" cy="120" rx="10" ry="14" fill="none" stroke="#8B6B47" stroke-width="1.2"/>
-      <line x1="344" y1="82" x2="344" y2="112" stroke="#5C3D1E" stroke-width="1.5"/>
-      <ellipse cx="344" cy="120" rx="10" ry="14" fill="#F5C842" opacity="0.9" style="animation:candle-flicker 1s ease-in-out infinite 0.2s"/>
-      <ellipse cx="344" cy="120" rx="10" ry="14" fill="none" stroke="#8B6B47" stroke-width="1.2"/>
-      <!-- Sign -->
-      <rect x="182" y="152" width="138" height="22" rx="4" fill="#5C3D1E"/>
-      <text x="251" y="167" text-anchor="middle" font-family="serif" font-size="11" fill="#F5ECD7" font-weight="bold">UNIVERSITY LIBRARY</text>
-      <!-- Ground grass -->
-      <rect x="0" y="260" width="500" height="20" fill="#7A9E6F" rx="4"/>
-      <!-- Small Lib on steps -->
-      <g transform="translate(230,208)" style="animation:bob 2.5s ease-in-out infinite 0.5s">
-        <!-- Chair legs -->
-        <rect x="6" y="28" width="3" height="14" rx="1" fill="#5C3D1E"/>
-        <rect x="21" y="28" width="3" height="14" rx="1" fill="#5C3D1E"/>
-        <rect x="6" y="32" width="3" height="14" rx="1" fill="#5C3D1E" transform="rotate(15 7 32)"/>
-        <rect x="21" y="32" width="3" height="14" rx="1" fill="#5C3D1E" transform="rotate(-15 23 32)"/>
-        <!-- Chair seat -->
-        <rect x="2" y="20" width="26" height="10" rx="3" fill="#8B6B47"/>
-        <!-- Chair back -->
-        <rect x="2" y="6" width="26" height="16" rx="3" fill="#A07848"/>
-        <!-- Eyes -->
-        <circle cx="10" cy="13" r="3" fill="white"/>
-        <circle cx="20" cy="13" r="3" fill="white"/>
-        <circle cx="11" cy="14" r="1.5" fill="#2C1A0E" style="animation:blink 3s ease-in-out infinite"/>
-        <circle cx="21" cy="14" r="1.5" fill="#2C1A0E" style="animation:blink 3s ease-in-out infinite 0.5s"/>
-        <!-- Smile -->
-        <path d="M10 18 Q15 22 20 18" stroke="#5C3D1E" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-        <!-- Tiny paws/feet -->
-        <ellipse cx="8" cy="21" rx="4" ry="2" fill="#8B6B47"/>
-        <ellipse cx="22" cy="21" rx="4" ry="2" fill="#8B6B47"/>
-      </g>
-    </svg>
-
-    <h1 class="landing-title">Lib's Library World</h1>
-    <p class="landing-subtitle">A magical survey adventure · Guided by Lib the Chair ✨</p>
-    <br>
-    <button class="begin-btn" onclick="goRegister()">Begin Your Journey →</button>
-  </div>
-</div>
-
-<!-- ======================================================
-     SCREEN 2 — REGISTER
-     ====================================================== -->
-<div class="screen" id="screen-register">
-  <div class="register-scene">
-    <!-- Lib companion -->
-    <div class="lib-companion">
-      <svg class="lib-svg" viewBox="0 0 90 110" xmlns="http://www.w3.org/2000/svg" id="lib-reg">
-        <!-- Chair back -->
-        <rect x="8" y="12" width="74" height="48" rx="10" fill="#A07848"/>
-        <rect x="8" y="12" width="74" height="48" rx="10" fill="none" stroke="#5C3D1E" stroke-width="1.5"/>
-        <!-- Chair cushion back -->
-        <rect x="14" y="16" width="62" height="36" rx="7" fill="#B89060"/>
-        <!-- Eyes -->
-        <circle cx="32" cy="35" r="9" fill="white"/>
-        <circle cx="58" cy="35" r="9" fill="white"/>
-        <circle cx="34" cy="36" r="5" fill="#3D2410" id="eye-l" style="animation:blink 4s ease-in-out infinite"/>
-        <circle cx="60" cy="36" r="5" fill="#3D2410" id="eye-r" style="animation:blink 4s ease-in-out infinite 0.3s"/>
-        <circle cx="35" cy="35" r="2" fill="white"/>
-        <circle cx="61" cy="35" r="2" fill="white"/>
-        <!-- Smile -->
-        <path d="M32 50 Q45 58 58 50" stroke="#5C3D1E" stroke-width="2" fill="none" stroke-linecap="round"/>
-        <!-- Blush -->
-        <ellipse cx="22" cy="46" rx="7" ry="4" fill="#E8B4A0" opacity="0.6"/>
-        <ellipse cx="68" cy="46" rx="7" ry="4" fill="#E8B4A0" opacity="0.6"/>
-        <!-- Chair seat -->
-        <rect x="4" y="58" width="82" height="20" rx="8" fill="#8B6B47"/>
+    <!-- Lib Chair — large, animated -->
+    <div style="margin-bottom:12px;animation:bob 3.5s ease-in-out infinite;filter:drop-shadow(5px 5px 0 rgba(22,16,10,.2))">
+      <svg width="160" height="185" viewBox="0 0 160 185" aria-label="Lib the library chair mascot" role="img">
+        <!-- Back legs -->
+        <rect x="22" y="148" width="14" height="36" rx="7" fill="#8B5E2A" stroke="#16100a" stroke-width="2.5"/>
+        <rect x="124" y="148" width="14" height="36" rx="7" fill="#8B5E2A" stroke="#16100a" stroke-width="2.5"/>
+        <!-- Front legs -->
+        <rect x="28" y="152" width="14" height="32" rx="7" fill="#a06830" stroke="#16100a" stroke-width="2.5" transform="rotate(5,35,152)"/>
+        <rect x="118" y="152" width="14" height="32" rx="7" fill="#a06830" stroke="#16100a" stroke-width="2.5" transform="rotate(-5,125,152)"/>
+        <!-- Seat -->
+        <rect x="14" y="128" width="132" height="28" rx="12" fill="#d4922a" stroke="#16100a" stroke-width="3"/>
+        <!-- Seat cushion detail -->
+        <rect x="20" y="132" width="120" height="16" rx="8" fill="#e8a832" stroke="#16100a" stroke-width="1.5"/>
         <!-- Armrests -->
-        <rect x="0" y="45" width="14" height="32" rx="6" fill="#7A5C3A"/>
-        <rect x="76" y="45" width="14" height="32" rx="6" fill="#7A5C3A"/>
-        <!-- Legs -->
-        <rect x="14" y="76" width="8" height="28" rx="4" fill="#5C3D1E"/>
-        <rect x="68" y="76" width="8" height="28" rx="4" fill="#5C3D1E"/>
-        <rect x="10" y="84" width="8" height="24" rx="4" fill="#5C3D1E" transform="rotate(10 14 84)"/>
-        <rect x="72" y="84" width="8" height="24" rx="4" fill="#5C3D1E" transform="rotate(-10 76 84)"/>
-        <!-- Little feet -->
-        <ellipse cx="18" cy="104" rx="10" ry="5" fill="#4A3018"/>
-        <ellipse cx="72" cy="104" rx="10" ry="5" fill="#4A3018"/>
-        <!-- Tiny hand/paw wave -->
-        <ellipse cx="84" cy="42" rx="7" ry="5" fill="#8B6B47" transform="rotate(-20 84 42)" style="animation:sway 1.5s ease-in-out infinite"/>
-      </svg>
-      <div class="speech-bubble" id="lib-speech-reg">
-        Hello! I'm <strong>Lib</strong> 🪑<br>
-        Welcome to the Library! Let's get to know each other first…
-      </div>
-    </div>
-
-    <!-- Form -->
-    <div class="register-form-card">
-      <h2 class="form-section-title">Tell me about you ✨</h2>
-
-      <div class="form-field">
-        <label class="form-label">Your Name</label>
-        <input class="form-input" type="text" id="input-name" placeholder="What shall Lib call you?" oninput="onNameInput()"/>
-      </div>
-
-      <div class="form-field">
-        <label class="form-label">Student ID (optional)</label>
-        <input class="form-input" type="text" id="input-id" placeholder="For deduplication only"/>
-      </div>
-
-      <div class="form-field">
-        <label class="form-label">Your Faculty</label>
-        <div class="faculty-grid" id="faculty-grid">
-          <!-- injected by JS -->
-        </div>
-      </div>
-
-      <button class="submit-btn" id="submit-reg" onclick="submitRegistration()" disabled>
-        Enter the Library →
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- ======================================================
-     SCREEN 3 — SURVEY
-     ====================================================== -->
-<div class="screen" id="screen-survey">
-  <div class="survey-wrap">
-    <div class="survey-header">
-      <svg class="lib-svg-mini" viewBox="0 0 90 110" xmlns="http://www.w3.org/2000/svg" style="animation:bob 3s ease-in-out infinite">
-        <rect x="8" y="12" width="74" height="48" rx="10" fill="#A07848"/>
-        <rect x="14" y="16" width="62" height="36" rx="7" fill="#B89060"/>
-        <circle cx="32" cy="35" r="9" fill="white"/><circle cx="58" cy="35" r="9" fill="white"/>
-        <circle cx="34" cy="36" r="5" fill="#3D2410" style="animation:blink 3s ease-in-out infinite"/>
-        <circle cx="60" cy="36" r="5" fill="#3D2410" style="animation:blink 3s ease-in-out infinite 0.4s"/>
-        <circle cx="35" cy="35" r="2" fill="white"/><circle cx="61" cy="35" r="2" fill="white"/>
-        <path d="M32 50 Q45 58 58 50" stroke="#5C3D1E" stroke-width="2" fill="none" stroke-linecap="round"/>
-        <ellipse cx="22" cy="46" rx="7" ry="4" fill="#E8B4A0" opacity="0.6"/>
-        <ellipse cx="68" cy="46" rx="7" ry="4" fill="#E8B4A0" opacity="0.6"/>
-        <rect x="4" y="58" width="82" height="20" rx="8" fill="#8B6B47"/>
-        <rect x="0" y="45" width="14" height="32" rx="6" fill="#7A5C3A"/>
-        <rect x="76" y="45" width="14" height="32" rx="6" fill="#7A5C3A"/>
-        <rect x="14" y="76" width="8" height="28" rx="4" fill="#5C3D1E"/>
-        <rect x="68" y="76" width="8" height="28" rx="4" fill="#5C3D1E"/>
-      </svg>
-      <div class="progress-track"><div class="progress-fill" id="survey-progress" style="width:0%"></div></div>
-      <span class="progress-label" id="survey-progress-lbl">0 / 7</span>
-    </div>
-
-    <div class="survey-card" id="survey-card">
-      <div class="lib-row">
-        <div class="lib-question-bubble" id="lib-q-bubble">Loading…</div>
-      </div>
-      <div class="q-category" id="q-cat">Question</div>
-      <div id="q-body"><!-- injected --></div>
-      <div style="overflow:hidden">
-        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next →</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ======================================================
-     SCREEN 4 — STACKS QUEST
-     ====================================================== -->
-<div class="screen" id="screen-quest">
-  <div class="quest-ui">
-    <div class="floor-tabs" id="floor-tabs">
-      <div class="floor-tab active" onclick="setFloor(0)">Ground Floor</div>
-      <div class="floor-tab" onclick="setFloor(1)">First Floor</div>
-      <div class="floor-tab" onclick="setFloor(2)">Second Floor</div>
-    </div>
-    <svg id="map-svg" class="map-canvas" viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg">
-      <!-- rendered by JS -->
-    </svg>
-    <div class="room-tooltip" id="room-tooltip"></div>
-    <div class="quest-lib-guide">
-      <div class="quest-bubble" id="quest-bubble">Explore the library! Your perfect spot is glowing ✨</div>
-      <svg class="lib-svg-small" viewBox="0 0 90 110" xmlns="http://www.w3.org/2000/svg" style="animation:bob 3s ease-in-out infinite">
-        <rect x="8" y="12" width="74" height="48" rx="10" fill="#A07848"/>
-        <rect x="14" y="16" width="62" height="36" rx="7" fill="#B89060"/>
-        <circle cx="32" cy="35" r="9" fill="white"/><circle cx="58" cy="35" r="9" fill="white"/>
-        <circle cx="34" cy="36" r="5" fill="#3D2410" style="animation:blink 3s ease-in-out infinite"/>
-        <circle cx="60" cy="36" r="5" fill="#3D2410"/>
-        <circle cx="35" cy="35" r="2" fill="white"/><circle cx="61" cy="35" r="2" fill="white"/>
-        <path d="M32 50 Q45 56 58 50" stroke="#5C3D1E" stroke-width="2" fill="none" stroke-linecap="round"/>
-        <ellipse cx="22" cy="46" rx="7" ry="4" fill="#E8B4A0" opacity="0.6"/>
-        <ellipse cx="68" cy="46" rx="7" ry="4" fill="#E8B4A0" opacity="0.6"/>
-        <rect x="4" y="58" width="82" height="20" rx="8" fill="#8B6B47"/>
-        <rect x="0" y="45" width="14" height="32" rx="6" fill="#7A5C3A"/>
-        <rect x="76" y="45" width="14" height="32" rx="6" fill="#7A5C3A"/>
-        <rect x="14" y="76" width="8" height="28" rx="4" fill="#5C3D1E"/>
-        <rect x="68" y="76" width="8" height="28" rx="4" fill="#5C3D1E"/>
+        <rect x="4" y="100" width="20" height="38" rx="9" fill="#a06830" stroke="#16100a" stroke-width="2.5"/>
+        <rect x="136" y="100" width="20" height="38" rx="9" fill="#a06830" stroke="#16100a" stroke-width="2.5"/>
+        <!-- Chair back body -->
+        <rect x="14" y="14" width="132" height="96" rx="18" fill="#f0b429" stroke="#16100a" stroke-width="3.5"/>
+        <!-- Chair back inner cushion -->
+        <rect x="22" y="22" width="116" height="78" rx="12" fill="#f9c840" stroke="#16100a" stroke-width="2"/>
+        <!-- Eyes container -->
+        <g style="animation:blink 4.5s ease-in-out infinite;transform-origin:80px 60px">
+          <ellipse cx="52" cy="58" rx="14" ry="14" fill="white" stroke="#16100a" stroke-width="2"/>
+          <ellipse cx="108" cy="58" rx="14" ry="14" fill="white" stroke="#16100a" stroke-width="2"/>
+          <circle cx="55" cy="60" r="7" fill="#16100a"/>
+          <circle cx="111" cy="60" r="7" fill="#16100a"/>
+          <circle cx="57" cy="57" r="2.5" fill="white"/>
+          <circle cx="113" cy="57" r="2.5" fill="white"/>
+        </g>
+        <!-- Mouth -->
+        <path id="lib-mouth-land" d="M56 82 Q80 96 104 82" stroke="#16100a" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <!-- Blush -->
+        <ellipse cx="36" cy="74" rx="11" ry="7" fill="#f5c4a1" opacity=".65"/>
+        <ellipse cx="124" cy="74" rx="11" ry="7" fill="#f5c4a1" opacity=".65"/>
+        <!-- Left arm -->
+        <g id="arm-l-land" style="transform-origin:14px 108px;animation:wiggle 2.5s ease-in-out infinite">
+          <path d="M14 108 C-10 100 -18 72 -4 58" stroke="#16100a" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+          <ellipse cx="-7" cy="54" rx="12" ry="9" fill="#f0b429" stroke="#16100a" stroke-width="2.5" transform="rotate(-20,-7,54)"/>
+          <line x1="-14" y1="49" x2="-20" y2="42" stroke="#16100a" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="-8" y1="46" x2="-9" y2="38" stroke="#16100a" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="-1" y1="46" x2="2" y2="38" stroke="#16100a" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="5" y1="49" x2="10" y2="43" stroke="#16100a" stroke-width="2.5" stroke-linecap="round"/>
+        </g>
+        <!-- Right arm -->
+        <path d="M146 108 C168 100 175 74 162 60" stroke="#16100a" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+        <ellipse cx="164" cy="56" rx="12" ry="9" fill="#f0b429" stroke="#16100a" stroke-width="2.5" transform="rotate(20,164,56)"/>
+        <line x1="158" y1="50" x2="153" y2="43" stroke="#16100a" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="164" y1="48" x2="163" y2="40" stroke="#16100a" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="170" y1="50" x2="173" y2="43" stroke="#16100a" stroke-width="2.5" stroke-linecap="round"/>
       </svg>
     </div>
-    <button class="continue-quest-btn" onclick="goScorecard()">See My Scorecard 🎴</button>
-  </div>
-</div>
 
-<!-- ======================================================
-     SCREEN 5 — SCORECARD
-     ====================================================== -->
-<div class="screen" id="screen-scorecard">
-  <div class="scorecard-wrap">
-    <div class="scroll-unfurl">
-      <div class="card-lib-row">
-        <svg class="lib-svg-small" viewBox="0 0 90 110" xmlns="http://www.w3.org/2000/svg" style="animation:bob 3s ease-in-out infinite">
-          <rect x="8" y="12" width="74" height="48" rx="10" fill="#A07848"/>
-          <rect x="14" y="16" width="62" height="36" rx="7" fill="#B89060"/>
-          <circle cx="32" cy="35" r="9" fill="white"/><circle cx="58" cy="35" r="9" fill="white"/>
-          <circle cx="34" cy="36" r="5" fill="#3D2410" style="animation:blink 3s ease-in-out infinite"/>
-          <circle cx="60" cy="36" r="5" fill="#3D2410"/>
-          <circle cx="35" cy="35" r="2" fill="white"/><circle cx="61" cy="35" r="2" fill="white"/>
-          <path d="M32 50 Q45 58 58 50" stroke="#5C3D1E" stroke-width="2" fill="none" stroke-linecap="round"/>
-          <ellipse cx="22" cy="46" rx="7" ry="4" fill="#E8B4A0" opacity="0.6"/>
-          <ellipse cx="68" cy="46" rx="7" ry="4" fill="#E8B4A0" opacity="0.6"/>
-          <rect x="4" y="58" width="82" height="20" rx="8" fill="#8B6B47"/>
-          <rect x="0" y="45" width="14" height="32" rx="6" fill="#7A5C3A"/>
-          <rect x="76" y="45" width="14" height="32" rx="6" fill="#7A5C3A"/>
-          <rect x="14" y="76" width="8" height="28" rx="4" fill="#5C3D1E"/>
-          <rect x="68" y="76" width="8" height="28" rx="4" fill="#5C3D1E"/>
+    <h1><em>Lib's</em> Library World</h1>
+    <p>A living survey adventure · guided by Lib the Chair ✨</p>
+
+    <div class="btn-row">
+      <button class="btn lg" onclick="G.go('s1')" aria-label="Begin the survey">Begin Adventure →</button>
+      <button class="btn sky" onclick="G.goLeaderboard()" aria-label="View faculty leaderboard">🏆 Leaderboard</button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════
+     S1 — REGISTER
+════════════════════════════ -->
+<section class="screen" id="s1" aria-label="Registration">
+  <div class="rg-wrap">
+    <div class="lib-col">
+      <svg class="lib-lg" viewBox="0 0 160 185" aria-hidden="true" style="animation:bob 3s ease-in-out infinite;filter:drop-shadow(3px 3px 0 rgba(22,16,10,.18))">
+        <rect x="22" y="148" width="14" height="36" rx="7" fill="#8B5E2A" stroke="#16100a" stroke-width="2.5"/>
+        <rect x="124" y="148" width="14" height="36" rx="7" fill="#8B5E2A" stroke="#16100a" stroke-width="2.5"/>
+        <rect x="28" y="152" width="14" height="32" rx="7" fill="#a06830" stroke="#16100a" stroke-width="2.5" transform="rotate(5,35,152)"/>
+        <rect x="118" y="152" width="14" height="32" rx="7" fill="#a06830" stroke="#16100a" stroke-width="2.5" transform="rotate(-5,125,152)"/>
+        <rect x="14" y="128" width="132" height="28" rx="12" fill="#d4922a" stroke="#16100a" stroke-width="3"/>
+        <rect x="20" y="132" width="120" height="16" rx="8" fill="#e8a832" stroke="#16100a" stroke-width="1.5"/>
+        <rect x="4" y="100" width="20" height="38" rx="9" fill="#a06830" stroke="#16100a" stroke-width="2.5"/>
+        <rect x="136" y="100" width="20" height="38" rx="9" fill="#a06830" stroke="#16100a" stroke-width="2.5"/>
+        <rect x="14" y="14" width="132" height="96" rx="18" fill="#f0b429" stroke="#16100a" stroke-width="3.5"/>
+        <rect x="22" y="22" width="116" height="78" rx="12" fill="#f9c840" stroke="#16100a" stroke-width="2"/>
+        <g style="animation:blink 4s ease-in-out infinite;transform-origin:80px 60px">
+          <ellipse cx="52" cy="58" rx="14" ry="14" fill="white" stroke="#16100a" stroke-width="2"/>
+          <ellipse cx="108" cy="58" rx="14" ry="14" fill="white" stroke="#16100a" stroke-width="2"/>
+          <circle cx="55" cy="60" r="7" fill="#16100a"/>
+          <circle cx="111" cy="60" r="7" fill="#16100a"/>
+          <circle cx="57" cy="57" r="2.5" fill="white"/>
+          <circle cx="113" cy="57" r="2.5" fill="white"/>
+        </g>
+        <path d="M56 82 Q80 96 104 82" stroke="#16100a" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <ellipse cx="36" cy="74" rx="11" ry="7" fill="#f5c4a1" opacity=".65"/>
+        <ellipse cx="124" cy="74" rx="11" ry="7" fill="#f5c4a1" opacity=".65"/>
+      </svg>
+      <div class="speech" id="reg-speech" aria-live="polite">
+        Hey! I'm <strong>Lib</strong> 🪑<br>I've lived in this library for years but nobody ever asked what you actually need…<br>Let's fix that!
+      </div>
+    </div>
+    <div class="card" style="padding:24px;animation:slideUp .5s ease both">
+      <h2 style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:18px">Who are you? ✏️</h2>
+      <div style="margin-bottom:14px">
+        <label class="inp-lbl" for="inp-name">Your Name</label>
+        <input class="inp" id="inp-name" type="text" placeholder="What should Lib call you?" autocomplete="given-name" aria-required="true" oninput="G.onName()">
+      </div>
+      <div style="margin-bottom:14px">
+        <label class="inp-lbl" for="inp-sid">Student ID <span style="opacity:.5;font-weight:400">(optional)</span></label>
+        <input class="inp" id="inp-sid" type="text" placeholder="For deduplication only" autocomplete="off">
+      </div>
+      <div style="margin-bottom:20px">
+        <label class="inp-lbl">Your Faculty</label>
+        <div class="fac-grid" id="fac-grid" role="radiogroup" aria-label="Select your faculty"></div>
+      </div>
+      <button class="btn lg full" id="reg-btn" onclick="G.submitReg()" disabled>Enter the Library →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════
+     S2 — SURVEY
+════════════════════════════ -->
+<section class="screen" id="s2" aria-label="Survey">
+  <div class="sv-wrap">
+    <div class="sv-hdr">
+      <svg class="lib-sm" viewBox="0 0 160 185" aria-hidden="true" id="sv-lib" style="animation:bob 3s ease-in-out infinite;filter:drop-shadow(2px 2px 0 rgba(22,16,10,.18));flex-shrink:0">
+        <rect x="22" y="148" width="14" height="36" rx="7" fill="#8B5E2A" stroke="#16100a" stroke-width="2.5"/>
+        <rect x="124" y="148" width="14" height="36" rx="7" fill="#8B5E2A" stroke="#16100a" stroke-width="2.5"/>
+        <rect x="28" y="152" width="14" height="32" rx="7" fill="#a06830" stroke="#16100a" stroke-width="2.5" transform="rotate(5,35,152)"/>
+        <rect x="118" y="152" width="14" height="32" rx="7" fill="#a06830" stroke="#16100a" stroke-width="2.5" transform="rotate(-5,125,152)"/>
+        <rect x="14" y="128" width="132" height="28" rx="12" fill="#d4922a" stroke="#16100a" stroke-width="3"/>
+        <rect x="20" y="132" width="120" height="16" rx="8" fill="#e8a832" stroke="#16100a" stroke-width="1.5"/>
+        <rect x="4" y="100" width="20" height="38" rx="9" fill="#a06830" stroke="#16100a" stroke-width="2.5"/>
+        <rect x="136" y="100" width="20" height="38" rx="9" fill="#a06830" stroke="#16100a" stroke-width="2.5"/>
+        <rect x="14" y="14" width="132" height="96" rx="18" fill="#f0b429" stroke="#16100a" stroke-width="3.5"/>
+        <rect x="22" y="22" width="116" height="78" rx="12" fill="#f9c840" stroke="#16100a" stroke-width="2"/>
+        <g id="sv-eyes">
+          <ellipse cx="52" cy="58" rx="14" ry="14" fill="white" stroke="#16100a" stroke-width="2"/>
+          <ellipse cx="108" cy="58" rx="14" ry="14" fill="white" stroke="#16100a" stroke-width="2"/>
+          <circle id="sv-pupil-l" cx="55" cy="60" r="7" fill="#16100a"/>
+          <circle id="sv-pupil-r" cx="111" cy="60" r="7" fill="#16100a"/>
+          <circle cx="57" cy="57" r="2.5" fill="white"/>
+          <circle cx="113" cy="57" r="2.5" fill="white"/>
+        </g>
+        <path id="sv-mouth" d="M56 82 Q80 96 104 82" stroke="#16100a" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <ellipse cx="36" cy="74" rx="11" ry="7" fill="#f5c4a1" opacity=".65"/>
+        <ellipse cx="124" cy="74" rx="11" ry="7" fill="#f5c4a1" opacity=".65"/>
+      </svg>
+      <div class="prog-track" role="progressbar" aria-valuemin="0" aria-valuemax="7" id="prog-wrap">
+        <div class="prog-fill" id="prog-fill" style="width:0%"></div>
+      </div>
+      <div class="prog-lbl" id="prog-lbl" aria-label="Progress">0/7</div>
+    </div>
+    <div class="q-card" id="q-card">
+      <div class="lib-q-row">
+        <div class="q-bubble" id="q-bubble" aria-live="polite"></div>
+      </div>
+      <div class="q-tag" id="q-tag">Question</div>
+      <div id="q-body"></div>
+      <div style="display:flex;justify-content:flex-end;margin-top:18px">
+        <button class="btn" id="next-btn" onclick="G.nextQ()">Next →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════
+     S3 — MOOD MAP
+════════════════════════════ -->
+<section class="screen" id="s3" aria-label="Library mood map">
+  <div class="map-hdr">
+    <button class="fl-btn active" id="fb0" onclick="G.setFloor(0)">Ground</button>
+    <button class="fl-btn" id="fb1" onclick="G.setFloor(1)">First Floor</button>
+    <button class="fl-btn" id="fb2" onclick="G.setFloor(2)">Second Floor</button>
+  </div>
+  <div class="map-info" id="map-info">Tap a room to share how it makes you feel 😊</div>
+  <div class="map-box" id="map-box">
+    <svg id="map-svg" viewBox="0 0 740 420" preserveAspectRatio="xMidYMid meet" aria-label="Library floor map" role="img"></svg>
+    <div class="map-tip" id="map-tip"></div>
+    <div class="mood-picker" id="mood-picker" style="display:none"></div>
+    <div class="map-lib-wrap">
+      <div class="map-speech" id="map-speech" aria-live="polite">Tap any room to share your vibe! 🗺️</div>
+      <svg class="lib-md" viewBox="0 0 160 185" aria-hidden="true" style="animation:bob 3s ease-in-out infinite;filter:drop-shadow(2px 2px 0 rgba(22,16,10,.18))">
+        <rect x="22" y="148" width="14" height="36" rx="7" fill="#8B5E2A" stroke="#16100a" stroke-width="2.5"/>
+        <rect x="124" y="148" width="14" height="36" rx="7" fill="#8B5E2A" stroke="#16100a" stroke-width="2.5"/>
+        <rect x="14" y="128" width="132" height="28" rx="12" fill="#d4922a" stroke="#16100a" stroke-width="3"/>
+        <rect x="4" y="100" width="20" height="38" rx="9" fill="#a06830" stroke="#16100a" stroke-width="2.5"/>
+        <rect x="136" y="100" width="20" height="38" rx="9" fill="#a06830" stroke="#16100a" stroke-width="2.5"/>
+        <rect x="14" y="14" width="132" height="96" rx="18" fill="#f0b429" stroke="#16100a" stroke-width="3.5"/>
+        <rect x="22" y="22" width="116" height="78" rx="12" fill="#f9c840" stroke="#16100a" stroke-width="2"/>
+        <ellipse cx="52" cy="58" rx="14" ry="14" fill="white" stroke="#16100a" stroke-width="2"/>
+        <ellipse cx="108" cy="58" rx="14" ry="14" fill="white" stroke="#16100a" stroke-width="2"/>
+        <circle cx="55" cy="60" r="7" fill="#16100a"/>
+        <circle cx="111" cy="60" r="7" fill="#16100a"/>
+        <path d="M56 82 Q80 96 104 82" stroke="#16100a" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <ellipse cx="36" cy="74" rx="11" ry="7" fill="#f5c4a1" opacity=".65"/>
+        <ellipse cx="124" cy="74" rx="11" ry="7" fill="#f5c4a1" opacity=".65"/>
+      </svg>
+    </div>
+  </div>
+  <div class="map-legend">
+    <div class="leg-item"><div class="leg-dot" style="background:#a8e6c3"></div>😊 Happy</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#a8d4f0"></div>🤓 Focused</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#d4c8f0"></div>😴 Sleepy</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#f0b8a8"></div>😤 Stressed</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#f0d8a8"></div>😰 Anxious</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#d4a870"></div>☕ Cosy</div>
+  </div>
+  <div class="map-ftr">
+    <button class="btn terra lg" onclick="G.go('s4');G.buildScore()">See My Scorecard 🎴</button>
+  </div>
+</section>
+
+<!-- ════════════════════════════
+     S4 — SCORECARD
+════════════════════════════ -->
+<section class="screen" id="s4" aria-label="Your scorecard">
+  <div class="sc-wrap">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <h2 style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800">Your Card 🎴</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn sky" onclick="G.goLeaderboard()">🏆 Rankings</button>
+        <button class="btn ghost" onclick="G.go('s0')">← Home</button>
+      </div>
+    </div>
+    <div class="sc-card">
+      <div class="sc-hdr">
+        <svg class="lib-md" viewBox="0 0 160 185" aria-hidden="true" style="filter:drop-shadow(2px 2px 0 rgba(22,16,10,.18))">
+          <rect x="22" y="148" width="14" height="36" rx="7" fill="#5c3010" stroke="#16100a" stroke-width="2.5"/>
+          <rect x="124" y="148" width="14" height="36" rx="7" fill="#5c3010" stroke="#16100a" stroke-width="2.5"/>
+          <rect x="14" y="128" width="132" height="28" rx="12" fill="#8B5E2A" stroke="#16100a" stroke-width="3"/>
+          <rect x="4" y="100" width="20" height="38" rx="9" fill="#6a4020" stroke="#16100a" stroke-width="2.5"/>
+          <rect x="136" y="100" width="20" height="38" rx="9" fill="#6a4020" stroke="#16100a" stroke-width="2.5"/>
+          <rect x="14" y="14" width="132" height="96" rx="18" fill="white" stroke="#16100a" stroke-width="3.5"/>
+          <rect x="22" y="22" width="116" height="78" rx="12" fill="#fffbe8" stroke="#16100a" stroke-width="2"/>
+          <ellipse cx="52" cy="58" rx="14" ry="14" fill="#f0b429" stroke="#16100a" stroke-width="2"/>
+          <ellipse cx="108" cy="58" rx="14" ry="14" fill="#f0b429" stroke="#16100a" stroke-width="2"/>
+          <circle cx="55" cy="60" r="7" fill="#16100a"/>
+          <circle cx="111" cy="60" r="7" fill="#16100a"/>
+          <circle cx="57" cy="57" r="2.5" fill="white"/>
+          <circle cx="113" cy="57" r="2.5" fill="white"/>
+          <path d="M56 82 Q80 100 104 82" stroke="#16100a" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <ellipse cx="36" cy="74" rx="11" ry="7" fill="#f5c4a1" opacity=".65"/>
+          <ellipse cx="124" cy="74" rx="11" ry="7" fill="#f5c4a1" opacity=".65"/>
         </svg>
         <div>
-          <div style="font-family:'Lora',serif;font-size:1.5rem;color:var(--deep-bark);font-weight:600" id="sc-name">Your Scorecard</div>
-          <div style="font-size:0.8rem;color:var(--bark);margin-top:2px" id="sc-faculty">Faculty · Lib's Library World</div>
+          <div class="sc-name" id="sc-name">Your Name</div>
+          <div class="sc-fac" id="sc-fac">Faculty</div>
+          <div class="persona" id="sc-persona">✨ Explorer</div>
         </div>
       </div>
-
-      <div class="persona-badge" id="sc-persona">🌙 The Night Owl Scholar</div>
-
-      <div class="score-section">
-        <div class="score-cell">
-          <div class="score-val" id="sc-visits">—</div>
-          <div class="score-lbl">Visit Frequency</div>
+      <div class="sc-body">
+        <div class="stats-grid">
+          <div class="stat-box"><div class="stat-val" id="sc-freq">—</div><div class="stat-lbl">Visit Frequency</div></div>
+          <div class="stat-box"><div class="stat-val" id="sc-avg">—</div><div class="stat-lbl">Avg Satisfaction</div></div>
+          <div class="stat-box"><div class="stat-val" id="sc-spots">—</div><div class="stat-lbl">Areas Used</div></div>
+          <div class="stat-box" style="background:var(--lemon)"><div class="stat-val" id="sc-pts">10</div><div class="stat-lbl">Lib Points ⭐</div></div>
         </div>
-        <div class="score-cell">
-          <div class="score-val" id="sc-avg">—</div>
-          <div class="score-lbl">Avg Satisfaction</div>
+        <div class="qr-row">
+          <div class="qr-box" id="qr-box"></div>
+          <div class="qr-info">
+            <h4>Share & Earn 🌿</h4>
+            <p>Friends who scan your QR and register earn you +10 Lib Points each!</p>
+            <div class="credits-tag" id="sc-credits">0 referrals · 0 pts</div>
+          </div>
         </div>
-        <div class="score-cell">
-          <div class="score-val" id="sc-spots">—</div>
-          <div class="score-lbl">Fave Spots Used</div>
-        </div>
-        <div class="score-cell">
-          <div class="score-val" id="sc-points">0</div>
-          <div class="score-lbl">Lib Points</div>
-        </div>
+        <button class="btn full green" style="margin-bottom:8px" onclick="G.shareCard()">📤 Share My Library Card</button>
+        <button class="btn full sky" onclick="G.goLeaderboard()">🏆 Faculty Leaderboard</button>
       </div>
+    </div>
+  </div>
+</section>
 
-      <div class="qr-section">
-        <canvas id="qr-canvas" width="90" height="90"></canvas>
-        <div class="qr-text">
-          <h4>Share & Earn Points</h4>
-          <p>When a friend scans your QR and registers, you both earn <strong>+10 Lib Points</strong> 🌿</p>
-          <div class="credits-pill" id="credits-pill">🌱 0 friends referred · 0 points earned</div>
-        </div>
+<!-- ════════════════════════════
+     S5 — LEADERBOARD
+════════════════════════════ -->
+<section class="screen" id="s5" aria-label="Faculty leaderboard">
+  <div class="lb-wrap">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;flex-wrap:wrap;gap:8px">
+      <div class="lb-title">🏆 Faculty Rankings</div>
+      <button class="btn ghost" onclick="G.go('s0')">← Home</button>
+    </div>
+    <div class="lb-sub">Live competitive ranking · updated in real-time · ranked by avg satisfaction</div>
+    <div class="lb-card">
+      <div class="lb-thead"><div>#</div><div>Faculty</div><div style="text-align:right">Avg ⭐</div><div style="text-align:right">Entries</div></div>
+      <div id="lb-body" aria-live="polite"><div style="padding:20px;font-family:'Syne',sans-serif;opacity:.5;text-align:center">Loading…</div></div>
+    </div>
+    <div class="lb-breakdown" id="lb-breakdown"></div>
+  </div>
+</section>
+
+<!-- ════════════════════════════
+     S-KIOSK — Live screen
+════════════════════════════ -->
+<section class="screen" id="s-kiosk" aria-label="Live leaderboard display">
+  <div style="width:100%;max-width:1100px;display:flex;flex-direction:column;align-items:center">
+    <div style="display:flex;align-items:center;gap:20px;margin-bottom:8px">
+      <svg width="60" height="68" viewBox="0 0 160 185" aria-hidden="true" style="animation:bob 3s ease-in-out infinite">
+        <rect x="22" y="148" width="14" height="36" rx="7" fill="#8B5E2A" stroke="#f0b429" stroke-width="2.5"/>
+        <rect x="124" y="148" width="14" height="36" rx="7" fill="#8B5E2A" stroke="#f0b429" stroke-width="2.5"/>
+        <rect x="14" y="128" width="132" height="28" rx="12" fill="#d4922a" stroke="#f0b429" stroke-width="3"/>
+        <rect x="4" y="100" width="20" height="38" rx="9" fill="#a06830" stroke="#f0b429" stroke-width="2.5"/>
+        <rect x="136" y="100" width="20" height="38" rx="9" fill="#a06830" stroke="#f0b429" stroke-width="2.5"/>
+        <rect x="14" y="14" width="132" height="96" rx="18" fill="#f0b429" stroke="#f0b429" stroke-width="3.5"/>
+        <rect x="22" y="22" width="116" height="78" rx="12" fill="#f9c840" stroke="#f0b429" stroke-width="2"/>
+        <ellipse cx="52" cy="58" rx="14" ry="14" fill="white" stroke="#16100a" stroke-width="2"/>
+        <ellipse cx="108" cy="58" rx="14" ry="14" fill="white" stroke="#16100a" stroke-width="2"/>
+        <circle cx="55" cy="60" r="7" fill="#16100a"/>
+        <circle cx="111" cy="60" r="7" fill="#16100a"/>
+        <path d="M56 82 Q80 96 104 82" stroke="#16100a" stroke-width="3" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div class="kiosk-title">Faculty Leaderboard</div>
+    </div>
+    <div class="kiosk-sub">Live · updated every 30 seconds · University Library Survey</div>
+    <div class="kiosk-grid" id="kiosk-grid"></div>
+  </div>
+  <div class="kiosk-ticker"><span class="ticker-inner" id="kiosk-ticker">Loading…</span></div>
+  <div class="kiosk-refresh" id="kiosk-refresh">Refreshes in 30s</div>
+</section>
+
+<!-- ════════════════════════════
+     S-AL — ADMIN LOGIN
+════════════════════════════ -->
+<section class="screen" id="s-al" aria-label="Admin login">
+  <div class="al-box card" style="padding:32px 28px;text-align:center">
+    <div style="font-size:2.5rem;margin-bottom:10px">🔑</div>
+    <h2>Admin Portal</h2>
+    <p>Enter the admin password</p>
+    <input class="inp" type="password" id="adm-pass" placeholder="Password" style="margin-bottom:12px;text-align:center" aria-label="Admin password" onkeydown="if(event.key==='Enter')G.checkAdmin()">
+    <button class="btn full" onclick="G.checkAdmin()" style="margin-bottom:8px">Enter Dashboard →</button>
+    <button class="btn full ghost" onclick="G.go('s0')">← Back</button>
+  </div>
+</section>
+
+<!-- ════════════════════════════
+     S-ADM — ADMIN DASHBOARD
+════════════════════════════ -->
+<section class="screen" id="s-adm" aria-label="Admin dashboard">
+  <div class="adm-wrap">
+    <div class="adm-top">
+      <div class="adm-title">📊 Dashboard</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn sky" onclick="G.exportCSV()">Export CSV ↓</button>
+        <button class="btn ghost" onclick="G.go('s0')">← Exit</button>
       </div>
-
-      <button class="share-btn" onclick="shareCard()">📤 Share My Library Card</button>
     </div>
-  </div>
-</div>
 
-<!-- ======================================================
-     SCREEN 6 — ADMIN LOGIN
-     ====================================================== -->
-<div class="screen" id="screen-admin-login">
-  <div class="admin-login-card">
-    <div style="font-size:2.5rem;margin-bottom:12px">🔑</div>
-    <h2 style="font-family:'Lora',serif;color:var(--deep-bark);margin-bottom:6px">Admin Portal</h2>
-    <p style="font-size:0.82rem;color:var(--bark);margin-bottom:20px">Enter the admin password to continue</p>
-    <input class="form-input" type="password" id="admin-pass" placeholder="Password" style="margin-bottom:12px" onkeydown="if(event.key==='Enter')checkAdmin()"/>
-    <button class="submit-btn" onclick="checkAdmin()">Enter Dashboard →</button>
-    <p style="font-size:0.72rem;color:var(--bark);margin-top:14px;cursor:none" onclick="showScreen('screen-landing')" style="cursor:none">← Back to Library</p>
-  </div>
-</div>
-
-<!-- ======================================================
-     SCREEN 7 — ADMIN DASHBOARD
-     ====================================================== -->
-<div class="screen" id="screen-admin">
-  <div class="admin-wrap">
-    <div class="admin-header">
-      <h1 class="admin-title">📊 Admin Dashboard</h1>
-      <button class="export-btn" onclick="exportCSV()">Export CSV ↓</button>
+    <!-- Kiosk launch box -->
+    <div class="kiosk-launch-box">
+      <div class="kiosk-launch-title">🖥️ Library Display Screen</div>
+      <div class="kiosk-launch-desc">Launch the live leaderboard on any screen in the library. Auto-refreshes every 30 seconds. Students can also see this at the end of their survey.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn ink" onclick="G.go('s-kiosk');G.startKiosk()">🚀 Launch Kiosk Mode</button>
+        <button class="btn ghost" onclick="G.copyKioskLink()">📋 Copy Link</button>
+      </div>
     </div>
-    <div class="admin-nav">
-      <button class="admin-nav-btn active" onclick="adminTab('overview',this)">Overview</button>
-      <button class="admin-nav-btn" onclick="adminTab('faculty',this)">By Faculty</button>
-      <button class="admin-nav-btn" onclick="adminTab('satisfaction',this)">Satisfaction</button>
-      <button class="admin-nav-btn" onclick="adminTab('responses',this)">Responses</button>
-      <button class="admin-nav-btn" onclick="adminTab('referrals',this)">Referrals</button>
-    </div>
-    <div id="admin-content"><!-- injected --></div>
-  </div>
-</div>
 
-<!-- ======================================================
-     QR LIBRARY (mini, no CDN needed)
-     ====================================================== -->
-<script>
-// Tiny QR generator — enough for a URL string (simplified matrix)
-// We'll use a real CDN-free approach: data URI of a simple visual QR-like placeholder
-// For production, embed qrcode.js from CDN
-</script>
+    <div class="adm-tabs" role="tablist">
+      <button class="atab on" onclick="G.aTab('overview',this)" role="tab">Overview</button>
+      <button class="atab" onclick="G.aTab('faculty',this)" role="tab">By Faculty</button>
+      <button class="atab" onclick="G.aTab('sat',this)" role="tab">Satisfaction</button>
+      <button class="atab" onclick="G.aTab('mood',this)" role="tab">Mood Map</button>
+      <button class="atab" onclick="G.aTab('resp',this)" role="tab">Responses</button>
+      <button class="atab" onclick="G.aTab('ref',this)" role="tab">Referrals</button>
+    </div>
+    <div id="adm-body" aria-live="polite"></div>
+  </div>
+</section>
+
+<!-- QR lib -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <script>
-// ============================================================
-// STATE
-// ============================================================
-const STATE = {
-  user: { name: '', faculty: '', id: '', uid: '' },
+/* ══════════════════════════════════════════════════
+   GLOBAL APP — G
+══════════════════════════════════════════════════ */
+const G = (() => {
+'use strict';
+
+/* ── state ── */
+const S = {
+  name:'', faculty:'', sid:'', uid:'',
+  refId: null,
   answers: {},
-  referrerId: null,
-  credits: 0,
-  currentQ: 0,
+  qIdx: 0,
+  qrDone: false,
+  moodVotes: {},   // roomId -> emoji
+  currentFloor: 0,
 };
 
+/* ── constants ── */
 const FACULTIES = [
-  { id:'arts',    icon:'🎨', name:'Arts & Design' },
-  { id:'sci',     icon:'🔬', name:'Science' },
-  { id:'eng',     icon:'⚙️', name:'Engineering' },
-  { id:'bus',     icon:'💼', name:'Business' },
-  { id:'law',     icon:'⚖️', name:'Law' },
-  { id:'med',     icon:'🩺', name:'Medicine' },
-  { id:'hum',     icon:'📚', name:'Humanities' },
-  { id:'edu',     icon:'🎓', name:'Education' },
+  {id:'arts', e:'🎨', n:'Arts & Design'},
+  {id:'sci',  e:'🔬', n:'Science'},
+  {id:'eng',  e:'⚙️', n:'Engineering'},
+  {id:'bus',  e:'💼', n:'Business'},
+  {id:'law',  e:'⚖️', n:'Law'},
+  {id:'med',  e:'🩺', n:'Medicine'},
+  {id:'hum',  e:'📚', n:'Humanities'},
+  {id:'edu',  e:'🎓', n:'Education'},
+];
+
+const QS = [
+  { id:'freq', cat:'Library Usage',
+    ask: n=>`So ${n}, how often do you visit the library?`,
+    type:'single', opts:['Daily','Weekly','Monthly','Rarely','Never'] },
+  { id:'areas', cat:'Areas Used',
+    ask: _=>`Which parts do you use? Pick all that apply!`,
+    type:'multi', opts:['Individual Study Rooms','Group Study Rooms','Quiet Areas','Computer Labs','Print / Copy','Book Collections','Digital Resources','Coffee Shop / Lounge'] },
+  { id:'ranking', cat:'Space Ranking',
+    ask: _=>`Drag to rank your favourite study environments (1 = fave)`,
+    type:'rank', opts:['Individual Study Rooms','Group Study Rooms','Open Study Areas','Quiet Zones','Outdoor Spaces'] },
+  { id:'satisfaction', cat:'Satisfaction',
+    ask: _=>`Rate your satisfaction with these library resources ⭐`,
+    type:'likert', opts:['Books / Print','Digital Resources','Study Space','Staff Assistance','Wi-Fi & Tech','Library Hours'] },
+  { id:'improve', cat:'Your Ideas',
+    ask: n=>`${n}, what would you improve about the library? 🪄`,
+    type:'text', ph:'Share your ideas — as many as you like!' },
+  { id:'newservice', cat:'New Services',
+    ask: _=>`What new services would you love to see? Dream big! ✨`,
+    type:'text', ph:'3D printers? Nap pods? Rooftop café? Go wild!' },
+  { id:'challenge', cat:'Extra Challenge',
+    ask: _=>`Want bonus Lib Points? Take a photo of your fave study spot! 📸`,
+    type:'single', opts:["Yes, I'm in! 📸","Maybe later","No thanks"] },
 ];
 
 const PERSONAS = {
-  daily: { daily:'🌅 The Dawn Dweller', weekly:'📖 The Weekend Scholar', monthly:'🗺️ The Occasional Explorer', rarely:'🌙 The Night Owl', never:'🌟 The Curious Newcomer' },
+  Daily:'🌅 The Dawn Dweller', Weekly:'📖 The Weekend Scholar',
+  Monthly:'🗺️ The Explorer', Rarely:'🌙 The Night Owl', Never:'🌟 The Newcomer',
 };
 
-const QUESTIONS = [
-  {
-    id: 'freq',
-    cat: 'Library Usage',
-    bubble: (n) => `So ${n}, how often do you visit the library? Be honest — Lib doesn't judge! 😄`,
-    type: 'single',
-    options: ['Daily','Weekly','Monthly','Rarely','Never'],
-  },
-  {
-    id: 'areas',
-    cat: 'Library Areas',
-    bubble: (n) => `Interesting! And which areas do you usually hang out in? Pick all that apply!`,
-    type: 'multi',
-    options: ['Study Rooms (Individual)','Group Study Rooms','Quiet Areas','Computer Labs','Print/Copy Stations','Book Collections','Digital Resources','Coffee Shop / Lounge'],
-  },
-  {
-    id: 'ranking',
-    cat: 'Space Preference',
-    bubble: (n) => `Now the fun part — drag these to rank your favourite study vibes (1 = fave)`,
-    type: 'rank',
-    options: ['Individual Study Rooms','Group Study Rooms','Open Study Areas','Quiet Zones','Outdoor Spaces'],
-  },
-  {
-    id: 'satisfaction',
-    cat: 'Resource Satisfaction',
-    bubble: (n) => `How satisfied are you with these library resources? Tap the orbs to rate!`,
-    type: 'likert',
-    options: ['Books / Print','Digital Resources','Study Space','Staff Assistance','Wi-Fi & Tech','Library Hours'],
-  },
-  {
-    id: 'improve',
-    cat: 'Your Ideas',
-    bubble: (n) => `If you had a magic wand 🪄, what would you improve about the library?`,
-    type: 'text',
-    placeholder: "Tell Lib your ideas… (as many as you like!)",
-  },
-  {
-    id: 'newservice',
-    cat: 'New Services',
-    bubble: (n) => `Ooh I love this one — suggest any new services you'd love to see at the library! ✨`,
-    type: 'text',
-    placeholder: "Dream big! 3D printers? Nap pods? Lib is listening…",
-  },
-  {
-    id: 'challenge',
-    cat: 'Extra Points Challenge',
-    bubble: (n) => `Last one! Want to earn bonus Lib Points? Take a photo of your favourite study spot and share it! 📸`,
-    type: 'single',
-    options: ['Yes, I\'m in! 📸','Maybe later','No thanks'],
-  },
+const MOODS = ['😊','🤓','😴','😤','😰','☕'];
+
+const MOOD_FILLS = {
+  '😊':'#a8e6c3','🤓':'#a8d4f0','😴':'#d4c8f0',
+  '😤':'#f0b8a8','😰':'#f0d8a8','☕':'#d4a870','':'#f0ebe0',
+};
+
+const FLOORS = [
+  { name:'Ground Floor', rooms:[
+    {id:'conc', x:38,y:38,w:155,h:60,label:'Concierge & Security',type:'service',base:'#f0b429'},
+    {id:'self', x:208,y:38,w:140,h:60,label:'Self Service',type:'service',base:'#f0b429'},
+    {id:'atc',  x:38,y:118,w:140,h:80,label:'Assistive Tech',type:'support',base:'#4a9fd4'},
+    {id:'cls5', x:193,y:118,w:130,h:80,label:'Teaching Classroom',type:'study',base:'#d95f2b'},
+    {id:'help', x:340,y:118,w:130,h:80,label:'Help Desk',type:'service',base:'#f0b429'},
+    {id:'gksk', x:38,y:218,w:130,h:82,label:'Games Library',type:'social',base:'#f5c4a1'},
+    {id:'grp9', x:185,y:218,w:130,h:82,label:'Group Study Room',type:'group',base:'#3a8c5c'},
+    {id:'spec', x:332,y:218,w:138,h:82,label:'Special Collections',type:'quiet',base:'#a8c878'},
+    {id:'main0',x:490,y:38,w:214,h:262,label:'Main Collection\n000–699',type:'books',base:'#e8d5b0'},
+  ]},
+  { name:'First Floor', rooms:[
+    {id:'mec',  x:38,y:38,w:155,h:72,label:'Media Equipment',type:'tech',base:'#4a9fd4'},
+    {id:'its',  x:208,y:38,w:140,h:72,label:'IT Services Help',type:'service',base:'#f0b429'},
+    {id:'macs', x:38,y:130,w:140,h:72,label:'Seats with Macs',type:'tech',base:'#4a9fd4'},
+    {id:'pcs',  x:195,y:130,w:140,h:72,label:'Seats with PCs',type:'tech',base:'#4a9fd4'},
+    {id:'sil18',x:355,y:130,w:135,h:72,label:'Silent Study',type:'quiet',base:'#a8c878'},
+    {id:'r102', x:38,y:222,w:140,h:82,label:'Classroom 102',type:'study',base:'#d95f2b'},
+    {id:'r103', x:195,y:222,w:140,h:82,label:'Classroom 103',type:'study',base:'#d95f2b'},
+    {id:'sil19',x:355,y:222,w:135,h:82,label:'Silent Study',type:'quiet',base:'#a8c878'},
+    {id:'main1',x:500,y:38,w:204,h:266,label:'Main Collection\n000–999',type:'books',base:'#e8d5b0'},
+  ]},
+  { name:'Second Floor', rooms:[
+    {id:'avs',  x:38,y:38,w:145,h:72,label:'Audio-Visual Seats',type:'tech',base:'#4a9fd4'},
+    {id:'opcs', x:198,y:38,w:140,h:72,label:'Open Access PCs',type:'tech',base:'#4a9fd4'},
+    {id:'avdv', x:356,y:38,w:138,h:72,label:'AV Viewing Rooms',type:'tech',base:'#4a9fd4'},
+    {id:'s22',  x:38,y:130,w:145,h:72,label:'Silent Study',type:'quiet',base:'#a8c878'},
+    {id:'dms',  x:198,y:130,w:140,h:72,label:'Digital Media Suite',type:'tech',base:'#4a9fd4'},
+    {id:'glib', x:356,y:130,w:138,h:72,label:'Games Library',type:'social',base:'#f5c4a1'},
+    {id:'g204', x:38,y:222,w:145,h:82,label:'Group Study 204',type:'group',base:'#3a8c5c'},
+    {id:'rly',  x:198,y:222,w:140,h:82,label:'Royal Literary Fellows',type:'quiet',base:'#a8c878'},
+    {id:'pgs',  x:356,y:222,w:138,h:82,label:'Postgrad Study',type:'quiet',base:'#c8d8a0'},
+    {id:'buch', x:506,y:38,w:198,h:120,label:'Buchi Emecheta Space',type:'support',base:'#4a9fd4'},
+    {id:'prok', x:506,y:170,w:198,h:65,label:'Prokofiev Teaching Rm',type:'study',base:'#d95f2b'},
+    {id:'artj', x:506,y:248,w:198,h:60,label:'Art Journals Room',type:'books',base:'#e8d5b0'},
+  ]},
 ];
 
-// ============================================================
-// BACKGROUND WORLD
-// ============================================================
-function buildBackground() {
-  const bg = document.getElementById('bg-world');
-  // Clouds
-  const clouds = [
-    { w:120, h:36, top:'8%', delay:'0s', dur:'28s', opacity:0.7 },
-    { w:200, h:50, top:'15%', delay:'8s', dur:'40s', opacity:0.55 },
-    { w:80,  h:24, top:'5%',  delay:'16s', dur:'22s', opacity:0.8 },
-    { w:160, h:44, top:'22%', delay:'4s',  dur:'35s', opacity:0.5 },
-  ];
-  clouds.forEach(c => {
-    const el = document.createElement('div');
-    el.className = 'cloud';
-    Object.assign(el.style, {
-      width: c.w+'px', height: c.h+'px',
-      top: c.top, left: '-200px',
-      opacity: c.opacity,
-      animationDuration: c.dur,
-      animationDelay: c.delay,
-    });
-    el.style.setProperty('--dur', c.dur);
-    bg.appendChild(el);
+const EMOJIS = {quiet:'🕯️',group:'👥',tech:'💻',books:'📚',service:'ℹ️',study:'📖',social:'🎮',support:'♿'};
+
+/* ── helpers ── */
+function uid(){ return 'u'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+
+function toast(msg, dur=3200){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(el._t);
+  el._t=setTimeout(()=>el.classList.remove('show'),dur);
+}
+
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>{
+    s.classList.remove('on');
+    s.setAttribute('aria-hidden','true');
   });
-  // Motes
-  for(let i=0;i<18;i++){
-    const m = document.createElement('div');
-    m.className = 'mote';
-    Object.assign(m.style, {
-      left: (Math.random()*100)+'%',
-      top: (40+Math.random()*50)+'%',
-      animationDuration: (4+Math.random()*6)+'s',
-      animationDelay: (Math.random()*8)+'s',
-      width: (2+Math.random()*3)+'px',
-      height: (2+Math.random()*3)+'px',
-    });
-    bg.appendChild(m);
-  }
-  // Tree silhouette SVG
-  const treeSvg = document.createElementNS('http://www.w3.org/2000/svg','svg');
-  treeSvg.setAttribute('viewBox','0 0 1440 200');
-  treeSvg.setAttribute('preserveAspectRatio','none');
-  Object.assign(treeSvg.style, { position:'absolute', bottom:'0', width:'100%', height:'200px' });
-  treeSvg.innerHTML = `
-    <path d="M0 200 L0 140 Q30 100 60 140 Q90 80 120 130 Q150 60 180 120 Q210 40 240 100 Q270 70 300 120 Q330 50 360 110 Q390 80 420 130 Q450 55 480 115 Q510 85 540 135 Q570 60 600 120 Q630 90 660 140 Q690 70 720 125 Q750 55 780 115 Q810 80 840 130 Q870 50 900 110 Q930 75 960 130 Q990 55 1020 115 Q1050 85 1080 140 Q1110 65 1140 120 Q1170 90 1200 140 Q1230 70 1260 125 Q1290 50 1320 110 Q1350 80 1380 135 Q1410 60 1440 120 L1440 200Z" fill="#4E6E44" opacity="0.7"/>
-    <path d="M0 200 L0 160 Q40 130 80 165 Q120 110 160 155 Q200 130 240 165 Q280 120 320 160 Q360 135 400 170 Q440 125 480 162 Q520 140 560 175 Q600 130 640 165 Q680 145 720 175 Q760 130 800 165 Q840 145 880 175 Q920 130 960 162 Q1000 140 1040 172 Q1080 132 1120 165 Q1160 145 1200 175 Q1240 135 1280 168 Q1320 148 1360 178 Q1400 138 1440 168 L1440 200Z" fill="#3B5E34" opacity="0.6"/>
-  `;
-  bg.appendChild(treeSvg);
+  const el=document.getElementById(id);
+  if(!el) return;
+  el.classList.add('on');
+  el.removeAttribute('aria-hidden');
+  el.scrollTop=0;
+  leafBurst();
+  // Hide FAB on kiosk
+  document.getElementById('fab').style.display = (id==='s-kiosk') ? 'none' : '';
 }
 
-// ============================================================
-// CURSOR
-// ============================================================
-const cursor = document.getElementById('cursor');
-document.addEventListener('mousemove', e => {
-  cursor.style.left = e.clientX + 'px';
-  cursor.style.top  = e.clientY + 'px';
-});
-document.addEventListener('mouseover', e => {
-  if(e.target.matches('button,input,textarea,.choice-chip,.faculty-lantern,.rank-item,.orb-star,.floor-tab,.map-room,.nav-pill,.admin-nav-btn,.export-btn,.share-btn'))
-    cursor.classList.add('hover');
-  else cursor.classList.remove('hover');
-});
-
-// ============================================================
-// SCREEN TRANSITIONS
-// ============================================================
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  spawnLeaves();
-}
-
-function spawnLeaves() {
-  const leaves = ['🍃','🍂','🌿','🍁'];
-  for(let i=0;i<5;i++){
+function leafBurst(){
+  const items=['🍃','🍂','🌿','🌱'];
+  for(let i=0;i<4;i++){
     setTimeout(()=>{
-      const l = document.createElement('div');
-      l.className = 'leaf';
-      l.textContent = leaves[Math.floor(Math.random()*leaves.length)];
-      l.style.left = (Math.random()*100)+'vw';
-      l.style.top = '-20px';
-      l.style.animationDuration = (2+Math.random()*3)+'s';
+      const l=document.createElement('span');
+      l.textContent=items[Math.floor(Math.random()*items.length)];
+      l.setAttribute('aria-hidden','true');
+      Object.assign(l.style,{
+        position:'fixed',top:'-10px',
+        left:Math.random()*95+'vw',
+        fontSize:(11+Math.random()*8)+'px',
+        pointerEvents:'none',zIndex:'9000',
+        animation:`leaf ${2+Math.random()*2}s ease-in forwards`,
+      });
       document.body.appendChild(l);
-      setTimeout(()=>l.remove(), 6000);
-    }, i*300);
+      setTimeout(()=>l.remove(),5000);
+    },i*200);
   }
 }
 
-// ============================================================
-// REGISTRATION
-// ============================================================
-function buildFacultyGrid() {
-  const grid = document.getElementById('faculty-grid');
-  FACULTIES.forEach(f => {
-    const div = document.createElement('div');
-    div.className = 'faculty-lantern';
-    div.id = 'fac-'+f.id;
-    div.innerHTML = `<span class="lantern-icon">${f.icon}</span><span class="lantern-name">${f.name}</span>`;
-    div.addEventListener('click', () => selectFaculty(f.id, f.name));
-    grid.appendChild(div);
+/* ── background ── */
+function buildBG(){
+  const bg=document.getElementById('bg');
+  for(let i=0;i<8;i++){
+    const d=document.createElement('div');
+    d.className='dot';
+    const s=60+Math.random()*160;
+    Object.assign(d.style,{width:s+'px',height:s+'px',
+      left:Math.random()*100+'%',top:Math.random()*100+'%',
+      transform:'translate(-50%,-50%)',
+    });
+    bg.appendChild(d);
+  }
+  for(let i=0;i<12;i++){
+    const l=document.createElement('div');
+    l.className='line';
+    const vert=Math.random()>.5;
+    Object.assign(l.style,{
+      width: vert?'1px': (40+Math.random()*120)+'px',
+      height: vert? (40+Math.random()*120)+'px':'1px',
+      left:Math.random()*100+'%',top:Math.random()*100+'%',
+    });
+    bg.appendChild(l);
+  }
+}
+
+/* ── faculty grid ── */
+function buildFacGrid(){
+  const grid=document.getElementById('fac-grid');
+  FACULTIES.forEach(f=>{
+    const d=document.createElement('div');
+    d.className='fac';
+    d.setAttribute('role','radio');
+    d.setAttribute('aria-checked','false');
+    d.setAttribute('tabindex','0');
+    d.setAttribute('aria-label',f.n);
+    d.innerHTML=`<span class="fac-icon" aria-hidden="true">${f.e}</span><span class="fac-name">${f.n}</span>`;
+    const pick=()=>{
+      document.querySelectorAll('.fac').forEach(x=>{x.classList.remove('sel');x.setAttribute('aria-checked','false');});
+      d.classList.add('sel'); d.setAttribute('aria-checked','true');
+      S.faculty=f.n;
+      updateRegSpeech(); checkReg();
+    };
+    d.addEventListener('click',pick);
+    d.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();pick();}});
+    grid.appendChild(d);
   });
 }
 
-function selectFaculty(id, name) {
-  document.querySelectorAll('.faculty-lantern').forEach(l => l.classList.remove('selected'));
-  document.getElementById('fac-'+id).classList.add('selected');
-  STATE.user.faculty = name;
-  updateLibSpeechReg();
-  checkRegReady();
+function onName(){
+  S.name=(document.getElementById('inp-name')||{value:''}).value.trim();
+  updateRegSpeech(); checkReg();
 }
 
-function onNameInput() {
-  STATE.user.name = document.getElementById('input-name').value.trim();
-  updateLibSpeechReg();
-  checkRegReady();
+function updateRegSpeech(){
+  const el=document.getElementById('reg-speech');
+  if(!el) return;
+  if(S.name && S.faculty)
+    el.innerHTML=`Amazing, <strong>${S.name}</strong>! A <em>${S.faculty}</em> student — let's explore! 🚀`;
+  else if(S.name)
+    el.innerHTML=`Nice to meet you, <strong>${S.name}</strong>! Now pick your faculty 👇`;
+  else
+    el.innerHTML=`Hey! I'm <strong>Lib</strong> 🪑<br>I've lived in this library for years — help me understand what students actually need!`;
 }
 
-function updateLibSpeechReg() {
-  const n = STATE.user.name;
-  const f = STATE.user.faculty;
-  const el = document.getElementById('lib-speech-reg');
-  if(n && f) {
-    el.innerHTML = `Welcome, <strong>${n}</strong>! A ${f} student — how wonderful! Ready to explore? 🌟`;
-  } else if(n) {
-    el.innerHTML = `Nice to meet you, <strong>${n}</strong>! Now, which faculty are you from? 🪑`;
-  } else {
-    el.innerHTML = `Hello! I'm <strong>Lib</strong> 🪑<br>Welcome to the Library! Let's get to know each other first…`;
+function checkReg(){
+  const btn=document.getElementById('reg-btn');
+  if(btn) btn.disabled=!(S.name && S.faculty);
+}
+
+function submitReg(){
+  S.name=(document.getElementById('inp-name')||{value:''}).value.trim();
+  S.sid=(document.getElementById('inp-sid')||{value:''}).value.trim();
+  if(!S.name || !S.faculty){ toast('Please enter your name and pick a faculty!'); return; }
+  S.uid=uid();
+  saveUser();
+  S.qIdx=0;
+  go('s2');
+  renderQ(0);
+}
+
+/* ── survey ── */
+function renderQ(idx){
+  const q=QS[idx];
+  const pct=Math.round(idx/QS.length*100);
+  const pf=document.getElementById('prog-fill');
+  const pl=document.getElementById('prog-lbl');
+  const pw=document.getElementById('prog-wrap');
+  if(pf) pf.style.width=pct+'%';
+  if(pl) pl.textContent=idx+'/'+QS.length;
+  if(pw) pw.setAttribute('aria-valuenow',idx);
+
+  // Typewriter for bubble
+  const bubble=document.getElementById('q-bubble');
+  const tag=document.getElementById('q-tag');
+  if(tag) tag.textContent=q.cat;
+  if(bubble){
+    bubble.textContent='';
+    const txt=q.ask(S.name||'friend');
+    let i=0;
+    clearInterval(bubble._tw);
+    bubble._tw=setInterval(()=>{
+      bubble.textContent=txt.slice(0,++i);
+      if(i>=txt.length) clearInterval(bubble._tw);
+    },18);
   }
-}
 
-function checkRegReady() {
-  document.getElementById('submit-reg').disabled = !(STATE.user.name && STATE.user.faculty);
-}
+  // Lib expression
+  libExpress(q.id);
 
-function submitRegistration() {
-  STATE.user.id = document.getElementById('input-id').value.trim();
-  STATE.user.uid = 'user_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
-  saveUserToStorage();
-  showScreen('screen-survey');
-  renderQuestion(0);
-}
+  // Animate card
+  const card=document.getElementById('q-card');
+  if(card){ card.style.animation='none'; void card.offsetWidth; card.style.animation='slideUp .38s ease both'; }
 
-// ============================================================
-// SURVEY
-// ============================================================
-function renderQuestion(idx) {
-  const q = QUESTIONS[idx];
-  const n = STATE.user.name;
-  document.getElementById('lib-q-bubble').innerHTML = q.bubble(n);
-  document.getElementById('q-cat').textContent = q.cat;
-  const pct = Math.round((idx / QUESTIONS.length) * 100);
-  document.getElementById('survey-progress').style.width = pct + '%';
-  document.getElementById('survey-progress-lbl').textContent = idx + ' / ' + QUESTIONS.length;
+  // Render body
+  const body=document.getElementById('q-body');
+  if(!body) return;
+  body.innerHTML='';
 
-  const body = document.getElementById('q-body');
-  body.innerHTML = '';
-
-  if(q.type === 'single' || q.type === 'multi') {
-    const grid = document.createElement('div');
-    grid.className = 'choice-grid';
-    q.options.forEach(opt => {
-      const chip = document.createElement('div');
-      chip.className = 'choice-chip';
-      chip.textContent = opt;
-      chip.addEventListener('click', () => {
-        if(q.type === 'single') {
-          grid.querySelectorAll('.choice-chip').forEach(c => c.classList.remove('selected'));
-          chip.classList.add('selected');
-          STATE.answers[q.id] = opt;
+  if(q.type==='single'||q.type==='multi'){
+    const wrap=document.createElement('div');
+    wrap.className='chips';
+    q.opts.forEach(opt=>{
+      const c=document.createElement('button');
+      c.className='chip'; c.textContent=opt;
+      c.setAttribute('aria-label',opt);
+      c.addEventListener('click',()=>{
+        if(q.type==='single'){
+          wrap.querySelectorAll('.chip').forEach(x=>x.classList.remove('sel'));
+          c.classList.add('sel');
+          S.answers[q.id]=opt;
         } else {
-          chip.classList.toggle('selected');
-          const sel = [...grid.querySelectorAll('.choice-chip.selected')].map(c => c.textContent);
-          STATE.answers[q.id] = sel;
+          c.classList.toggle('sel');
+          if(!Array.isArray(S.answers[q.id])) S.answers[q.id]=[];
+          if(c.classList.contains('sel')){ if(!S.answers[q.id].includes(opt)) S.answers[q.id].push(opt); }
+          else S.answers[q.id]=S.answers[q.id].filter(v=>v!==opt);
         }
+        libReact();
       });
-      grid.appendChild(chip);
+      wrap.appendChild(c);
+    });
+    body.appendChild(wrap);
+
+  } else if(q.type==='rank'){
+    if(!Array.isArray(S.answers[q.id])) S.answers[q.id]=[...q.opts];
+    const list=document.createElement('div'); list.className='rank-list';
+    let dragSrc=null, touchSrc=null, touchY=0;
+
+    const makeRow=(txt,num)=>{
+      const r=document.createElement('div');
+      r.className='rank-row';
+      r.draggable=true;
+      r.innerHTML=`<div class="rank-num">${num}</div><span class="rank-txt">${txt}</span><span style="margin-left:auto;opacity:.35;font-size:.85rem">⠿</span>`;
+      // Desktop drag
+      r.addEventListener('dragstart',e=>{ dragSrc=r; r.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
+      r.addEventListener('dragend',()=>{ r.classList.remove('dragging'); renum(list); S.answers[q.id]=[...list.querySelectorAll('.rank-row')].map(x=>x.querySelector('.rank-txt').textContent); });
+      r.addEventListener('dragover',e=>e.preventDefault());
+      r.addEventListener('drop',e=>{ e.preventDefault(); if(dragSrc&&dragSrc!==r){ const rs=[...list.querySelectorAll('.rank-row')]; const si=rs.indexOf(dragSrc),di=rs.indexOf(r); si<di?list.insertBefore(dragSrc,r.nextSibling):list.insertBefore(dragSrc,r); } });
+      // Touch drag
+      r.addEventListener('touchstart',e=>{ touchSrc=r; touchY=e.touches[0].clientY; r.classList.add('dragging'); },{passive:true});
+      r.addEventListener('touchmove',e=>{
+        e.preventDefault();
+        const ty=e.touches[0].clientY;
+        const rows=[...list.querySelectorAll('.rank-row')];
+        for(const other of rows){
+          if(other===touchSrc) continue;
+          const ob=other.getBoundingClientRect();
+          if(ty>ob.top && ty<ob.bottom){
+            const si=rows.indexOf(touchSrc), di=rows.indexOf(other);
+            si<di?list.insertBefore(touchSrc,other.nextSibling):list.insertBefore(touchSrc,other);
+            break;
+          }
+        }
+        touchY=ty;
+      },{passive:false});
+      r.addEventListener('touchend',()=>{ if(touchSrc) touchSrc.classList.remove('dragging'); touchSrc=null; renum(list); S.answers[q.id]=[...list.querySelectorAll('.rank-row')].map(x=>x.querySelector('.rank-txt').textContent); });
+      return r;
+    };
+
+    S.answers[q.id].forEach((opt,i)=>list.appendChild(makeRow(opt,i+1)));
+    body.appendChild(list);
+
+  } else if(q.type==='likert'){
+    if(!S.answers[q.id]) S.answers[q.id]={};
+    const grid=document.createElement('div'); grid.className='likert-grid';
+    q.opts.forEach(opt=>{
+      const item=document.createElement('div'); item.className='lk-item';
+      const lbl=document.createElement('div'); lbl.className='lk-lbl'; lbl.textContent=opt;
+      const stars=document.createElement('div'); stars.className='lk-stars';
+      stars.setAttribute('role','group'); stars.setAttribute('aria-label','Rate '+opt);
+      for(let s=1;s<=5;s++){
+        const st=document.createElement('button'); st.className='lstar'; st.textContent=s;
+        st.setAttribute('aria-label',s+' star'+(s>1?'s':'')+' for '+opt);
+        st.addEventListener('click',()=>{
+          S.answers[q.id][opt]=s;
+          stars.querySelectorAll('.lstar').forEach((x,i)=>{ x.classList.toggle('lit',i<s); x.setAttribute('aria-pressed',String(i<s)); });
+          libReact();
+        });
+        stars.appendChild(st);
+      }
+      item.appendChild(lbl); item.appendChild(stars); grid.appendChild(item);
     });
     body.appendChild(grid);
 
-  } else if(q.type === 'rank') {
-    const list = document.createElement('div');
-    list.className = 'rank-list';
-    let items = [...q.options];
-    STATE.answers[q.id] = [...items];
-    items.forEach((opt, i) => {
-      const item = document.createElement('div');
-      item.className = 'rank-item';
-      item.draggable = true;
-      item.dataset.idx = i;
-      item.innerHTML = `<div class="rank-num">${i+1}</div><span class="rank-text">${opt}</span>`;
-      item.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', i); item.classList.add('dragging'); });
-      item.addEventListener('dragend', () => item.classList.remove('dragging'));
-      item.addEventListener('dragover', e => { e.preventDefault(); });
-      item.addEventListener('drop', e => {
-        e.preventDefault();
-        const from = parseInt(e.dataTransfer.getData('text/plain'));
-        const to = parseInt(item.dataset.idx);
-        const els = [...list.querySelectorAll('.rank-item')];
-        const fromEl = els[from];
-        const toEl = els[to];
-        if(from < to) list.insertBefore(fromEl, toEl.nextSibling);
-        else list.insertBefore(fromEl, toEl);
-        // renum
-        [...list.querySelectorAll('.rank-item')].forEach((el,idx2) => {
-          el.dataset.idx = idx2;
-          el.querySelector('.rank-num').textContent = idx2+1;
-        });
-        STATE.answers[q.id] = [...list.querySelectorAll('.rank-item')].map(el => el.querySelector('.rank-text').textContent);
-      });
-      list.appendChild(item);
-    });
-    body.appendChild(list);
-
-  } else if(q.type === 'likert') {
-    const row = document.createElement('div');
-    row.className = 'orb-row';
-    q.options.forEach(opt => {
-      const item = document.createElement('div');
-      item.className = 'orb-item';
-      const label = document.createElement('div');
-      label.className = 'orb-label';
-      label.textContent = opt;
-      const stars = document.createElement('div');
-      stars.className = 'orb-stars';
-      if(!STATE.answers[q.id]) STATE.answers[q.id] = {};
-      for(let s=1;s<=5;s++) {
-        const orb = document.createElement('div');
-        orb.className = 'orb-star';
-        orb.textContent = s;
-        orb.addEventListener('click', () => {
-          STATE.answers[q.id][opt] = s;
-          stars.querySelectorAll('.orb-star').forEach((o,i) => {
-            o.classList.toggle('lit', i < s);
-          });
-        });
-        stars.appendChild(orb);
-      }
-      item.appendChild(label);
-      item.appendChild(stars);
-      row.appendChild(item);
-    });
-    body.appendChild(row);
-
-  } else if(q.type === 'text') {
-    const ta = document.createElement('textarea');
-    ta.className = 'form-textarea';
-    ta.placeholder = q.placeholder;
-    ta.value = STATE.answers[q.id] || '';
-    ta.addEventListener('input', () => { STATE.answers[q.id] = ta.value; });
+  } else if(q.type==='text'){
+    const ta=document.createElement('textarea');
+    ta.className='inp'; ta.placeholder=q.ph;
+    ta.value=S.answers[q.id]||'';
+    ta.setAttribute('aria-label',q.ask(S.name||'friend'));
+    ta.addEventListener('input',()=>S.answers[q.id]=ta.value);
     body.appendChild(ta);
   }
-
-  // Animate card
-  const card = document.getElementById('survey-card');
-  card.style.animation = 'none';
-  void card.offsetWidth;
-  card.style.animation = 'reveal-up 0.4s ease both';
 }
 
-function nextQuestion() {
-  STATE.currentQ++;
-  if(STATE.currentQ >= QUESTIONS.length) {
-    saveAnswersToStorage();
-    goQuest();
+function renum(list){ list.querySelectorAll('.rank-row').forEach((r,i)=>r.querySelector('.rank-num').textContent=i+1); }
+
+function libExpress(qid){
+  const mouth=document.getElementById('sv-mouth');
+  if(!mouth) return;
+  const expressions={
+    freq:'M56 82 Q80 72 104 82',   // flat neutral
+    areas:'M56 82 Q80 100 104 82',  // smile
+    ranking:'M56 86 Q80 72 104 86', // slightly confused
+    satisfaction:'M56 78 Q80 100 104 78', // big grin
+    improve:'M56 82 Q80 95 104 82',
+    newservice:'M56 82 Q80 100 104 82',
+    challenge:'M56 78 Q80 104 104 78',
+  };
+  mouth.setAttribute('d', expressions[qid]||expressions.areas);
+}
+
+function libReact(){
+  const lib=document.getElementById('sv-lib');
+  if(!lib) return;
+  lib.style.animation='none';
+  void lib.offsetWidth;
+  lib.style.animation='bob .35s ease';
+  setTimeout(()=>lib.style.animation='bob 3s ease-in-out infinite',400);
+}
+
+function nextQ(){
+  S.qIdx++;
+  if(S.qIdx>=QS.length){
+    saveAnswers();
+    go('s3');
+    renderMap(0);
     return;
   }
-  renderQuestion(STATE.currentQ);
+  renderQ(S.qIdx);
 }
 
-// ============================================================
-// QUEST MAP
-// ============================================================
-const FLOORS = [
-  {
-    name: 'Ground Floor',
-    rooms: [
-      { id:'concierge', x:60, y:60, w:140, h:50, label:'Concierge & Security', type:'service', color:'#E8A23C' },
-      { id:'selfservice', x:220, y:60, w:130, h:50, label:'Self Service', type:'service', color:'#E8A23C' },
-      { id:'atc', x:60, y:140, w:120, h:70, label:'Assistive Tech Centre', type:'support', color:'#7A9E6F' },
-      { id:'classroom5', x:200, y:140, w:110, h:70, label:'Teaching Classroom', type:'study', color:'#A8C5DA' },
-      { id:'helpdesk', x:330, y:140, w:110, h:70, label:'Library Help Desk', type:'service', color:'#E8A23C' },
-      { id:'games', x:60, y:240, w:110, h:65, label:'Games Library Kiosk', type:'social', color:'#E8B4A0' },
-      { id:'group9', x:190, y:240, w:120, h:65, label:'Group Study Room', type:'group', color:'#B89060' },
-      { id:'special', x:330, y:240, w:150, h:65, label:'Special Collections', type:'quiet', color:'#D4B896' },
-      { id:'maincol', x:510, y:60, w:220, h:380, label:'Main Collection\n(000–699)', type:'books', color:'#C4A882' },
-    ]
-  },
-  {
-    name: 'First Floor',
-    rooms: [
-      { id:'media', x:60, y:60, w:150, h:60, label:'Media Equipment Centre', type:'tech', color:'#A8C5DA' },
-      { id:'itsupport', x:230, y:60, w:120, h:60, label:'IT Services Help', type:'service', color:'#E8A23C' },
-      { id:'macs', x:60, y:150, w:120, h:60, label:'Seats with Macs', type:'tech', color:'#A8C5DA' },
-      { id:'pcs', x:200, y:150, w:120, h:60, label:'Seats with PCs', type:'tech', color:'#A8C5DA' },
-      { id:'room102', x:60, y:240, w:120, h:65, label:'Teaching Classroom 102', type:'study', color:'#D4B896' },
-      { id:'room103', x:200, y:240, w:120, h:65, label:'Teaching Classroom 103', type:'study', color:'#D4B896' },
-      { id:'silent18', x:340, y:150, w:120, h:70, label:'Silent Study Seats', type:'quiet', color:'#B8D4A0' },
-      { id:'silent19', x:340, y:240, w:120, h:65, label:'Silent Study Seats', type:'quiet', color:'#B8D4A0' },
-      { id:'maincol1', x:490, y:60, w:240, h:380, label:'Main Collection\n(000–999)', type:'books', color:'#C4A882' },
-    ]
-  },
-  {
-    name: 'Second Floor',
-    rooms: [
-      { id:'av', x:60, y:60, w:130, h:60, label:'Audio-Visual Seats', type:'tech', color:'#A8C5DA' },
-      { id:'openpcs', x:210, y:60, w:120, h:60, label:'Open Access PCs', type:'tech', color:'#A8C5DA' },
-      { id:'silent22', x:60, y:150, w:130, h:60, label:'Silent Study', type:'quiet', color:'#B8D4A0' },
-      { id:'digitalmedia', x:210, y:150, w:140, h:60, label:'Digital Media Suite', type:'tech', color:'#A8C5DA' },
-      { id:'group204', x:60, y:240, w:130, h:65, label:'Group Study Room 204', type:'group', color:'#B89060' },
-      { id:'royal', x:210, y:240, w:130, h:65, label:'Royal Literary Fellows', type:'quiet', color:'#D4B896' },
-      { id:'dvd', x:360, y:60, w:140, h:80, label:'AV Viewing Rooms', type:'tech', color:'#A8C5DA' },
-      { id:'games2', x:360, y:160, w:140, h:75, label:'Games Library', type:'social', color:'#E8B4A0' },
-      { id:'postgrad', x:360, y:255, w:140, h:65, label:'Postgrad Study Room', type:'quiet', color:'#D4C898' },
-      { id:'buchi', x:520, y:60, w:210, h:120, label:'Buchi Emecheta Space', type:'support', color:'#7A9E6F' },
-      { id:'prokofiev', x:520, y:200, w:210, h:70, label:'Prokofiev Teaching Room', type:'study', color:'#D4B896' },
-      { id:'artjournals', x:520, y:290, w:210, h:65, label:'Art Journals Room', type:'books', color:'#C4A882' },
-    ]
-  }
-];
-
-let currentFloor = 0;
-
-function setFloor(idx) {
-  currentFloor = idx;
-  document.querySelectorAll('.floor-tab').forEach((t,i) => t.classList.toggle('active', i===idx));
+/* ── mood map ── */
+function setFloor(idx){
+  S.currentFloor=idx;
+  [0,1,2].forEach(i=>{ const b=document.getElementById('fb'+i); if(b) b.classList.toggle('active',i===idx); });
   renderMap(idx);
 }
 
-function getRecommendedType() {
-  const areas = STATE.answers['areas'] || [];
-  const rank1 = STATE.answers['ranking'] ? STATE.answers['ranking'][0] : '';
-  if(areas.includes('Quiet Areas') || rank1.toLowerCase().includes('quiet')) return 'quiet';
-  if(areas.includes('Group Study Rooms') || rank1.toLowerCase().includes('group')) return 'group';
-  if(areas.includes('Computer Labs') || areas.includes('Digital Resources')) return 'tech';
+function getRoomFill(roomId){
+  const vote=S.moodVotes[roomId];
+  return vote ? (MOOD_FILLS[vote]||MOOD_FILLS['']) : MOOD_FILLS[''];
+}
+
+function renderMap(fi){
+  const floor=FLOORS[fi];
+  const svg=document.getElementById('map-svg');
+  if(!svg) return;
+
+  // Clear
+  while(svg.firstChild) svg.removeChild(svg.firstChild);
+
+  // Grid bg
+  const defs=mkSVG('defs');
+  const pat=mkSVG('pattern');
+  sA(pat,{id:'gpat',width:'22',height:'22',patternUnits:'userSpaceOnUse'});
+  const pl=mkSVG('path');
+  sA(pl,{d:'M 22 0 L 0 0 0 22',fill:'none',stroke:'rgba(22,16,10,.05)','stroke-width':'1'});
+  pat.appendChild(pl); defs.appendChild(pat);
+
+  const filter=mkSVG('filter');
+  filter.id='recomm';
+  const glow=mkSVG('feGaussianBlur');
+  sA(glow,{'in':'SourceAlpha',stdDeviation:'4',result:'b'});
+  const flood=mkSVG('feFlood');
+  sA(flood,{'flood-color':'#f0b429','flood-opacity':'.7',result:'c'});
+  const comp=mkSVG('feComposite');
+  sA(comp,{'in':'c',in2:'b',operator:'in',result:'d'});
+  const merge=mkSVG('feMerge');
+  const mn1=mkSVG('feMergeNode'); sA(mn1,{'in':'d'});
+  const mn2=mkSVG('feMergeNode'); sA(mn2,{'in':'SourceGraphic'});
+  merge.appendChild(mn1); merge.appendChild(mn2);
+  filter.appendChild(glow); filter.appendChild(flood); filter.appendChild(comp); filter.appendChild(merge);
+  defs.appendChild(filter);
+  svg.appendChild(defs);
+
+  const bgr=mkSVG('rect'); sA(bgr,{width:'740',height:'420',fill:'url(#gpat)'}); svg.appendChild(bgr);
+
+  floor.rooms.forEach(room=>{
+    const rec=recType();
+    const isRec=room.type===rec;
+    const g=mkSVG('g');
+    g.setAttribute('tabindex','0');
+    g.setAttribute('role','button');
+    g.setAttribute('aria-label',room.label.replace('\n',' ')+(isRec?' — recommended for you':''));
+    g.style.cursor='pointer';
+
+    // Shadow
+    const sh=mkSVG('rect');
+    sA(sh,{x:room.x+5,y:room.y+5,width:room.w,height:room.h,rx:'12',fill:'rgba(22,16,10,.12)'});
+    g.appendChild(sh);
+
+    // Main
+    const r=mkSVG('rect');
+    sA(r,{
+      x:room.x,y:room.y,width:room.w,height:room.h,rx:'12',
+      fill: getRoomFill(room.id),
+      stroke: isRec?'#16100a':'rgba(22,16,10,.45)',
+      'stroke-width': isRec?'3.5':'2.5',
+    });
+    if(isRec) r.setAttribute('filter','url(#recomm)');
+    g.appendChild(r);
+
+    // Subtle base color overlay
+    const ov=mkSVG('rect');
+    sA(ov,{x:room.x,y:room.y,width:room.w,height:room.h,rx:'12',
+      fill:room.base,opacity: S.moodVotes[room.id] ? '0.2' : '0.7',
+      stroke:'none', 'pointer-events':'none'});
+    g.appendChild(ov);
+
+    // Recommended dashed ring
+    if(isRec){
+      const ring=mkSVG('rect');
+      sA(ring,{x:room.x-3,y:room.y-3,width:room.w+6,height:room.h+6,rx:'14',
+        fill:'none',stroke:'#f0b429','stroke-width':'2','stroke-dasharray':'7 4'});
+      g.appendChild(ring);
+    }
+
+    // Label lines
+    const lines=room.label.split('\n');
+    lines.forEach((line,li)=>{
+      const t=mkSVG('text');
+      const yOff=room.h/2+(li-(lines.length-1)/2)*17;
+      sA(t,{
+        x:room.x+room.w/2, y:room.y+yOff,
+        'text-anchor':'middle','dominant-baseline':'central',
+        'font-family':'Syne,sans-serif','font-size':'12','font-weight':'700',
+        fill:'rgba(22,16,10,.88)',
+      });
+      t.textContent=line;
+      g.appendChild(t);
+    });
+
+    // Emoji type badge
+    const em=mkSVG('text');
+    sA(em,{x:room.x+room.w-10,y:room.y+17,'font-size':'13','text-anchor':'middle'});
+    em.textContent=EMOJIS[room.type]||'✨';
+    g.appendChild(em);
+
+    // Mood vote indicator
+    if(S.moodVotes[room.id]){
+      const mv=mkSVG('text');
+      sA(mv,{x:room.x+12,y:room.y+18,'font-size':'14','text-anchor':'middle'});
+      mv.textContent=S.moodVotes[room.id];
+      g.appendChild(mv);
+    }
+
+    // Recommended star
+    if(isRec && !S.moodVotes[room.id]){
+      const st=mkSVG('text');
+      sA(st,{x:room.x+12,y:room.y+18,'font-size':'13','text-anchor':'middle'});
+      st.textContent='⭐';
+      g.appendChild(st);
+    }
+
+    g.addEventListener('click', e=>showMoodPicker(e, room));
+    g.addEventListener('keydown', e=>{ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); showMoodPicker(e, room); }});
+    g.addEventListener('mouseenter', e=>showTip(e, room, isRec));
+    g.addEventListener('mouseleave', hideTip);
+    g.addEventListener('touchend', e=>{ e.preventDefault(); showMoodPicker(e.changedTouches[0]||e, room); });
+
+    svg.appendChild(g);
+  });
+
+  // Floor label
+  const fl=mkSVG('text');
+  sA(fl,{x:'370',y:'412','text-anchor':'middle','font-family':'Syne,sans-serif','font-size':'13','font-weight':'700',fill:'rgba(22,16,10,.35)'});
+  fl.textContent=floor.name;
+  svg.appendChild(fl);
+
+  updateMapSpeech();
+}
+
+function showMoodPicker(e, room){
+  const picker=document.getElementById('mood-picker');
+  if(!picker) return;
+  picker.innerHTML='';
+  picker.style.display='flex';
+
+  // Position
+  const box=document.getElementById('map-box');
+  const br=box.getBoundingClientRect();
+  const cx=('clientX' in e)?e.clientX:e.touches?.[0]?.clientX||0;
+  const cy=('clientY' in e)?e.clientY:e.touches?.[0]?.clientY||0;
+  let left=cx-br.left+8, top=cy-br.top+8;
+  picker.style.left=Math.min(left, br.width-180)+'px';
+  picker.style.top=Math.min(top, br.height-60)+'px';
+
+  MOODS.forEach(mood=>{
+    const b=document.createElement('div');
+    b.className='mood-btn'; b.textContent=mood;
+    b.setAttribute('role','button');
+    b.setAttribute('aria-label','Mark '+room.label+' as '+mood);
+    b.addEventListener('click',()=>{
+      S.moodVotes[room.id]=mood;
+      saveMoodVote(room.id, mood);
+      picker.style.display='none';
+      renderMap(S.currentFloor);
+      toast(mood+' noted! Thanks for sharing your vibe 🌿');
+    });
+    picker.appendChild(b);
+  });
+
+  // Clear option
+  const cl=document.createElement('div');
+  cl.className='mood-btn'; cl.textContent='✕';
+  cl.setAttribute('aria-label','Close');
+  cl.addEventListener('click',()=>picker.style.display='none');
+  picker.appendChild(cl);
+}
+
+function showTip(e, room, isRec){
+  const tip=document.getElementById('map-tip');
+  if(!tip) return;
+  const box=document.getElementById('map-box');
+  const br=box.getBoundingClientRect();
+  tip.innerHTML=`<strong>${room.label.replace('\n',' ')}</strong>${isRec?'<br>⭐ Recommended for you!':''}<br><span style="opacity:.65;font-size:.8rem">Tap to share your vibe</span>`;
+  tip.style.display='block';
+  const x=Math.min(e.clientX-br.left+12, br.width-200);
+  const y=Math.min(e.clientY-br.top+12, br.height-80);
+  tip.style.left=x+'px'; tip.style.top=y+'px';
+}
+function hideTip(){ const t=document.getElementById('map-tip'); if(t) t.style.display='none'; }
+
+function recType(){
+  const areas=S.answers['areas']||[];
+  const rank1=Array.isArray(S.answers['ranking'])?S.answers['ranking'][0]:'';
+  if(areas.includes('Quiet Areas')||rank1.toLowerCase().includes('quiet')) return 'quiet';
+  if(areas.includes('Group Study Rooms')||rank1.toLowerCase().includes('group')) return 'group';
+  if(areas.includes('Computer Labs')||areas.includes('Digital Resources')) return 'tech';
   if(areas.includes('Book Collections')) return 'books';
   return 'quiet';
 }
 
-function renderMap(floorIdx) {
-  const floor = FLOORS[floorIdx];
-  const svg = document.getElementById('map-svg');
-  const recType = getRecommendedType();
-  // Background
-  svg.innerHTML = `
-    <defs>
-      <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-        <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(139,107,71,0.07)" stroke-width="0.5"/>
-      </pattern>
-      <filter id="glow">
-        <feGaussianBlur stdDeviation="3" result="blur"/>
-        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-      </filter>
-    </defs>
-    <rect width="800" height="520" fill="url(#grid)"/>
-    <rect x="30" y="30" width="730" height="460" rx="16" fill="rgba(245,236,215,0.5)" stroke="rgba(139,107,71,0.2)" stroke-width="1"/>
-  `;
+function updateMapSpeech(){
+  const el=document.getElementById('map-speech');
+  if(!el) return;
+  const count=Object.keys(S.moodVotes).length;
+  if(count===0) el.textContent='Tap any room to share your vibe! 🗺️';
+  else if(count<3) el.textContent=`${count} room rated! Keep going 🌿`;
+  else el.textContent=`Amazing! ${count} rooms rated. You know this library! 🎉`;
+}
 
-  // Floor label
-  const title = document.createElementNS('http://www.w3.org/2000/svg','text');
-  title.setAttribute('x','400');
-  title.setAttribute('y','490');
-  title.setAttribute('text-anchor','middle');
-  title.setAttribute('font-family','Lora, serif');
-  title.setAttribute('font-size','14');
-  title.setAttribute('fill','#8B6B47');
-  title.textContent = floor.name;
-  svg.appendChild(title);
+function mkSVG(tag){ return document.createElementNS('http://www.w3.org/2000/svg',tag); }
+function sA(el,attrs){ Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,String(v))); }
 
-  floor.rooms.forEach(room => {
-    const isRec = room.type === recType;
-    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
-    g.setAttribute('class','map-room' + (isRec ? ' recommended' : ''));
-    g.style.cursor = 'pointer';
-
-    const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
-    rect.setAttribute('x', room.x + 30);
-    rect.setAttribute('y', room.y + 30);
-    rect.setAttribute('width', room.w);
-    rect.setAttribute('height', room.h);
-    rect.setAttribute('rx','10');
-    rect.setAttribute('fill', room.color);
-    rect.setAttribute('fill-opacity','0.75');
-    rect.setAttribute('stroke', isRec ? '#D4622A' : 'rgba(139,107,71,0.3)');
-    rect.setAttribute('stroke-width', isRec ? '2.5' : '1');
-    if(isRec) rect.setAttribute('filter','url(#glow)');
-
-    // Label
-    const lines = room.label.split('\n');
-    lines.forEach((line, li) => {
-      const text = document.createElementNS('http://www.w3.org/2000/svg','text');
-      text.setAttribute('x', room.x + 30 + room.w/2);
-      text.setAttribute('y', room.y + 30 + room.h/2 + (li - (lines.length-1)/2) * 16);
-      text.setAttribute('text-anchor','middle');
-      text.setAttribute('dominant-baseline','central');
-      text.setAttribute('font-family','Nunito, sans-serif');
-      text.setAttribute('font-size','11');
-      text.setAttribute('font-weight','600');
-      text.setAttribute('fill', isRec ? '#5C3D1E' : '#5C3D1E');
-      text.setAttribute('fill-opacity','0.85');
-      text.textContent = line;
-      g.appendChild(text);
-    });
-
-    // Ghibli emoji per type
-    const emojis = { quiet:'🕯️', group:'👥', tech:'💻', books:'📚', service:'ℹ️', study:'📖', social:'🎮', support:'♿', default:'✨' };
-    const emoji = document.createElementNS('http://www.w3.org/2000/svg','text');
-    emoji.setAttribute('x', room.x + 30 + room.w - 16);
-    emoji.setAttribute('y', room.y + 30 + 16);
-    emoji.setAttribute('font-size','14');
-    emoji.setAttribute('text-anchor','middle');
-    emoji.textContent = emojis[room.type] || emojis.default;
-    g.appendChild(emoji);
-
-    if(isRec) {
-      const star = document.createElementNS('http://www.w3.org/2000/svg','text');
-      star.setAttribute('x', room.x + 30 + 14);
-      star.setAttribute('y', room.y + 30 + 16);
-      star.setAttribute('font-size','14');
-      star.textContent = '⭐';
-      g.appendChild(star);
-    }
-
-    g.insertBefore(rect, g.firstChild);
-    g.addEventListener('mouseenter', e => showRoomTooltip(e, room, isRec));
-    g.addEventListener('mouseleave', hideRoomTooltip);
-    svg.appendChild(g);
+/* ── scorecard ── */
+function buildScore(){
+  const n=document.getElementById('sc-name');
+  const f=document.getElementById('sc-fac');
+  const p=document.getElementById('sc-persona');
+  if(n) n.textContent=S.name+"'s Card";
+  if(f) f.textContent=S.faculty+' · Lib\'s Library World';
+  const freq=S.answers['freq']||'Rarely';
+  if(p) p.textContent=PERSONAS[freq]||'✨ Library Spirit';
+  const sfq=document.getElementById('sc-freq'); if(sfq) sfq.textContent=freq;
+  const sat=S.answers['satisfaction']||{};
+  const vals=Object.values(sat).filter(v=>typeof v==='number');
+  const avg=vals.length?(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1):'—';
+  const sa=document.getElementById('sc-avg'); if(sa) sa.textContent=avg==='—'?'—':avg+'★';
+  const areas=S.answers['areas']||[];
+  const ssp=document.getElementById('sc-spots'); if(ssp) ssp.textContent=areas.length||'—';
+  loadCredits().then(c=>{
+    const pts=10+c*10;
+    const sp=document.getElementById('sc-pts'); if(sp) sp.textContent=pts;
+    const sc=document.getElementById('sc-credits'); if(sc) sc.textContent=`${c} referral${c!==1?'s':''} · ${c*10} pts`;
   });
-
-  updateQuestBubble(recType);
-}
-
-function showRoomTooltip(e, room, isRec) {
-  const tip = document.getElementById('room-tooltip');
-  tip.innerHTML = `<strong>${room.label.replace('\n',' ')}</strong><br>${isRec ? '⭐ Recommended for you!' : 'Click to explore'}`;
-  tip.style.display = 'block';
-  const rect = document.getElementById('screen-quest').getBoundingClientRect();
-  tip.style.left = (e.clientX - rect.left + 12) + 'px';
-  tip.style.top  = (e.clientY - rect.top + 12) + 'px';
-}
-function hideRoomTooltip() { document.getElementById('room-tooltip').style.display = 'none'; }
-
-function updateQuestBubble(type) {
-  const msgs = {
-    quiet: `Lib found your perfect spot — the Quiet Zones are calling! 🕯️`,
-    group: `You're a team player! Group study rooms are glowing for you! 👥`,
-    tech: `A tech explorer! The computer labs are your domain! 💻`,
-    books: `A true bookworm — the collections are yours! 📚`,
-  };
-  document.getElementById('quest-bubble').textContent = msgs[type] || `Explore the library — your perfect spot is glowing! ✨`;
-}
-
-// ============================================================
-// SCORECARD
-// ============================================================
-function buildScorecard() {
-  const n = STATE.user.name;
-  const f = STATE.user.faculty;
-  document.getElementById('sc-name').textContent = n + `'s Library Card`;
-  document.getElementById('sc-faculty').textContent = f + ' · Lib\'s Library World';
-
-  // Persona
-  const freq = STATE.answers['freq'] || 'rarely';
-  const personas = {
-    'Daily':   '🌅 The Dawn Dweller',
-    'Weekly':  '📖 The Weekend Scholar',
-    'Monthly': '🗺️ The Occasional Explorer',
-    'Rarely':  '🌙 The Night Owl Scholar',
-    'Never':   '🌟 The Curious Newcomer',
-  };
-  document.getElementById('sc-persona').textContent = personas[freq] || '✨ The Library Spirit';
-  document.getElementById('sc-visits').textContent = freq;
-
-  // Avg satisfaction
-  const sat = STATE.answers['satisfaction'] || {};
-  const vals = Object.values(sat);
-  const avg = vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : '—';
-  document.getElementById('sc-avg').textContent = avg === '—' ? '—' : avg + '★';
-
-  const areas = STATE.answers['areas'] || [];
-  document.getElementById('sc-spots').textContent = areas.length || '—';
-  document.getElementById('sc-points').textContent = 10 + (STATE.credits * 10);
-
-  // QR
   generateQR();
-  loadCredits();
 }
 
-function generateQR() {
-  const uid = STATE.user.uid;
-  const url = window.location.href.split('?')[0] + '?ref=' + uid;
-  const canvas = document.getElementById('qr-canvas');
-  canvas.innerHTML = '';
-  try {
-    new QRCode(canvas, { text: url, width: 90, height: 90, colorDark:'#2C1A0E', colorLight:'#FFFEF8', correctLevel: QRCode.CorrectLevel.M });
-  } catch(e) {
-    // fallback
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#F5ECD7';
-    ctx.fillRect(0,0,90,90);
-    ctx.fillStyle = '#2C1A0E';
-    ctx.font = '8px monospace';
-    ctx.fillText('QR: ' + uid.slice(-6), 5, 45);
-  }
-}
-
-function loadCredits() {
-  try {
-    const key = 'credits_' + STATE.user.uid;
-    window.storage.get(key).then(r => {
-      const credits = r ? parseInt(r.value) : 0;
-      STATE.credits = credits;
-      document.getElementById('credits-pill').textContent = `🌱 ${credits} friend${credits!==1?'s':''} referred · ${credits*10} points earned`;
-      document.getElementById('sc-points').textContent = 10 + credits * 10;
-    }).catch(()=>{});
-  } catch(e){}
-}
-
-function shareCard() {
-  const url = window.location.href.split('?')[0] + '?ref=' + STATE.user.uid;
-  if(navigator.share) {
-    navigator.share({ title: "Lib's Library Card", text: `I just explored the library with Lib! Join me: `, url });
-  } else if(navigator.clipboard) {
-    navigator.clipboard.writeText(url);
-    alert('🔗 Link copied! Share it with your friends to earn Lib Points!');
-  }
-}
-
-// ============================================================
-// STORAGE
-// ============================================================
-async function saveUserToStorage() {
-  try {
-    const userData = { name: STATE.user.name, faculty: STATE.user.faculty, uid: STATE.user.uid, timestamp: Date.now() };
-    await window.storage.set('user_' + STATE.user.uid, JSON.stringify(userData), true);
-  } catch(e){}
-}
-
-async function saveAnswersToStorage() {
-  try {
-    const data = { uid: STATE.user.uid, name: STATE.user.name, faculty: STATE.user.faculty, answers: STATE.answers, timestamp: Date.now() };
-    await window.storage.set('response_' + STATE.user.uid, JSON.stringify(data), true);
-    // Handle referral
-    const ref = STATE.referrerId;
-    if(ref && ref !== STATE.user.uid) {
-      const credKey = 'credits_' + ref;
-      const existing = await window.storage.get(credKey, true);
-      const current = existing ? parseInt(existing.value) : 0;
-      await window.storage.set(credKey, String(current + 1), true);
+function generateQR(){
+  if(S.qrDone) return;
+  const box=document.getElementById('qr-box');
+  if(!box) return;
+  box.innerHTML='';
+  const url=location.href.split('?')[0]+'?ref='+encodeURIComponent(S.uid);
+  try{
+    if(typeof QRCode!=='undefined'){
+      new QRCode(box,{text:url,width:78,height:78,colorDark:'#16100a',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});
+      S.qrDone=true;
+    } else {
+      box.style.cssText='display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:8px;text-align:center;padding:4px;color:#666';
+      box.textContent='QR\n'+S.uid.slice(-6);
     }
-  } catch(e){}
+  } catch(err){ box.textContent='⚠️'; }
 }
 
-// ============================================================
-// ADMIN
-// ============================================================
-function checkAdmin() {
-  const pass = document.getElementById('admin-pass').value;
-  if(pass === 'libadmin2025' || pass === 'admin') {
-    showScreen('screen-admin');
-    adminTab('overview', document.querySelector('.admin-nav-btn'));
+function shareCard(){
+  const url=location.href.split('?')[0]+'?ref='+encodeURIComponent(S.uid);
+  if(navigator.share){
+    navigator.share({title:"Lib's Library Card",text:S.name+' shared their library card! Join the survey:',url}).catch(()=>copyFallback(url));
+  } else { copyFallback(url); }
+}
+function copyFallback(url){
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(url).then(()=>toast('🔗 Link copied! Share it to earn Lib Points!'));
   } else {
-    document.getElementById('admin-pass').style.borderColor = '#D4622A';
-    setTimeout(()=>{ document.getElementById('admin-pass').style.borderColor = ''; }, 1200);
+    const ta=document.createElement('textarea');
+    ta.value=url; ta.style.cssText='position:fixed;top:-200px';
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+    toast('🔗 Link copied!');
   }
 }
 
-async function adminTab(tab, btn) {
-  document.querySelectorAll('.admin-nav-btn').forEach(b => b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-  const content = document.getElementById('admin-content');
-  content.innerHTML = '<div style="text-align:center;padding:30px;color:var(--bark)">Loading…</div>';
+/* ── leaderboard ── */
+async function goLeaderboard(){
+  go('s5');
+  await buildLeaderboard();
+}
 
-  let responses = [];
-  try {
-    const keys = await window.storage.list('response_', true);
-    if(keys && keys.keys) {
-      for(const k of keys.keys.slice(0,200)) {
-        const r = await window.storage.get(k, true);
-        if(r) { try { responses.push(JSON.parse(r.value)); } catch(e){} }
+async function buildLeaderboard(){
+  const body=document.getElementById('lb-body');
+  if(!body) return;
+  body.innerHTML='<div style="padding:20px;font-family:\'Syne\',sans-serif;opacity:.5;text-align:center">Loading…</div>';
+  const data=await loadAll();
+  const ranked=rankFaculties(data);
+
+  if(!ranked.length){
+    body.innerHTML='<div style="padding:20px;font-family:\'Syne\',sans-serif;opacity:.5;text-align:center">No responses yet — be the first! 🌱</div>';
+    return;
+  }
+  const medals=['🥇','🥈','🥉'];
+  const cls=['gold','silver','bronze'];
+  body.innerHTML=ranked.map((r,i)=>`
+    <div class="lb-row ${cls[i]||''}" role="row">
+      <div class="lb-medal">${medals[i]||i+1}</div>
+      <div>
+        <div style="font-weight:700">${r.fac}</div>
+        <div class="lb-bar-wrap"><div class="lb-bar" style="width:${Math.round(parseFloat(r.avg)/5*100)}%"></div></div>
+      </div>
+      <div style="text-align:right;font-weight:700">${r.avg}★</div>
+      <div style="text-align:right;opacity:.6">${r.n}</div>
+    </div>`).join('');
+
+  // Breakdown
+  const bd=document.getElementById('lb-breakdown');
+  if(!bd) return;
+  if(S.faculty){
+    const ri=ranked.findIndex(r=>r.fac===S.faculty);
+    if(ri>=0){
+      bd.innerHTML=`<strong>${S.faculty}</strong> is ranked <strong>#${ri+1}</strong> of ${ranked.length} faculties with <strong>${ranked[ri].avg}★</strong> avg from <strong>${ranked[ri].n}</strong> respondents.`;
+    } else {
+      bd.innerHTML=`<strong>${S.faculty}</strong> hasn't submitted responses yet — you might be the first! 🌱`;
+    }
+  } else {
+    bd.innerHTML='Register and take the survey to see your faculty\'s rank!';
+  }
+}
+
+function rankFaculties(data){
+  const scores={}, counts={};
+  data.forEach(d=>{
+    const fac=d.faculty; if(!fac) return;
+    const sat=d.answers&&d.answers.satisfaction?d.answers.satisfaction:{};
+    const vals=Object.values(sat).filter(v=>typeof v==='number');
+    if(!scores[fac]){ scores[fac]=0; counts[fac]=0; }
+    scores[fac]+=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;
+    counts[fac]++;
+  });
+  return Object.keys(scores).map(f=>({
+    fac:f, avg:(scores[f]/counts[f]).toFixed(2), n:counts[f],
+  })).sort((a,b)=>parseFloat(b.avg)-parseFloat(a.avg));
+}
+
+/* ── kiosk ── */
+let kioskTimer=null;
+
+function startKiosk(){
+  loadAll().then(data=>renderKiosk(data));
+  let secs=30;
+  clearInterval(kioskTimer);
+  const rf=document.getElementById('kiosk-refresh');
+  kioskTimer=setInterval(()=>{
+    secs--;
+    if(rf) rf.textContent='Refreshes in '+secs+'s';
+    if(secs<=0){
+      secs=30;
+      loadAll().then(data=>renderKiosk(data));
+    }
+  },1000);
+}
+
+function renderKiosk(data){
+  const grid=document.getElementById('kiosk-grid');
+  const ticker=document.getElementById('kiosk-ticker');
+  if(!grid) return;
+  const ranked=rankFaculties(data);
+  if(!ranked.length){
+    grid.innerHTML='<div style="color:rgba(255,255,255,.5);font-family:\'Syne\',sans-serif;text-align:center;width:100%">No responses yet — be the first to take the survey! 🌱</div>';
+    if(ticker) ticker.textContent='No responses yet · Take the survey at: '+location.href.split('?')[0];
+    return;
+  }
+  const maxAvg=parseFloat(ranked[0].avg);
+  grid.innerHTML=ranked.map((r,i)=>`
+    <div class="kiosk-fac${i===0?' top1':''}">
+      <div style="font-size:1.3rem">${['🥇','🥈','🥉'][i]||'#'+(i+1)}</div>
+      <div class="kiosk-fac-name">${r.fac}</div>
+      <div class="kiosk-fac-score">${r.avg}★</div>
+      <div class="kiosk-bar-track"><div class="kiosk-bar-fill" style="width:${Math.round(parseFloat(r.avg)/maxAvg*100)}%"></div></div>
+      <div class="kiosk-count">${r.n} response${r.n!==1?'s':''}</div>
+    </div>`).join('');
+
+  // Latest respondents ticker
+  if(ticker){
+    const names=data.slice(-8).map(d=>d.name||'Student').reverse();
+    ticker.textContent='Latest respondents: '+names.join(' · ')+' · Take the survey: '+location.href.split('?')[0]+' · '+data.length+' total responses · ';
+  }
+}
+
+function copyKioskLink(){
+  const url=location.href.split('?')[0]+'?mode=kiosk';
+  copyFallback(url);
+}
+
+/* ── admin ── */
+function goAdminLogin(){ go('s-al'); document.getElementById('adm-pass').value=''; }
+
+function checkAdmin(){
+  const pass=(document.getElementById('adm-pass')||{value:''}).value;
+  if(pass==='libadmin2025'||pass==='admin123'){
+    go('s-adm'); aTab('overview', document.querySelector('.atab'));
+  } else {
+    const box=document.querySelector('#s-al .al-box');
+    if(box){ box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake'); }
+    toast('❌ Wrong password');
+    document.getElementById('adm-pass').value='';
+  }
+}
+
+function aTab(tab, btn){
+  document.querySelectorAll('.atab').forEach(b=>b.classList.remove('on'));
+  if(btn) btn.classList.add('on');
+  const body=document.getElementById('adm-body');
+  if(body) body.innerHTML='<div style="padding:20px;font-family:\'Syne\',sans-serif;opacity:.5">Loading…</div>';
+  loadAll().then(data=>{
+    if(!body) return;
+    if(tab==='overview')    admOverview(data,body);
+    else if(tab==='faculty') admFaculty(data,body);
+    else if(tab==='sat')     admSat(data,body);
+    else if(tab==='mood')    admMood(body);
+    else if(tab==='resp')    admResp(data,body);
+    else if(tab==='ref')     admRef(data,body);
+  });
+}
+
+function admOverview(data,el){
+  const total=data.length, facs={}, freqs={};
+  data.forEach(d=>{
+    if(d.faculty) facs[d.faculty]=(facs[d.faculty]||0)+1;
+    const f=d.answers&&d.answers.freq; if(f) freqs[f]=(freqs[f]||0)+1;
+  });
+  const topF=Object.entries(facs).sort((a,b)=>b[1]-a[1])[0];
+  el.innerHTML=`
+    <div class="adm-grid">
+      <div class="astat"><div class="astat-n">${total}</div><div class="astat-l">Total Responses</div></div>
+      <div class="astat"><div class="astat-n">${Object.keys(facs).length}</div><div class="astat-l">Faculties</div></div>
+      <div class="astat"><div class="astat-n">${topF?topF[0].split(' ')[0]:'—'}</div><div class="astat-l">Top Faculty</div></div>
+      <div class="astat"><div class="astat-n">${freqs['Daily']||0}</div><div class="astat-l">Daily Visitors</div></div>
+    </div>
+    <div class="achart"><div class="achart-title">Visit Frequency</div>
+      ${['Daily','Weekly','Monthly','Rarely','Never'].map(f=>`
+        <div class="abar-row">
+          <div class="abar-lbl">${f}</div>
+          <div class="abar-track"><div class="abar-fill" style="width:${total?Math.round((freqs[f]||0)/total*100):0}%"></div></div>
+          <div class="abar-n">${freqs[f]||0}</div>
+        </div>`).join('')}
+    </div>`;
+}
+
+function admFaculty(data,el){
+  const facs={};
+  data.forEach(d=>{if(d.faculty)facs[d.faculty]=(facs[d.faculty]||0)+1;});
+  const total=data.length;
+  el.innerHTML=`<div class="achart"><div class="achart-title">Responses by Faculty</div>
+    ${Object.entries(facs).sort((a,b)=>b[1]-a[1]).map(([f,c])=>`
+      <div class="abar-row">
+        <div class="abar-lbl">${f}</div>
+        <div class="abar-track"><div class="abar-fill" style="width:${total?Math.round(c/total*100):0}%"></div></div>
+        <div class="abar-n">${c}</div>
+      </div>`).join('')}
+  </div>`;
+}
+
+function admSat(data,el){
+  const cats=['Books / Print','Digital Resources','Study Space','Staff Assistance','Wi-Fi & Tech','Library Hours'];
+  const avgs=cats.map(c=>{
+    const v=data.map(d=>d.answers&&d.answers.satisfaction&&d.answers.satisfaction[c]).filter(v=>typeof v==='number');
+    return{cat:c,avg:v.length?(v.reduce((a,b)=>a+b,0)/v.length).toFixed(2):null};
+  });
+  el.innerHTML=`<div class="achart"><div class="achart-title">Avg Satisfaction (out of 5)</div>
+    ${avgs.map(({cat,avg})=>`
+      <div class="abar-row">
+        <div class="abar-lbl">${cat}</div>
+        <div class="abar-track"><div class="abar-fill" style="width:${avg?Math.round(parseFloat(avg)/5*100):0}%"></div></div>
+        <div class="abar-n">${avg?avg+'★':'—'}</div>
+      </div>`).join('')}
+  </div>`;
+}
+
+async function admMood(el){
+  el.innerHTML='<div style="padding:20px;font-family:\'Syne\',sans-serif;opacity:.5">Loading mood data…</div>';
+  // Aggregate all users' mood votes
+  const allVotes={};
+  try{
+    const keys=await window.storage.list('mood_',true);
+    if(keys&&keys.keys){
+      for(const k of keys.keys.slice(0,500)){
+        try{
+          const r=await window.storage.get(k,true);
+          if(r){
+            const votes=JSON.parse(r.value);
+            Object.entries(votes).forEach(([rid,mood])=>{
+              if(!allVotes[rid]) allVotes[rid]={};
+              allVotes[rid][mood]=(allVotes[rid][mood]||0)+1;
+            });
+          }
+        }catch(_){}
       }
     }
-  } catch(e){}
+  }catch(_){}
 
-  if(tab === 'overview') renderAdminOverview(responses, content);
-  else if(tab === 'faculty') renderAdminFaculty(responses, content);
-  else if(tab === 'satisfaction') renderAdminSatisfaction(responses, content);
-  else if(tab === 'responses') renderAdminResponses(responses, content);
-  else if(tab === 'referrals') renderAdminReferrals(responses, content);
-}
-
-function renderAdminOverview(responses, el) {
-  const total = responses.length;
-  const faculties = {};
-  responses.forEach(r => { faculties[r.faculty] = (faculties[r.faculty]||0)+1; });
-  const topFac = Object.entries(faculties).sort((a,b)=>b[1]-a[1])[0];
-  const freqs = {};
-  responses.forEach(r => { const f = r.answers?.freq; if(f) freqs[f] = (freqs[f]||0)+1; });
-
-  el.innerHTML = `
-    <div class="admin-grid">
-      <div class="admin-stat"><div class="admin-stat-num">${total}</div><div class="admin-stat-lbl">Total Respondents</div></div>
-      <div class="admin-stat"><div class="admin-stat-num">${Object.keys(faculties).length}</div><div class="admin-stat-lbl">Faculties Represented</div></div>
-      <div class="admin-stat"><div class="admin-stat-num">${topFac ? topFac[0].split(' ')[0] : '—'}</div><div class="admin-stat-lbl">Most Active Faculty</div></div>
-      <div class="admin-stat"><div class="admin-stat-num">${freqs['Daily']||0}</div><div class="admin-stat-lbl">Daily Visitors</div></div>
-    </div>
-    <div class="admin-chart-card">
-      <div class="admin-chart-title">Visit Frequency Distribution</div>
-      ${['Daily','Weekly','Monthly','Rarely','Never'].map(f => `
-        <div class="bar-row">
-          <div class="bar-label">${f}</div>
-          <div class="bar-track"><div class="bar-fill" style="width:${total ? Math.round((freqs[f]||0)/total*100) : 0}%"></div></div>
-          <div class="bar-count">${freqs[f]||0}</div>
-        </div>
-      `).join('')}
-    </div>
-  `;
-}
-
-function renderAdminFaculty(responses, el) {
-  const faculties = {};
-  responses.forEach(r => { faculties[r.faculty] = (faculties[r.faculty]||0)+1; });
-  const total = responses.length;
-  el.innerHTML = `<div class="admin-chart-card"><div class="admin-chart-title">Responses by Faculty</div>
-    ${Object.entries(faculties).sort((a,b)=>b[1]-a[1]).map(([f,c]) => `
-      <div class="bar-row">
-        <div class="bar-label">${f}</div>
-        <div class="bar-track"><div class="bar-fill" style="width:${total?Math.round(c/total*100):0}%"></div></div>
-        <div class="bar-count">${c}</div>
-      </div>
-    `).join('')}
-  </div>`;
-}
-
-function renderAdminSatisfaction(responses, el) {
-  const cats = ['Books / Print','Digital Resources','Study Space','Staff Assistance','Wi-Fi & Tech','Library Hours'];
-  const avgs = {};
-  cats.forEach(c => {
-    const vals = responses.map(r => r.answers?.satisfaction?.[c]).filter(Boolean);
-    avgs[c] = vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(2) : null;
+  // Top mood per room
+  const summary={};
+  Object.entries(allVotes).forEach(([rid,moods])=>{
+    const top=Object.entries(moods).sort((a,b)=>b[1]-a[1])[0];
+    if(top) summary[rid]={mood:top[0],count:top[1],total:Object.values(moods).reduce((a,b)=>a+b,0)};
   });
-  el.innerHTML = `<div class="admin-chart-card"><div class="admin-chart-title">Average Satisfaction (out of 5)</div>
-    ${cats.map(c => `
-      <div class="bar-row">
-        <div class="bar-label">${c}</div>
-        <div class="bar-track"><div class="bar-fill" style="width:${avgs[c] ? Math.round(avgs[c]/5*100) : 0}%"></div></div>
-        <div class="bar-count">${avgs[c] ? avgs[c]+'★' : '—'}</div>
-      </div>
-    `).join('')}
-  </div>`;
-}
 
-function renderAdminResponses(responses, el) {
-  const items = responses.filter(r => r.answers?.improve || r.answers?.newservice);
-  if(!items.length) { el.innerHTML = '<div style="padding:20px;color:var(--bark);font-size:0.9rem">No open-ended responses yet.</div>'; return; }
-  el.innerHTML = `<div class="admin-chart-card"><div class="admin-chart-title">Open-Ended Responses (${items.length})</div>
-    <div style="max-height:400px;overflow-y:auto">
-    ${items.map(r => `
-      <div class="response-item">
-        <div class="response-meta">${r.name} · ${r.faculty}</div>
-        ${r.answers.improve ? `<div><strong>Improve:</strong> ${r.answers.improve}</div>` : ''}
-        ${r.answers.newservice ? `<div style="margin-top:4px"><strong>New Service:</strong> ${r.answers.newservice}</div>` : ''}
-      </div>
-    `).join('')}
-    </div>
-  </div>`;
-}
-
-async function renderAdminReferrals(responses, el) {
-  const ref_data = [];
-  for(const r of responses.slice(0,50)) {
-    try {
-      const credits = await window.storage.get('credits_' + r.uid, true);
-      if(credits && parseInt(credits.value) > 0) {
-        ref_data.push({ name: r.name, faculty: r.faculty, credits: parseInt(credits.value) });
-      }
-    } catch(e){}
+  if(!Object.keys(summary).length){
+    el.innerHTML='<div class="achart"><div class="achart-title">Mood Map Data</div><div style="opacity:.5;font-family:\'Syne\',sans-serif">No mood votes yet — students will tap rooms on the map to rate them!</div></div>';
+    return;
   }
-  ref_data.sort((a,b)=>b.credits-a.credits);
-  el.innerHTML = `<div class="admin-chart-card"><div class="admin-chart-title">Referral Leaderboard 🌿</div>
-    ${ref_data.length ? ref_data.map((r,i) => `
-      <div class="referral-row">
-        <span>${i+1}. <strong>${r.name}</strong> — ${r.faculty}</span>
-        <span class="referral-points">+${r.credits * 10} pts (${r.credits} referral${r.credits!==1?'s':''})</span>
-      </div>
-    `).join('') : '<div style="color:var(--bark);font-size:0.9rem;padding:10px 0">No referrals yet!</div>'}
+
+  const rows=Object.entries(summary).map(([rid,{mood,count,total}])=>`
+    <div class="abar-row">
+      <div class="abar-lbl">${rid}</div>
+      <div style="font-size:1.2rem">${mood}</div>
+      <div class="abar-track"><div class="abar-fill" style="background:${MOOD_FILLS[mood]||'#f0b429'};width:${Math.round(count/total*100)}%"></div></div>
+      <div class="abar-n">${total}</div>
+    </div>`).join('');
+
+  el.innerHTML=`<div class="achart"><div class="achart-title">Room Mood Heatmap</div>${rows}</div>`;
+}
+
+function admResp(data,el){
+  const items=data.filter(d=>d.answers&&(d.answers.improve||d.answers.newservice));
+  if(!items.length){el.innerHTML='<div style="padding:20px;font-family:\'Syne\',sans-serif;opacity:.5">No text responses yet.</div>';return;}
+  el.innerHTML=`<div class="achart"><div class="achart-title">Open Responses (${items.length})</div>
+    <div style="max-height:420px;overflow-y:auto">
+    ${items.map(d=>`<div class="resp-item">
+      <div class="resp-meta">${d.name||'?'} · ${d.faculty||'?'}</div>
+      ${d.answers.improve?`<div>💡 ${d.answers.improve}</div>`:''}
+      ${d.answers.newservice?`<div style="margin-top:4px">✨ ${d.answers.newservice}</div>`:''}
+    </div>`).join('')}
+    </div></div>`;
+}
+
+async function admRef(data,el){
+  const rows=[];
+  for(const d of data.slice(0,100)){
+    try{
+      const r=await window.storage.get('credits_'+d.uid,true);
+      const c=r?parseInt(r.value)||0:0;
+      if(c>0) rows.push({name:d.name||'?',fac:d.faculty||'?',c});
+    }catch(_){}
+  }
+  rows.sort((a,b)=>b.c-a.c);
+  el.innerHTML=`<div class="achart"><div class="achart-title">Referral Leaderboard 🌿</div>
+    ${rows.length?rows.map((r,i)=>`
+      <div class="abar-row">
+        <div class="abar-lbl" style="font-weight:700">${i+1}. ${r.name} <span style="opacity:.6">(${r.fac})</span></div>
+        <div class="abar-track"><div class="abar-fill" style="background:var(--green);width:${Math.min(100,r.c*20)}%"></div></div>
+        <div class="abar-n">${r.c*10}pts</div>
+      </div>`).join('')
+    :'<div style="opacity:.5;font-family:\'Syne\',sans-serif;padding:8px 0">No referrals yet!</div>'}
   </div>`;
 }
 
-function exportCSV() {
-  // Trigger admin data fetch and export
-  adminTab('responses', null);
-  setTimeout(async ()=>{
-    let responses = [];
-    try {
-      const keys = await window.storage.list('response_', true);
-      if(keys && keys.keys) {
-        for(const k of keys.keys.slice(0,500)) {
-          const r = await window.storage.get(k, true);
-          if(r) { try { responses.push(JSON.parse(r.value)); } catch(e){} }
-        }
-      }
-    } catch(e){}
-    const headers = ['Name','Faculty','Frequency','Areas','Improvement','New Service','Timestamp'];
-    const rows = responses.map(r => [
-      r.name, r.faculty,
-      r.answers?.freq || '',
-      (r.answers?.areas || []).join('; '),
-      r.answers?.improve || '',
-      r.answers?.newservice || '',
-      new Date(r.timestamp).toLocaleString()
+function exportCSV(){
+  loadAll().then(data=>{
+    const h=['Name','Faculty','Frequency','Areas','Top Space','Improve','New Service','Challenge','Mood Votes','Timestamp'];
+    const rows=data.map(d=>[
+      d.name||'',d.faculty||'',
+      (d.answers&&d.answers.freq)||'',
+      ((d.answers&&d.answers.areas)||[]).join('; '),
+      ((d.answers&&d.answers.ranking)||[])[0]||'',
+      (d.answers&&d.answers.improve)||'',
+      (d.answers&&d.answers.newservice)||'',
+      (d.answers&&d.answers.challenge)||'',
+      JSON.stringify(d.moodVotes||{}),
+      d.timestamp?new Date(d.timestamp).toLocaleString():'',
     ]);
-    const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
-    const blob = new Blob([csv], {type:'text/csv'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'library_survey_export.csv';
+    const csv=[h,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+    a.download='lib_survey_'+Date.now()+'.csv';
     a.click();
-  }, 800);
+    toast('✅ CSV exported!');
+  });
 }
 
-// ============================================================
-// NAVIGATION
-// ============================================================
-function goRegister() { showScreen('screen-register'); }
-function goAdmin()    { showScreen('screen-admin-login'); }
-function goQuest()    { showScreen('screen-quest'); renderMap(0); }
-function goScorecard(){ showScreen('screen-scorecard'); buildScorecard(); }
-
-// ============================================================
-// REFERRAL DETECTION
-// ============================================================
-function detectReferral() {
-  const params = new URLSearchParams(window.location.search);
-  const ref = params.get('ref');
-  if(ref) {
-    STATE.referrerId = ref;
-    // Flash a welcome toast
-    const toast = document.createElement('div');
-    toast.textContent = '🌿 You were invited by a friend! They\'ll earn Lib Points when you register.';
-    Object.assign(toast.style, {
-      position:'fixed', bottom:'24px', left:'50%', transform:'translateX(-50%)',
-      background:'rgba(255,255,255,0.92)', backdropFilter:'blur(10px)',
-      border:'1px solid var(--parchment)', borderRadius:'24px',
-      padding:'12px 24px', fontSize:'0.85rem', fontWeight:'500',
-      color:'var(--deep-bark)', boxShadow:'0 4px 20px var(--shadow)',
-      zIndex:9998, maxWidth:'90vw', textAlign:'center',
-      animation:'reveal-up 0.5s ease both',
-    });
-    document.body.appendChild(toast);
-    setTimeout(()=>toast.remove(), 4000);
-  }
+/* ── storage ── */
+async function saveUser(){
+  try{ await window.storage.set('user_'+S.uid,JSON.stringify({name:S.name,faculty:S.faculty,uid:S.uid,ts:Date.now()}),true); }catch(_){}
 }
 
-// ============================================================
-// INIT
-// ============================================================
-window.addEventListener('DOMContentLoaded', () => {
-  buildBackground();
-  buildFacultyGrid();
-  detectReferral();
-});
+async function saveAnswers(){
+  try{
+    await window.storage.set('resp_'+S.uid,JSON.stringify({
+      name:S.name,faculty:S.faculty,uid:S.uid,
+      answers:S.answers,moodVotes:S.moodVotes,timestamp:Date.now(),
+    }),true);
+    if(S.refId&&S.refId!==S.uid){
+      try{
+        const ex=await window.storage.get('credits_'+S.refId,true);
+        const cur=ex?parseInt(ex.value)||0:0;
+        await window.storage.set('credits_'+S.refId,String(cur+1),true);
+      }catch(_){}
+    }
+  }catch(_){}
+}
+
+async function saveMoodVote(roomId,mood){
+  S.moodVotes[roomId]=mood;
+  try{
+    await window.storage.set('mood_'+S.uid,JSON.stringify(S.moodVotes),true);
+  }catch(_){}
+}
+
+async function loadCredits(){
+  try{
+    const r=await window.storage.get('credits_'+S.uid,true);
+    return r?parseInt(r.value)||0:0;
+  }catch(_){return 0;}
+}
+
+async function loadAll(){
+  const list=[];
+  try{
+    const keys=await window.storage.list('resp_',true);
+    if(keys&&keys.keys){
+      for(const k of keys.keys.slice(0,500)){
+        try{
+          const r=await window.storage.get(k,true);
+          if(r) list.push(JSON.parse(r.value));
+        }catch(_){}
+      }
+    }
+  }catch(_){}
+  return list;
+}
+
+/* ── referral detect ── */
+function detectRef(){
+  try{
+    const p=new URLSearchParams(location.search);
+    const ref=p.get('ref');
+    if(ref){ S.refId=decodeURIComponent(ref); toast('🌿 You were invited! Your friend earns points when you register.',5000); }
+    if(p.get('mode')==='kiosk'){ go('s-kiosk'); startKiosk(); }
+  }catch(_){}
+}
+
+/* ── leaf CSS ── */
+function addLeafCSS(){
+  if(document.getElementById('leaf-css')) return;
+  const s=document.createElement('style');
+  s.id='leaf-css';
+  s.textContent='@keyframes leaf{0%{transform:translateY(-10px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(500deg);opacity:0}}';
+  document.head.appendChild(s);
+}
+
+/* ── init ── */
+function init(){
+  buildBG();
+  buildFacGrid();
+  addLeafCSS();
+  detectRef();
+  // Close mood picker on outside click
+  document.addEventListener('click',e=>{
+    const picker=document.getElementById('mood-picker');
+    if(picker&&picker.style.display!=='none'&&!picker.contains(e.target)&&!e.target.closest('#map-svg')){
+      picker.style.display='none';
+    }
+  });
+}
+
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
+else init();
+
+/* ── public ── */
+return {go, goAdminLogin, goLeaderboard, onName, submitReg, nextQ, setFloor, buildScore,
+  checkAdmin, aTab, exportCSV, shareCard, startKiosk, copyKioskLink};
+
+})();
 </script>
 </body>
 </html>
