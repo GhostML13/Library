@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Admin — Library Experiment</title>
+<link href="https://fonts.bunny.net/css?family=cabinet-grotesk:400,700,800,900&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1a1208;--yellow:#f5c842;--red:#e8450a;
+  --green:#2d9e6b;--blue:#3b6fd4;--paper:#faf6ee;
+  --border:2.5px solid var(--ink);--shadow:4px 4px 0 var(--ink);
+}
+body{font-family:'Cabinet Grotesk',system-ui,sans-serif;background:#f0e8d8;color:var(--ink);min-height:100vh}
+
+/* ── AUTH ── */
+#auth{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:14px;padding:24px;background:var(--paper)}
+#auth h1{font-size:30px;font-weight:900;letter-spacing:-1.5px}
+#auth p{font-size:13px;color:#8a7a60;font-weight:600;text-align:center}
+#auth input{padding:13px 16px;border:var(--border);border-radius:12px;font-size:15px;font-family:inherit;font-weight:700;width:100%;max-width:320px;background:#fff;outline:none}
+#auth button{padding:14px 32px;background:var(--ink);color:var(--yellow);border:none;border-radius:12px;font-size:16px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:var(--shadow);transition:transform .1s,box-shadow .1s;max-width:320px;width:100%}
+#auth button:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+#auth-err{font-size:13px;color:var(--red);font-weight:800}
+
+/* ── DASHBOARD ── */
+#dash{display:none}
+.admin-nav{background:var(--ink);padding:14px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:var(--border)}
+.an-logo{font-size:14px;font-weight:900;color:var(--yellow);letter-spacing:-.5px;display:flex;align-items:center;gap:8px}
+.an-logo .badge{width:30px;height:30px;background:var(--yellow);color:var(--ink);border-radius:8px;display:grid;place-items:center;font-size:14px}
+.an-right{display:flex;align-items:center;gap:10px}
+.an-live{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:800;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px}
+.an-dot{width:6px;height:6px;border-radius:50%;background:var(--yellow);animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.an-btn{background:var(--yellow);color:var(--ink);border:2px solid var(--yellow);border-radius:8px;padding:7px 14px;font-size:12px;font-weight:900;cursor:pointer;font-family:inherit;transition:transform .1s}
+.an-btn:active{transform:scale(.95)}
+.an-btn.outline{background:transparent;border-color:rgba(255,255,255,.3);color:rgba(255,255,255,.6)}
+
+/* ── GRID ── */
+.dash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:20px 20px 0}
+@media(max-width:700px){.dash-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.dash-grid{grid-template-columns:1fr}}
+.panels{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px 20px 20px}
+@media(max-width:700px){.panels{grid-template-columns:1fr}}
+
+/* ── STAT TILE ── */
+.stat-tile{background:#fff;border:var(--border);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
+.st-label{font-size:9px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:rgba(26,18,8,.35);margin-bottom:6px}
+.st-val{font-size:44px;font-weight:900;letter-spacing:-2.5px;line-height:1;color:var(--ink)}
+.st-sub{font-size:11px;color:rgba(26,18,8,.4);margin-top:4px;font-weight:600}
+.stat-tile.yellow{background:var(--yellow)}
+.stat-tile.dark{background:var(--ink)}.stat-tile.dark .st-val,.stat-tile.dark .st-label,.stat-tile.dark .st-sub{color:rgba(255,255,255,.7)}
+.stat-tile.dark .st-val{color:var(--yellow)}
+
+/* ── PANEL ── */
+.panel{background:#fff;border:var(--border);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
+.panel-title{font-size:10px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:rgba(26,18,8,.35);margin-bottom:14px}
+.panel.full{grid-column:1/-1}
+
+/* ── LEADERBOARD ── */
+.lb-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f0e8d8}
+.lb-row:last-child{border:none}
+.lb-med{font-size:14px;width:22px;text-align:center;flex-shrink:0}
+.lb-name{flex:1;font-size:13px;font-weight:700}
+.lb-bar-w{flex:2;max-width:100px;height:8px;background:#f0e8d8;border-radius:4px;overflow:hidden;border:1px solid rgba(26,18,8,.1)}
+.lb-bar{height:100%;background:var(--yellow);border-radius:3px;transition:width 1s ease}
+.lb-val{font-size:12px;font-weight:900;min-width:46px;text-align:right;color:rgba(26,18,8,.5)}
+.lb-empty{font-size:12px;color:rgba(26,18,8,.25);text-align:center;padding:12px;font-weight:600}
+
+/* ── PERSONA BARS ── */
+.persona-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.persona-row:last-child{margin-bottom:0}
+.pr-e{font-size:22px;width:28px;text-align:center;flex-shrink:0}
+.pr-info{flex:1}
+.pr-name{font-size:12px;font-weight:800}
+.pr-bar-w{height:7px;background:#f0e8d8;border-radius:4px;overflow:hidden;margin-top:4px}
+.pr-bar{height:100%;border-radius:3px;transition:width 1s ease}
+.pr-val{font-size:12px;font-weight:900;min-width:32px;text-align:right;color:rgba(26,18,8,.4)}
+
+/* ── QUOTE FEED ── */
+.qfeed{max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
+.qfeed-item{padding:12px;background:var(--paper);border:var(--border);border-radius:12px}
+.qfi-fac{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:rgba(26,18,8,.35);margin-bottom:4px}
+.qfi-q{font-size:11px;font-weight:800;color:var(--red);margin-bottom:3px}
+.qfi-a{font-size:13px;color:rgba(26,18,8,.7);font-style:italic;line-height:1.5;font-weight:600}
+
+/* ── MAP PANEL ── */
+.map-panel-wrap{border:var(--border);border-radius:12px;overflow:hidden;position:relative;background:#f5f0e4}
+.map-panel-wrap svg{display:block;width:100%}
+#adm-stickers{position:absolute;inset:0;pointer-events:none}
+.adm-sticker{position:absolute;transform:translate(-50%,-50%);font-size:14px;animation:adm-pop .3s ease both}
+@keyframes adm-pop{from{transform:translate(-50%,-50%) scale(0);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+
+/* ── AUCTION BARS ── */
+.auction-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.auction-row:last-child{margin-bottom:0}
+.ar-name{font-size:11px;font-weight:800;width:100px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ar-bar-w{flex:1;height:10px;background:#f0e8d8;border-radius:5px;overflow:hidden;border:1px solid rgba(26,18,8,.1)}
+.ar-bar{height:100%;background:var(--yellow);border-radius:4px;transition:width 1s ease}
+.ar-val{font-size:11px;font-weight:900;min-width:24px;text-align:right;color:rgba(26,18,8,.4)}
+
+/* ── REFRESH INDICATOR ── */
+.last-update{font-size:11px;color:rgba(26,18,8,.35);font-weight:600;margin-top:8px;text-align:right}
+
+/* scrollbar style */
+.qfeed::-webkit-scrollbar{width:4px}
+.qfeed::-webkit-scrollbar-track{background:#f0e8d8}
+.qfeed::-webkit-scrollbar-thumb{background:var(--ink);border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth">
+  <div style="font-size:48px">📊</div>
+  <h1>Admin Dashboard</h1>
+  <p>Library Experiment · Real-time results</p>
+  <input type="password" id="pw" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')ADMIN.login()"/>
+  <button onclick="ADMIN.login()">Unlock Dashboard</button>
+  <div id="auth-err"></div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dash">
+  <div class="admin-nav">
+    <div class="an-logo">
+      <div class="badge">📚</div>
+      Library Experiment — Live Admin
+    </div>
+    <div class="an-right">
+      <div class="an-live"><div class="an-dot"></div>Real-time</div>
+      <button class="an-btn outline" onclick="ADMIN.exportCSV()">Export CSV</button>
+      <button class="an-btn" onclick="ADMIN.refresh()">↻ Refresh</button>
+    </div>
+  </div>
+
+  <!-- STAT TILES -->
+  <div class="dash-grid">
+    <div class="stat-tile yellow">
+      <div class="st-label">Total responses</div>
+      <div class="st-val" id="st-total">0</div>
+      <div class="st-sub">All time</div>
+    </div>
+    <div class="stat-tile">
+      <div class="st-label">Last 24 hours</div>
+      <div class="st-val" id="st-today">0</div>
+      <div class="st-sub">Today's activity</div>
+    </div>
+    <div class="stat-tile dark">
+      <div class="st-label">Average credits</div>
+      <div class="st-val" id="st-avg">0</div>
+      <div class="st-sub">Per respondent</div>
+    </div>
+  </div>
+
+  <!-- PANELS -->
+  <div class="panels">
+
+    <!-- LEADERBOARD -->
+    <div class="panel">
+      <div class="panel-title">Faculty participation %</div>
+      <div id="adm-lb"><div class="lb-empty">Waiting for responses…</div></div>
+      <div class="last-update" id="lb-updated"></div>
+    </div>
+
+    <!-- PERSONA BREAKDOWN -->
+    <div class="panel">
+      <div class="panel-title">Persona breakdown</div>
+      <div id="adm-personas"><div class="lb-empty">Waiting…</div></div>
+    </div>
+
+    <!-- STICKER MAP -->
+    <div class="panel">
+      <div class="panel-title">Live sticker map <span id="sticker-count" style="color:var(--red);font-weight:900"></span></div>
+      <div class="map-panel-wrap">
+        <svg width="100%" viewBox="0 0 420 340" xmlns="http://www.w3.org/2000/svg">
+          <rect width="420" height="340" fill="#f5f0e4"/>
+          <rect x="16" y="16" width="388" height="308" rx="6" fill="none" stroke="var(--ink)" stroke-width="2"/>
+          <line x1="120" y1="16" x2="120" y2="200" stroke="var(--ink)" stroke-width="1.5"/>
+          <line x1="300" y1="16" x2="300" y2="200" stroke="var(--ink)" stroke-width="1.5"/>
+          <line x1="16" y1="200" x2="404" y2="200" stroke="var(--ink)" stroke-width="1.5"/>
+          <line x1="200" y1="200" x2="200" y2="324" stroke="var(--ink)" stroke-width="1.5"/>
+          <line x1="120" y1="70" x2="300" y2="70" stroke="var(--ink)" stroke-width="1"/>
+          <rect x="17" y="17" width="102" height="182" fill="#e8f4fd" opacity=".5"/>
+          <rect x="121" y="71" width="178" height="128" fill="#fdf6e3" opacity=".5"/>
+          <rect x="301" y="101" width="102" height="98" fill="#edfaf3" opacity=".5"/>
+          <rect x="17" y="201" width="182" height="122" fill="#fef0f0" opacity=".5"/>
+          <rect x="201" y="201" width="202" height="122" fill="#f3f0ff" opacity=".5"/>
+          <text x="68" y="108" text-anchor="middle" font-size="8" fill="#3b6fd4" font-family="system-ui" font-weight="700">STUDY</text>
+          <text x="210" y="130" text-anchor="middle" font-size="8" fill="#8a7a60" font-family="system-ui" font-weight="700">MAIN COLLECTION</text>
+          <text x="352" y="150" text-anchor="middle" font-size="8" fill="#2d9e6b" font-family="system-ui" font-weight="700">GROUP</text>
+          <text x="108" y="262" text-anchor="middle" font-size="8" fill="#e8450a" font-family="system-ui" font-weight="700">SILENT STUDY</text>
+          <text x="302" y="262" text-anchor="middle" font-size="8" fill="#7c3aed" font-family="system-ui" font-weight="700">DIGITAL</text>
+        </svg>
+        <div id="adm-stickers"></div>
+      </div>
+    </div>
+
+    <!-- DEMAND / WHAT STUDENTS WANT -->
+    <div class="panel">
+      <div class="panel-title">What students want</div>
+      <div id="adm-demand"><div class="lb-empty">Waiting…</div></div>
+    </div>
+
+    <!-- QUOTE FEED — full width -->
+    <div class="panel full">
+      <div class="panel-title">Quote feed — what students are actually saying</div>
+      <div class="qfeed" id="adm-quotes"><div class="lb-empty">No quotes yet</div></div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import{initializeApp}from'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+import{getFirestore,collection,onSnapshot,getDocs}from'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+
+/* ── PASTE SAME FIREBASE CONFIG ── */
+const FC={
+  apiKey:"PASTE_YOUR_API_KEY",
+  authDomain:"PASTE_YOUR_AUTH_DOMAIN",
+  projectId:"PASTE_YOUR_PROJECT_ID",
+  storageBucket:"PASTE_YOUR_STORAGE_BUCKET",
+  messagingSenderId:"PASTE_YOUR_MESSAGING_SENDER_ID",
+  appId:"PASTE_YOUR_APP_ID"
+};
+
+const ADMIN_PW="library2024"; /* ← change this */
+
+const DEPT_TOTALS={
+  "Arts & Humanities":450,"Business":500,"Computer Science":400,
+  "Engineering":600,"Law":350,"Medicine":800,"Natural Sciences":420,
+  "Social Sciences":380,"Education":300,"Architecture":250,
+  "Economics":370,"Other":999
+};
+
+const P_MAP={
+  ghost:{e:'👻',name:'Silent Floor Ghost',c:'#818cf8'},
+  chaos:{e:'🔊',name:'Chaos Agent',c:'#f87171'},
+  ninja:{e:'⚡',name:'Plug Socket Ninja',c:'#4ade80'},
+  explorer:{e:'🗺️',name:'Library Explorer',c:'#fbbf24'}
+};
+
+function getPersonaId(answers){
+  const h=answers?.hideout||[];
+  if(h.includes('Quiet Floors')||h.includes('Silent Zone')) return 'ghost';
+  if(h.includes('Group Pods')) return 'chaos';
+  if(h.includes('Near a plug socket')||h.includes('Computer Suite')) return 'ninja';
+  return 'explorer';
+}
+
+const fbApp=initializeApp(FC);
+const db=getFirestore(fbApp);
+
+let allResponses=[],allStickers=[];
+
+window.ADMIN={};
+
+ADMIN.login=()=>{
+  const pw=document.getElementById('pw').value;
+  if(pw===ADMIN_PW){
+    document.getElementById('auth').style.display='none';
+    document.getElementById('dash').style.display='block';
+    startListeners();
+  } else {
+    document.getElementById('auth-err').textContent='Wrong password.';
+    document.getElementById('pw').value='';
+  }
+};
+
+function startListeners(){
+  onSnapshot(collection(db,'responses'),snap=>{
+    allResponses=snap.docs.map(d=>d.data());
+    renderAll();
+  });
+  onSnapshot(collection(db,'stickers'),snap=>{
+    allStickers=snap.docs.map(d=>d.data());
+    renderMap();
+  });
+}
+
+function renderAll(){
+  const n=allResponses.length;
+  const today=Date.now()-86400000;
+  const todayN=allResponses.filter(r=>r.submittedAt>today).length;
+  const avgC=n>0?Math.round(allResponses.reduce((a,r)=>a+(r.credits||0),0)/n):0;
+  document.getElementById('st-total').textContent=n;
+  document.getElementById('st-today').textContent=todayN;
+  document.getElementById('st-avg').textContent=avgC;
+  renderLB();renderPersonas();renderQuotes();renderDemand();
+  document.getElementById('lb-updated').textContent='Updated '+new Date().toLocaleTimeString();
+}
+
+function renderLB(){
+  const d={};
+  allResponses.forEach(r=>{
+    if(!r.faculty)return;
+    if(!d[r.faculty])d[r.faculty]=0;d[r.faculty]++;
+  });
+  const rows=Object.entries(d)
+    .map(([name,n])=>({name,n,pct:Math.round(n/(DEPT_TOTALS[name]||500)*100)}))
+    .sort((a,b)=>b.pct-a.pct);
+  const maxP=Math.max(...rows.map(r=>r.pct),1);
+  const el=document.getElementById('adm-lb');
+  if(!rows.length){el.innerHTML='<div class="lb-empty">No data yet</div>';return;}
+  const medals=['🥇','🥈','🥉'];
+  el.innerHTML=rows.map((r,i)=>`
+    <div class="lb-row">
+      <div class="lb-med">${medals[i]||i+1}</div>
+      <div class="lb-name">${r.name}</div>
+      <div class="lb-bar-w"><div class="lb-bar" style="width:${Math.round(r.pct/maxP*100)}%"></div></div>
+      <div class="lb-val">${r.pct}% (${r.n})</div>
+    </div>`).join('');
+}
+
+function renderPersonas(){
+  if(!allResponses.length){document.getElementById('adm-personas').innerHTML='<div class="lb-empty">No data yet</div>';return;}
+  const counts={ghost:0,chaos:0,ninja:0,explorer:0};
+  allResponses.forEach(r=>counts[getPersonaId(r.answers)]++);
+  const total=allResponses.length;
+  document.getElementById('adm-personas').innerHTML=
+    Object.entries(P_MAP).map(([k,p])=>`
+      <div class="persona-row">
+        <div class="pr-e">${p.e}</div>
+        <div class="pr-info">
+          <div class="pr-name">${p.name}</div>
+          <div class="pr-bar-w"><div class="pr-bar" style="width:${Math.round(counts[k]/total*100)}%;background:${p.c}"></div></div>
+        </div>
+        <div class="pr-val">${Math.round(counts[k]/total*100)}%</div>
+      </div>`).join('');
+}
+
+function renderQuotes(){
+  const quotes=[];
+  allResponses.forEach(r=>{
+    const a=r.answers||{};
+    if(a.fix?.f1) quotes.push({fac:r.faculty||'Unknown',q:"One thing to fix",a:a.fix.f1,t:r.submittedAt||0});
+    if(a.fix?.f2) quotes.push({fac:r.faculty||'Unknown',q:"Wildest idea",a:a.fix.f2,t:r.submittedAt||0});
+  });
+  quotes.sort((a,b)=>b.t-a.t);
+  const el=document.getElementById('adm-quotes');
+  if(!quotes.length){el.innerHTML='<div class="lb-empty">No quotes yet</div>';return;}
+  el.innerHTML=quotes.slice(0,30).map(q=>`
+    <div class="qfeed-item">
+      <div class="qfi-fac">${q.fac}</div>
+      <div class="qfi-q">${q.q}</div>
+      <div class="qfi-a">"${q.a}"</div>
+    </div>`).join('');
+}
+
+function renderDemand(){
+  const wants={
+    'Quiet zones':0,'Group spaces':0,'Coffee area':0,
+    'Better WiFi':0,'More sockets':0,'Extended hours':0,
+    'Printing':0,'More desks':0
+  };
+  allResponses.forEach(r=>{
+    const h=r.answers?.hideout||[];
+    const f=r.answers?.fix?.f1||'';
+    const v=r.answers?.vibe||[];
+    if(h.includes('Quiet Floors')||h.includes('Silent Zone')) wants['Quiet zones']++;
+    if(h.includes('Group Pods')) wants['Group spaces']++;
+    if(h.includes('Coffee / Lounge')) wants['Coffee area']++;
+    if(h.includes('Near a plug socket')) wants['More sockets']++;
+    if(h.includes('Computer Suite')) wants['Better WiFi']++;
+    if(f.toLowerCase().includes('hour')||f.toLowerCase().includes('open')) wants['Extended hours']++;
+    if(f.toLowerCase().includes('print')) wants['Printing']++;
+    if(f.toLowerCase().includes('desk')||f.toLowerCase().includes('seat')) wants['More desks']++;
+  });
+  const sorted=Object.entries(wants).sort((a,b)=>b[1]-a[1]).filter(([,v])=>v>0);
+  const maxV=Math.max(...sorted.map(s=>s[1]),1);
+  const el=document.getElementById('adm-demand');
+  if(!sorted.length){el.innerHTML='<div class="lb-empty">No data yet</div>';return;}
+  el.innerHTML=sorted.map(([name,count])=>`
+    <div class="auction-row">
+      <div class="ar-name">${name}</div>
+      <div class="ar-bar-w"><div class="ar-bar" style="width:${Math.round(count/maxV*100)}%"></div></div>
+      <div class="ar-val">${count}</div>
+    </div>`).join('');
+}
+
+function renderMap(){
+  const SE={study:'🔵',social:'🟢',avoid:'🔴',improve:'🟡'};
+  const el=document.getElementById('adm-stickers');
+  document.getElementById('sticker-count').textContent=allStickers.length?' — '+allStickers.length+' stickers':'';
+  el.innerHTML=allStickers.map(s=>`
+    <div class="adm-sticker" style="left:${s.x}%;top:${s.y}%" title="${s.faculty||'?'}: ${s.type}">
+      ${SE[s.type]||'📍'}
+    </div>`).join('');
+}
+
+ADMIN.refresh=()=>{
+  renderAll();renderMap();
+};
+
+ADMIN.exportCSV=()=>{
+  if(!allResponses.length){alert('No data to export yet.');return;}
+  const headers=['Faculty','Name','Credits','Persona','Frequency','Hideout','Vibe','Fix1','Idea','Day2Optin','RefCode','UsedRef','SubmittedAt'];
+  const rows=allResponses.map(r=>{
+    const a=r.answers||{};
+    return[
+      r.faculty||'',r.name||'',r.credits||0,
+      P_MAP[getPersonaId(a)]?.name||'',
+      (a.freq||[]).join(';'),
+      (a.hideout||[]).join(';'),
+      (a.vibe||[]).join(';'),
+      a.fix?.f1||'',a.fix?.f2||'',
+      (a.day2||[]).join(';'),
+      r.refCode||'',r.usedRef||'',
+      r.submittedAt?new Date(r.submittedAt).toISOString():'',
+    ].map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',');
+  });
+  const csv=[headers.join(','),...rows].join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='library-experiment-'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+};
+</script>
+</body>
+</html>

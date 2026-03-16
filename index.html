@@ -2,890 +2,1824 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-<title>Bodleian Library · Space Survey</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>The Great Library Experiment</title>
+<link href="https://fonts.bunny.net/css?family=cabinet-grotesk:400,500,700,800,900&display=swap" rel="stylesheet"/>
 <style>
+/* ═══════════════════════════════════════════
+   DESIGN TOKENS — Japanese anime palette:
+   warm cream, ink black, accent yellow,
+   soft silences between actions
+═══════════════════════════════════════════ */
+:root{
+  --ink:#1a1208;
+  --paper:#faf6ee;
+  --yellow:#f5c842;
+  --red:#e8450a;
+  --blue:#3b6fd4;
+  --green:#2d9e6b;
+  --muted:#8a7a60;
+  --line:#1a1208;
+  --card:#ffffff;
+  --shadow:5px 5px 0 var(--line);
+  --shadow-sm:3px 3px 0 var(--line);
+  --radius:20px;
+  --border:2.5px solid var(--line);
+}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{background:#f7f3ec;font-family:Georgia,serif;color:#2c1a0e;overflow-x:hidden}
-.screen{display:none;flex-direction:column;min-height:100vh;padding:24px 20px 32px;max-width:480px;margin:0 auto}
+html,body{
+  height:100%;background:var(--paper);
+  font-family:'Cabinet Grotesk',system-ui,sans-serif;
+  color:var(--ink);overflow-x:hidden;
+}
+
+/* ─── SCREENS ─── */
+.screen{display:none;min-height:100vh;flex-direction:column;max-width:430px;margin:0 auto;padding:0 0 80px}
 .screen.active{display:flex}
-.eyebrow{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#a08060;margin-bottom:8px;font-family:system-ui,sans-serif}
-h1{font-size:26px;line-height:1.2;margin-bottom:6px}
-h1 em,h2 em{color:#c4622d;font-style:italic}
-h2{font-size:20px;margin-bottom:6px;line-height:1.25}
-.sub{font-size:13px;color:#8a7060;line-height:1.6;margin-bottom:18px;font-family:system-ui,sans-serif}
-.btn-primary{width:100%;padding:16px;background:#c4622d;color:#faf5ee;border:none;border-radius:12px;font-size:16px;font-family:Georgia,serif;font-style:italic;cursor:pointer;transition:opacity .2s;margin-top:10px}
-.btn-primary:hover{opacity:.88}
-.btn-primary:disabled{background:#c8b8a4;cursor:not-allowed;opacity:1}
-select,textarea{width:100%;padding:14px;background:#fff;border:1.5px solid #e0d0bc;border-radius:10px;color:#2c1a0e;font-size:15px;margin-bottom:12px;outline:none;font-family:system-ui,sans-serif;appearance:none}
-select:focus,textarea:focus{border-color:#c4622d}
-textarea{resize:none;height:88px;line-height:1.5}
-.steps{display:flex;gap:6px;margin-bottom:20px}
-.step{flex:1;height:3px;border-radius:2px;background:#e0d0bc;transition:background .3s}
-.step.done{background:#c4622d}
 
-/* ── LIVE LEADERBOARD STRIP (shown on every screen) ── */
-#live-strip{background:#2c1a0e;color:#f5f0e8;padding:10px 16px;font-family:system-ui,sans-serif;font-size:11px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;min-height:38px}
-#live-strip .strip-label{color:#c4622d;font-weight:600;text-transform:uppercase;letter-spacing:1px;white-space:nowrap;font-size:10px}
-#live-strip .strip-rows{display:flex;gap:12px;overflow:hidden;flex:1;flex-wrap:nowrap}
-.strip-dept{display:flex;align-items:center;gap:5px;white-space:nowrap}
-.strip-bar-wrap{width:40px;height:4px;background:#4a3820;border-radius:2px;overflow:hidden}
-.strip-bar{height:100%;background:#c4622d;border-radius:2px;transition:width .6s}
-.strip-bar.me{background:#4a9060}
-.strip-pct{font-size:10px;color:#a09070}
-.strip-name{font-size:10px;max-width:80px;overflow:hidden;text-overflow:ellipsis}
-.strip-name.me{color:#7ad4a0}
+/* ─── JAPANESE ANIME KEYFRAMES ─── */
 
-/* ── FULL LEADERBOARD CARD ── */
-.lb-card{background:#fff;border:1px solid #e8ddd0;border-radius:14px;padding:16px;margin-bottom:16px}
-.lb-title{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#a08060;margin-bottom:12px;font-family:system-ui,sans-serif;display:flex;justify-content:space-between;align-items:center}
-.lb-tab{padding:3px 10px;border-radius:8px;border:1px solid #e0d0bc;font-size:10px;cursor:pointer;background:transparent;color:#a08060;font-family:system-ui,sans-serif;transition:all .15s}
-.lb-tab.on{background:#c4622d;color:#fff;border-color:#c4622d}
-.lb-row{display:flex;align-items:center;gap:8px;margin-bottom:9px}
-.lb-row:last-child{margin-bottom:0}
-.lb-rank{font-size:11px;color:#b0a090;width:20px;text-align:center;font-family:system-ui,sans-serif;flex-shrink:0}
-.lb-rank.gold{color:#c4862d;font-weight:700}
-.lb-rank.silver{color:#888}
-.lb-rank.bronze{color:#a06030}
-.lb-name{flex:1;font-size:12px;color:#2c1a0e;font-family:system-ui,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lb-name.me{color:#c4622d;font-weight:600}
-.lb-track{width:80px;height:7px;background:#f0e8dc;border-radius:4px;overflow:hidden;flex-shrink:0}
-.lb-fill{height:100%;background:#c4622d;border-radius:4px;transition:width .7s ease}
-.lb-fill.me{background:#4a9060}
-.lb-val{font-size:11px;color:#a08060;font-family:system-ui,sans-serif;width:44px;text-align:right;flex-shrink:0;font-weight:500}
-.lb-val.me{color:#4a9060}
-.lb-empty{font-size:13px;color:#b0a090;font-family:system-ui,sans-serif;text-align:center;padding:10px 0}
-.lb-you-badge{font-size:9px;background:#4a9060;color:#fff;padding:1px 5px;border-radius:4px;margin-left:4px}
+/* Lib walking: slight body bob + step rhythm */
+@keyframes lib-walk{
+  0%{transform:translateX(-120px) scaleX(1)}
+  45%{transform:translateX(0) scaleX(1)}
+  50%{transform:translateX(0) scaleX(1)}
+  100%{transform:translateX(0) scaleX(1)}
+}
+@keyframes lib-walk-out{
+  0%{transform:translateX(0) scaleX(1)}
+  100%{transform:translateX(140px) scaleX(-1)}
+}
+@keyframes lib-idle{
+  0%,100%{transform:translateY(0) rotate(-0.5deg)}
+  50%{transform:translateY(-6px) rotate(0.5deg)}
+}
+@keyframes lib-bounce{
+  0%,100%{transform:translateY(0)}
+  20%{transform:translateY(-14px)}
+  40%{transform:translateY(-4px)}
+  60%{transform:translateY(-8px)}
+  80%{transform:translateY(-2px)}
+}
+@keyframes lib-nod{
+  0%,100%{transform:rotate(0)}
+  25%{transform:rotate(-8deg)}
+  75%{transform:rotate(6deg)}
+}
+@keyframes lib-wave{
+  0%,100%{transform:rotate(0deg)}
+  25%{transform:rotate(-20deg)}
+  75%{transform:rotate(20deg)}
+}
+@keyframes lib-think{
+  0%,100%{transform:rotate(0deg) translateY(0)}
+  50%{transform:rotate(-5deg) translateY(-3px)}
+}
+/* Leg step animation */
+@keyframes leg-l{
+  0%,100%{transform:rotate(0deg);transform-origin:top center}
+  50%{transform:rotate(-15deg);transform-origin:top center}
+}
+@keyframes leg-r{
+  0%,100%{transform:rotate(0deg);transform-origin:top center}
+  50%{transform:rotate(15deg);transform-origin:top center}
+}
+/* Shade glow on answer */
+@keyframes shade-glow{
+  0%,100%{filter:drop-shadow(0 0 0 transparent)}
+  50%{filter:drop-shadow(0 0 12px var(--yellow))}
+}
+/* Content transitions — like a breath */
+@keyframes breathe-in{
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes breathe-up{
+  from{opacity:0;transform:translateY(30px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes float-in-r{
+  from{opacity:0;transform:translateX(40px)}
+  to{opacity:1;transform:translateX(0)}
+}
+@keyframes float-in-l{
+  from{opacity:0;transform:translateX(-40px)}
+  to{opacity:1;transform:translateX(0)}
+}
+@keyframes pop{
+  0%{transform:scale(0.4) rotate(-8deg);opacity:0}
+  65%{transform:scale(1.06) rotate(1deg);opacity:1}
+  100%{transform:scale(1) rotate(0);opacity:1}
+}
+@keyframes stamp{
+  0%{transform:scale(1.8) rotate(12deg);opacity:0}
+  70%{transform:scale(0.95) rotate(-2deg);opacity:1}
+  100%{transform:scale(1) rotate(0);opacity:1}
+}
+@keyframes pulse-dot{
+  0%,100%{transform:scale(1);opacity:1}
+  50%{transform:scale(1.5);opacity:.5}
+}
+@keyframes credits-up{
+  0%{opacity:0;transform:translateY(0)}
+  30%{opacity:1}
+  100%{opacity:0;transform:translateY(-40px)}
+}
+@keyframes shake-no{
+  0%,100%{transform:rotate(0)}
+  20%{transform:rotate(-6deg)}
+  40%{transform:rotate(6deg)}
+  60%{transform:rotate(-4deg)}
+  80%{transform:rotate(4deg)}
+}
+/* Map doodle draw-in */
+@keyframes draw{
+  from{stroke-dashoffset:1000}
+  to{stroke-dashoffset:0}
+}
+/* Sticker drop */
+@keyframes sticker-drop{
+  0%{transform:translate(-50%,-50%) scale(0) rotate(-20deg)}
+  70%{transform:translate(-50%,-50%) scale(1.2) rotate(3deg)}
+  100%{transform:translate(-50%,-50%) scale(1) rotate(0)}
+}
+@keyframes fade-in{
+  from{opacity:0}to{opacity:1}
+}
+@keyframes slide-up-card{
+  from{opacity:0;transform:translateY(24px)}
+  to{opacity:1;transform:translateY(0)}
+}
 
-/* ── MAP ── */
-.map-wrap{background:#fff;border:1px solid #e0d4c0;border-radius:12px;overflow:hidden;margin-bottom:10px;touch-action:manipulation}
+/* ─── TOPBAR ─── */
+.topbar{
+  padding:14px 18px;
+  display:flex;justify-content:space-between;align-items:center;
+  border-bottom:var(--border);background:rgba(250,246,238,.92);
+  backdrop-filter:blur(8px);position:sticky;top:0;z-index:100;
+}
+.t-brand{display:flex;align-items:center;gap:10px}
+.t-badge{
+  width:36px;height:36px;border:var(--border);border-radius:10px;
+  background:var(--yellow);display:grid;place-items:center;
+  font-size:18px;box-shadow:var(--shadow-sm);
+}
+.t-name{font-size:11px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.t-title{font-size:15px;font-weight:900;letter-spacing:-.5px;line-height:1.1}
+.t-credits{
+  display:flex;align-items:center;gap:5px;
+  background:var(--ink);color:var(--yellow);
+  border-radius:20px;padding:5px 12px;
+  font-size:12px;font-weight:900;
+  border:2px solid var(--ink);
+}
+.t-live{
+  display:flex;align-items:center;gap:6px;
+  font-size:10px;font-weight:800;
+  color:var(--muted);text-transform:uppercase;letter-spacing:1px;
+}
+.live-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--green);
+  animation:pulse-dot 1.4s ease-in-out infinite;
+}
+
+/* ─── LIB CHARACTER ─── */
+.lib-stage{
+  width:100%;display:flex;align-items:flex-end;
+  padding:10px 20px;gap:14px;min-height:100px;
+  position:relative;
+}
+.lib-char{
+  flex-shrink:0;position:relative;
+  transition:transform .3s ease;
+}
+.lib-char.walking{animation:lib-walk .8s cubic-bezier(.22,1,.36,1) both}
+.lib-char.walking-out{animation:lib-walk-out .5s ease both}
+.lib-char.idle{animation:lib-idle 3s ease-in-out infinite}
+.lib-char.bounce{animation:lib-bounce .7s ease}
+.lib-char.thinking{animation:lib-think 1.5s ease-in-out infinite}
+.lib-char.nod{animation:lib-nod .6s ease}
+
+/* Lib SVG parts */
+.lib-lamp-shade{transition:fill .3s}
+.lib-shade-glow.active{animation:shade-glow .6s ease}
+.lib-leg-l{animation:leg-l .5s ease-in-out infinite alternate;transform-origin:top center}
+.lib-leg-r{animation:leg-r .5s ease-in-out infinite alternate;transform-origin:top center;animation-delay:.25s}
+.lib-arm-wave{animation:lib-wave .5s ease-in-out infinite;transform-origin:top right}
+
+/* Speech bubble */
+.lib-bubble{
+  background:var(--card);border:var(--border);border-radius:18px 18px 18px 4px;
+  padding:12px 16px;box-shadow:var(--shadow);
+  font-size:14px;font-weight:700;line-height:1.45;
+  max-width:210px;flex:1;
+  animation:float-in-l .4s ease both;
+}
+.lib-bubble .bubble-sub{
+  display:block;font-size:11px;color:var(--muted);
+  margin-top:3px;font-weight:600;
+}
+.lib-bubble.yellow{background:var(--yellow)}
+
+/* ─── CARDS ─── */
+.card{
+  background:var(--card);border:var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:18px;
+  animation:slide-up-card .35s ease both;
+}
+.card+.card{margin-top:12px}
+
+/* ─── BUTTONS ─── */
+.btn{
+  width:100%;border:var(--border);border-radius:18px;
+  padding:16px 20px;font-size:16px;font-weight:900;
+  cursor:pointer;display:flex;justify-content:space-between;align-items:center;
+  font-family:'Cabinet Grotesk',system-ui,sans-serif;
+  transition:transform .1s,box-shadow .1s;
+  letter-spacing:-.3px;
+}
+.btn.yellow{background:var(--yellow);color:var(--ink);box-shadow:var(--shadow)}
+.btn.dark{background:var(--ink);color:var(--yellow);box-shadow:var(--shadow)}
+.btn.white{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+.btn:active{transform:translate(3px,3px);box-shadow:2px 2px 0 var(--line)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:var(--shadow)}
+.btn-sm{
+  padding:10px 16px;font-size:14px;border-radius:14px;
+  border:var(--border);font-weight:900;cursor:pointer;
+  font-family:'Cabinet Grotesk',system-ui,sans-serif;
+  transition:transform .1s,box-shadow .1s;
+  box-shadow:var(--shadow-sm);
+}
+.btn-sm:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--line)}
+.back-btn{
+  background:none;border:none;cursor:pointer;
+  font-size:13px;font-weight:800;color:var(--muted);
+  padding:14px 18px 0;display:flex;align-items:center;gap:5px;
+  font-family:'Cabinet Grotesk',system-ui,sans-serif;
+}
+
+/* ─── CHOICE COMPONENTS ─── */
+.choice-grid{display:flex;flex-direction:column;gap:8px}
+.choice-opt{
+  background:var(--paper);border:var(--border);border-radius:16px;
+  padding:14px 16px;cursor:pointer;font-size:14px;font-weight:700;
+  display:flex;align-items:center;gap:12px;
+  transition:all .12s ease;box-shadow:var(--shadow-sm);
+  font-family:'Cabinet Grotesk',system-ui,sans-serif;
+  width:100%;text-align:left;
+}
+.choice-opt:hover{transform:translateY(-1px);box-shadow:5px 6px 0 var(--line)}
+.choice-opt.on{
+  background:var(--yellow);border-color:var(--ink);
+  transform:translate(2px,2px);box-shadow:3px 3px 0 var(--line);
+}
+.choice-opt .co-emoji{font-size:22px;flex-shrink:0}
+.choice-opt .co-check{margin-left:auto;font-size:14px;opacity:0;transition:opacity .2s}
+.choice-opt.on .co-check{opacity:1}
+
+/* Multi-select grid */
+.multi-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.multi-opt{
+  background:var(--paper);border:var(--border);border-radius:14px;
+  padding:12px 10px;cursor:pointer;font-size:13px;font-weight:800;
+  text-align:center;transition:all .12s;box-shadow:var(--shadow-sm);
+  font-family:'Cabinet Grotesk',system-ui,sans-serif;line-height:1.2;
+}
+.multi-opt:hover{transform:translateY(-1px)}
+.multi-opt.on{background:var(--yellow);border-color:var(--ink);transform:translate(2px,2px);box-shadow:3px 3px 0 var(--line)}
+
+/* Ranking */
+.rank-list{display:flex;flex-direction:column;gap:8px}
+.rank-item{
+  background:var(--paper);border:var(--border);border-radius:14px;
+  padding:12px 16px;cursor:pointer;font-size:13px;font-weight:800;
+  display:flex;align-items:center;gap:10px;
+  transition:all .12s;box-shadow:var(--shadow-sm);
+  font-family:'Cabinet Grotesk',system-ui,sans-serif;
+}
+.rank-item:hover{transform:translateY(-1px)}
+.rank-item.on{background:var(--yellow);border-color:var(--ink);transform:translate(2px,2px);box-shadow:3px 3px 0 var(--line)}
+.rank-badge{
+  width:26px;height:26px;border-radius:50%;background:var(--ink);
+  color:var(--yellow);font-size:12px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+
+/* Open text */
+.open-area{
+  width:100%;padding:14px;
+  border:var(--border);border-radius:16px;
+  font-size:14px;font-family:'Cabinet Grotesk',system-ui,sans-serif;
+  font-weight:600;resize:none;height:90px;
+  background:var(--paper);outline:none;line-height:1.6;
+  box-shadow:var(--shadow-sm);transition:box-shadow .15s;
+}
+.open-area:focus{box-shadow:var(--shadow)}
+.open-lbl{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px}
+
+/* ─── PROGRESS ─── */
+.qprog{padding:8px 18px 0}
+.qp-labels{display:flex;justify-content:space-between;font-size:11px;font-weight:800;color:var(--muted);margin-bottom:5px}
+.qp-bar{
+  height:8px;background:#e8e0d0;border-radius:4px;
+  border:2px solid rgba(26,18,8,.12);overflow:hidden;
+}
+.qp-fill{height:100%;background:var(--yellow);border-radius:2px;transition:width .5s cubic-bezier(.22,1,.36,1)}
+
+/* ─── QUESTION HEADER ─── */
+.q-head{padding:12px 18px 0}
+.q-kicker{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:2px;color:var(--red);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.q-title{font-size:26px;font-weight:900;letter-spacing:-1.5px;line-height:1;margin-bottom:6px}
+.q-hint{font-size:13px;color:var(--muted);font-weight:600;margin-bottom:14px;line-height:1.5}
+
+/* ─── QUIZ CARD ─── */
+.q-card{margin:0 18px 12px;animation:float-in-r .4s ease}
+
+/* ─── LEADERBOARD ─── */
+.lb-card{
+  margin:16px 18px 0;
+  background:var(--ink);border:var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:16px;
+}
+.lb-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.lb-title{font-size:10px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.3)}
+.lb-live{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:800;color:var(--yellow)}
+.lb-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.07)}
+.lb-row:last-child{border:none}
+.lb-medal{font-size:13px;width:20px;text-align:center;flex-shrink:0}
+.lb-name{flex:1;font-size:12px;font-weight:700;color:rgba(255,255,255,.6);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-name.me{color:var(--yellow);font-weight:900}
+.lb-bw{width:52px;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
+.lb-bf{height:100%;background:var(--yellow);border-radius:2px;transition:width 1s ease}
+.lb-bf.me{background:#7aecb4}
+.lb-pct{font-size:11px;font-weight:900;color:var(--yellow);min-width:28px;text-align:right}
+.lb-pct.me{color:#7aecb4}
+.lb-empty{font-size:12px;color:rgba(255,255,255,.2);text-align:center;padding:8px 0;font-weight:700}
+
+/* ─── PERSONA REVEAL CARD ─── */
+.persona-reveal{
+  margin:14px 18px;
+  background:var(--ink);border:var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:24px 20px;text-align:center;
+  position:relative;overflow:hidden;
+  animation:stamp .6s cubic-bezier(.22,1,.36,1) both;
+}
+.pr-glow{
+  position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 50% 30%,rgba(255,255,255,.06) 0%,transparent 60%);
+}
+.pr-char{font-size:72px;display:block;margin-bottom:12px;animation:lib-idle 3s ease-in-out infinite;position:relative}
+.pr-type{font-size:28px;font-weight:900;color:var(--yellow);letter-spacing:-1.5px;margin-bottom:8px;position:relative}
+.pr-tags{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin-bottom:12px;position:relative}
+.pr-tag{
+  font-size:9px;font-weight:900;padding:4px 10px;border-radius:8px;
+  background:rgba(255,255,255,.08);color:rgba(255,255,255,.5);
+  letter-spacing:1px;text-transform:uppercase;
+}
+.pr-desc{font-size:13px;color:rgba(255,255,255,.45);line-height:1.65;position:relative}
+
+/* ─── RANK BANNER ─── */
+.rank-banner{
+  margin:12px 18px;
+  background:rgba(26,18,8,.04);border:var(--border);border-radius:16px;
+  padding:14px 16px;display:flex;justify-content:space-between;align-items:center;
+}
+.rbl .rb-fac{font-size:14px;font-weight:800}
+.rbl .rb-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.rbr .rb-pos{font-size:50px;font-weight:900;color:var(--yellow);line-height:1;
+  -webkit-text-stroke:2px var(--ink);
+  animation:pop .7s ease .3s both}
+.rbr .rb-pct{font-size:11px;color:var(--muted);text-align:right}
+
+/* ─── REFERRAL + QR ─── */
+.ref-card{
+  margin:12px 18px;
+  background:var(--yellow);border:var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:16px;
+}
+.ref-title{font-size:18px;font-weight:900;letter-spacing:-.5px;margin-bottom:4px}
+.ref-sub{font-size:12px;color:rgba(26,18,8,.6);margin-bottom:12px;font-weight:600;line-height:1.5}
+.ref-link-row{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+.ref-link-box{
+  flex:1;padding:10px 12px;background:rgba(255,255,255,.6);
+  border:2px solid var(--ink);border-radius:10px;
+  font-size:11px;font-family:monospace;font-weight:700;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.ref-copy{
+  background:var(--ink);color:var(--yellow);border:none;
+  border-radius:10px;padding:10px 14px;font-size:12px;font-weight:900;
+  cursor:pointer;font-family:'Cabinet Grotesk',system-ui,sans-serif;
+  box-shadow:var(--shadow-sm);transition:transform .1s,box-shadow .1s;
+}
+.ref-copy:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.qr-wrap{
+  background:rgba(255,255,255,.7);border:2px solid var(--ink);
+  border-radius:14px;padding:14px;text-align:center;
+}
+.qr-lbl{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:rgba(26,18,8,.5);margin-bottom:10px}
+#qr-canvas{display:block;margin:0 auto;border-radius:6px}
+.qr-hint{font-size:11px;color:rgba(26,18,8,.5);margin-top:8px;font-weight:700;line-height:1.4}
+
+/* ─── RESULT LEADERBOARD ─── */
+.res-lb{
+  margin:12px 18px;background:var(--card);border:var(--border);
+  border-radius:16px;padding:14px;box-shadow:var(--shadow-sm);
+}
+.rlb-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.rlb-t{font-size:9px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.rlb-tabs{display:flex;gap:4px}
+.rlb-tab{
+  padding:4px 9px;border-radius:7px;border:1.5px solid #e0d8c8;
+  font-size:10px;cursor:pointer;background:transparent;color:var(--muted);
+  font-family:'Cabinet Grotesk',system-ui,sans-serif;font-weight:800;transition:all .12s;
+}
+.rlb-tab.on{background:var(--ink);color:var(--yellow);border-color:var(--ink)}
+.rlb-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f0e8e0}
+.rlb-row:last-child{border:none}
+.rlb-med{font-size:13px;width:20px;text-align:center}
+.rlb-name{flex:1;font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rlb-name.me{color:var(--red);font-weight:900}
+.rlb-bw{width:55px;height:5px;background:#f0e8e0;border-radius:3px;overflow:hidden}
+.rlb-bf{height:100%;background:var(--red);border-radius:3px;transition:width .8s ease}
+.rlb-bf.me{background:var(--yellow)}
+.rlb-val{font-size:11px;font-weight:800;color:var(--muted);min-width:30px;text-align:right}
+.rlb-val.me{color:var(--red)}
+.rlb-empty{font-size:12px;color:#b0a090;text-align:center;padding:8px 0;font-weight:600}
+
+/* ─── MAP SCREEN ─── */
+.map-header{padding:16px 18px 12px}
+.map-tabs{display:flex;gap:6px;padding:0 18px 12px;overflow-x:auto}
+.map-tab{
+  display:flex;align-items:center;gap:5px;
+  padding:7px 13px;border-radius:20px;border:var(--border);
+  background:var(--card);font-size:11px;font-weight:900;
+  cursor:pointer;white-space:nowrap;box-shadow:var(--shadow-sm);
+  transition:all .12s;font-family:'Cabinet Grotesk',system-ui,sans-serif;
+}
+.map-tab.on{transform:translate(2px,2px);box-shadow:3px 3px 0 var(--line)}
+.map-tab[data-t="study"].on{background:#dbeafe;border-color:var(--blue);color:var(--blue)}
+.map-tab[data-t="social"].on{background:#dcfce7;border-color:var(--green);color:var(--green)}
+.map-tab[data-t="avoid"].on{background:#fee2e2;border-color:var(--red);color:var(--red)}
+.map-tab[data-t="improve"].on{background:#fef9c3;border-color:#ca8a04;color:#ca8a04}
+.map-dot{width:8px;height:8px;border-radius:50%}
+
+.map-wrap{
+  margin:0 18px;border:var(--border);border-radius:18px;
+  overflow:hidden;box-shadow:var(--shadow);
+  background:#f5f0e4;position:relative;cursor:crosshair;
+  touch-action:none;
+}
 .map-wrap svg{display:block;width:100%}
-.map-legend{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
-.ml{display:flex;align-items:center;gap:4px;font-size:10px;color:#9a7a5a;font-family:system-ui,sans-serif}
-.mld{width:9px;height:9px;border-radius:2px;border:1px solid rgba(0,0,0,.1)}
+#map-stickers-layer{position:absolute;inset:0;pointer-events:none}
+.map-sticker{
+  position:absolute;transform:translate(-50%,-50%);
+  font-size:18px;pointer-events:auto;cursor:pointer;
+  animation:sticker-drop .4s cubic-bezier(.22,1,.36,1) both;
+}
+.map-sticker.mine{filter:drop-shadow(0 0 6px var(--yellow))}
+.map-hint{padding:8px 18px;font-size:12px;color:var(--muted);font-weight:700;text-align:center}
+.map-submit{
+  margin:8px 18px 14px;background:var(--ink);color:var(--yellow);
+  border:none;border-radius:14px;padding:16px 20px;
+  font-size:15px;font-weight:900;cursor:pointer;
+  font-family:'Cabinet Grotesk',system-ui,sans-serif;
+  width:calc(100% - 36px);display:flex;justify-content:space-between;align-items:center;
+  box-shadow:var(--shadow);transition:transform .1s,box-shadow .1s;
+}
+.map-submit:disabled{opacity:.3;cursor:not-allowed}
+.map-submit:active{transform:translate(3px,3px);box-shadow:2px 2px 0 var(--ink)}
 
-/* ── FRICTION PANEL ── */
-.f-panel{background:#fffcf7;border:1.5px solid #e0d0bc;border-radius:12px;padding:14px;margin-bottom:10px;display:none}
-.f-zone-name{font-size:15px;font-weight:600;color:#2c1a0e;font-family:Georgia,serif;font-style:italic;margin-bottom:2px}
-.f-zone-desc{font-size:11px;color:#9a7a5a;margin-bottom:10px;font-family:system-ui,sans-serif}
-.f-step{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:#7a6050;margin-bottom:6px;font-family:system-ui,sans-serif}
-.flag-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.fbtn{padding:7px 13px;border-radius:16px;border:1.5px solid;font-size:11px;font-weight:500;cursor:pointer;background:transparent;transition:all .15s;font-family:system-ui,sans-serif}
-.fbtn:hover{transform:translateY(-1px)}
-.fc{border-color:#5a8ab0;color:#3a6a90}.fc.on{background:#3a6a90;color:#fff;border-color:#3a6a90}
-.fn{border-color:#c4622d;color:#a04010}.fn.on{background:#a04010;color:#fff;border-color:#a04010}
-.fd{border-color:#9a8070;color:#6a5040}.fd.on{background:#6a5040;color:#fff;border-color:#6a5040}
+/* ─── INPUT COMPONENTS ─── */
+.inp{
+  width:100%;padding:13px 15px;border:var(--border);border-radius:14px;
+  font-size:15px;font-family:'Cabinet Grotesk',system-ui,sans-serif;
+  font-weight:700;background:var(--paper);outline:none;margin-bottom:12px;
+  box-shadow:var(--shadow-sm);transition:box-shadow .15s;
+  -webkit-appearance:none;appearance:none;color:var(--ink);
+}
+.inp:focus{box-shadow:var(--shadow)}
+.fac-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:14px}
+.fac-chip{
+  background:var(--paper);border:var(--border);border-radius:12px;
+  padding:11px 8px;text-align:center;cursor:pointer;
+  font-size:12px;font-weight:800;transition:all .12s;
+  font-family:'Cabinet Grotesk',system-ui,sans-serif;
+  box-shadow:var(--shadow-sm);line-height:1.2;
+}
+.fac-chip:hover{transform:translateY(-1px)}
+.fac-chip.on{background:var(--ink);color:var(--yellow);transform:translate(2px,2px);box-shadow:3px 3px 0 var(--line)}
 
-/* ── FIX BUTTONS — these must work ── */
-.fix-row{display:flex;gap:6px;flex-wrap:wrap}
-.xbtn{padding:7px 13px;border-radius:16px;border:1.5px solid #d0c0a8;font-size:12px;cursor:pointer;background:#fffcf7;color:#6a5040;font-family:system-ui,sans-serif;transition:all .15s;font-weight:500}
-.xbtn:hover{border-color:#c4622d;color:#c4622d;background:#fff8f4}
-.xbtn.on{background:#4a9060;color:#fff;border-color:#4a9060}
+/* ─── ONBOARDING ─── */
+#s-onboard{background:var(--paper)}
+.onb-hero{
+  padding:20px 18px;text-align:center;
+  animation:breathe-in .5s ease both;
+}
+.onb-title{font-size:44px;font-weight:900;line-height:.88;letter-spacing:-3px;margin-bottom:10px}
+.onb-title .box{
+  display:inline-block;background:var(--blue);color:#fff;
+  padding:2px 10px;border-radius:8px;border:var(--border);
+  transform:rotate(-1.5deg);font-style:italic;
+}
+.onb-sub{font-size:13px;color:var(--muted);font-weight:500;line-height:1.6;margin-bottom:16px}
 
-.pins{display:flex;gap:5px;flex-wrap:wrap;min-height:20px;margin-bottom:6px}
-.pin{font-size:10px;padding:2px 8px;border-radius:8px;font-weight:500;font-family:system-ui,sans-serif}
-.pin-c{background:#3a6a90;color:#fff}
-.pin-n{background:#a04010;color:#fff}
-.pin-d{background:#6a5040;color:#fff}
-.pin-f{background:#4a9060;color:#fff}
-.map-hint{font-size:11px;color:#9a7a5a;font-family:system-ui,sans-serif;margin-bottom:8px;min-height:16px}
+/* Day cards */
+.day-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 18px 14px}
+.dcard{background:var(--card);border:var(--border);border-radius:14px;padding:12px 10px;text-align:center;box-shadow:var(--shadow-sm)}
+.dcard.now{background:var(--yellow)}
+.dc-n{font-size:22px;font-weight:900;letter-spacing:-1.5px}
+.dc-name{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;opacity:.5;margin:2px 0}
+.dc-desc{font-size:9px;color:var(--muted);line-height:1.3}
+.dcard.now .dc-name,.dcard.now .dc-desc{opacity:.7}
 
-/* ── AUCTION ── */
-.budget-wrap{background:#fff;border:1px solid #e0d0bc;border-radius:14px;padding:16px;margin-bottom:14px}
-.budget-top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px}
-.budget-remaining{font-size:36px;font-weight:400;color:#c4622d;line-height:1;font-family:Georgia,serif}
-.budget-label{font-size:10px;color:#a08060;font-family:system-ui,sans-serif;margin-bottom:2px;text-transform:uppercase;letter-spacing:.8px}
-.budget-spent{font-size:20px;color:#8a7060;font-family:Georgia,serif}
-.budget-track{height:6px;background:#f0e8dc;border-radius:3px;overflow:hidden}
-.budget-fill{height:100%;background:#c4622d;border-radius:3px;transition:width .4s ease}
-.budget-fill.low{background:#a04010}
-.items-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
-.item-card{background:#fff;border:1.5px solid #e8ddd0;border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s}
-.item-card:hover{border-color:#c4622d44;background:#fffaf7}
-.item-card.bought{border-color:#4a9060;background:#f4fbf6}
-.item-card.cant{opacity:.35;cursor:not-allowed}
-.item-check{width:20px;height:20px;border-radius:50%;border:1.5px solid #d0c0ac;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;transition:all .2s;color:transparent}
-.item-check.bought{background:#4a9060;border-color:#4a9060;color:#fff}
-.item-info{flex:1;min-width:0}
-.item-name{font-size:14px;font-weight:600;color:#2c1a0e;font-family:system-ui,sans-serif;margin-bottom:2px}
-.item-desc{font-size:11px;color:#9a7a5a;font-family:system-ui,sans-serif}
-.item-cat{display:inline-block;font-size:9px;padding:1px 7px;border-radius:8px;margin-top:3px;font-weight:500;font-family:system-ui,sans-serif}
-.cat-focus{background:#eaf3de;color:#3b6d11}
-.cat-comfort{background:#faeeda;color:#854f0b}
-.cat-social{background:#e1f5ee;color:#0f6e56}
-.cat-access{background:#faece7;color:#993c1d}
-.item-cost{font-size:15px;font-weight:600;color:#c4622d;white-space:nowrap;font-family:system-ui,sans-serif}
-.item-cost.bought{color:#4a9060}
+/* Bottom CTA fixed */
+.bottom-cta{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:430px;padding:14px 18px;
+  background:rgba(250,246,238,.95);backdrop-filter:blur(8px);
+  border-top:var(--border);z-index:90;
+}
 
-/* ── SLIDER ── */
-.slider-section{margin:20px 0}
-.slider-val{font-size:36px;color:#c4622d;text-align:center;margin-bottom:12px;font-family:Georgia,serif}
-input[type=range]{-webkit-appearance:none;width:100%;height:5px;background:#e0d0bc;border-radius:3px;outline:none;margin-bottom:8px}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;background:#c4622d;border-radius:50%;cursor:pointer;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.15)}
-.slider-labs{display:flex;justify-content:space-between;font-size:11px;color:#a08060;font-family:system-ui,sans-serif}
+/* ─── TOAST ─── */
+#toast{
+  position:fixed;bottom:90px;left:50%;transform:translateX(-50%);
+  background:var(--ink);color:var(--yellow);
+  padding:10px 20px;border-radius:20px;font-size:13px;font-weight:900;
+  opacity:0;transition:opacity .2s;pointer-events:none;z-index:999;
+  white-space:nowrap;border:2px solid var(--yellow);box-shadow:var(--shadow-sm);
+}
+#toast.show{opacity:1}
 
-/* ── RESULT ── */
-.result-card{background:#fff;border:1px solid #e8ddd0;border-radius:14px;padding:16px;margin-bottom:12px}
-.result-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#a08060;margin-bottom:10px;font-family:system-ui,sans-serif}
-.tag-row{display:flex;flex-wrap:wrap;gap:5px}
-.rtag{font-size:11px;padding:3px 10px;border-radius:8px;background:#faece7;color:#993c1d;font-family:system-ui,sans-serif}
-.confetti-line{text-align:center;font-size:40px;margin:6px 0 10px}
+/* Credits float animation */
+.credit-float{
+  position:fixed;font-size:14px;font-weight:900;color:var(--yellow);
+  pointer-events:none;z-index:998;
+  animation:credits-up 1.2s ease both;
+  -webkit-text-stroke:1px var(--ink);
+}
 
-/* ── YOUR DEPT POSITION BANNER ── */
-.rank-banner{background:#2c1a0e;color:#f5f0e8;border-radius:12px;padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
-.rank-big{font-size:40px;font-family:Georgia,serif;color:#c4622d;line-height:1}
-.rank-label{font-size:12px;color:#a08060;font-family:system-ui,sans-serif;margin-top:2px}
-.rank-dept{font-size:14px;font-weight:600;color:#f5f0e8;font-family:system-ui,sans-serif}
+/* ─── BOTTOM NAV ─── */
+#nav-bar{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:430px;
+  background:var(--card);border-top:var(--border);
+  display:none;z-index:200;
+}
+#nav-bar.on{display:flex}
+.ntab{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  padding:10px 4px 14px;cursor:pointer;border:none;background:transparent;
+  font-family:'Cabinet Grotesk',system-ui,sans-serif;
+  gap:2px;border-right:var(--border);transition:background .1s;
+}
+.ntab:last-child{border-right:none}
+.ntab.on{background:var(--yellow)}
+.ntab-icon{font-size:18px}
+.ntab-lbl{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.5px}
+
+/* ─── THANK YOU ─── */
+.ty-wrap{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;text-align:center;padding:40px 24px;
+}
+.ty-title{font-size:36px;font-weight:900;letter-spacing:-2px;margin-bottom:8px}
+.ty-sub{font-size:14px;color:var(--muted);font-weight:500;line-height:1.6;margin-bottom:20px}
+.ty-date{font-size:12px;color:#b0a090;font-weight:700;margin-top:14px}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:360px){
+  .onb-title{font-size:36px}
+  .q-title{font-size:22px}
+}
+
+/* ─── FLOOR PLAN DOODLE ANIMATION ─── */
+.fp-zone{opacity:0;transition:opacity .4s ease}
+.fp-zone.visible{opacity:1}
+.fp-wall{
+  stroke-dasharray:500;stroke-dashoffset:500;
+  animation:draw 1.2s ease forwards;
+}
+.fp-wall-2{animation-delay:.3s}
+.fp-wall-3{animation-delay:.6s}
+.map-lib-walk{animation:lib-walk .8s ease .5s both}
+.map-lib-idle{animation:lib-idle 3s ease-in-out 1.3s infinite}
+
+/* Sticker type colours for SVG dots */
+.s-study{fill:#3b6fd4}.s-social{fill:#2d9e6b}.s-avoid{fill:#e8450a}.s-improve{fill:#f5c842}
 </style>
 </head>
 <body>
+<div id="toast"></div>
 
-<!-- LIVE STRIP — visible on all screens after dept is chosen -->
-<div id="live-strip" style="display:none">
-  <span class="strip-label">Live</span>
-  <div class="strip-rows" id="strip-rows">
-    <span style="color:#6a5040;font-size:10px">Loading…</span>
-  </div>
+<!-- ─── BOTTOM NAV ─── -->
+<div id="nav-bar">
+  <button class="ntab on" data-s="3" onclick="NAV.to(3,this)">
+    <span class="ntab-icon">✏️</span><span class="ntab-lbl">Quiz</span>
+  </button>
+  <button class="ntab" data-s="4" onclick="NAV.to(4,this)">
+    <span class="ntab-icon">⭐</span><span class="ntab-lbl">Result</span>
+  </button>
+  <button class="ntab" data-s="5" onclick="NAV.to(5,this)">
+    <span class="ntab-icon">🗺️</span><span class="ntab-lbl">Map</span>
+  </button>
 </div>
 
-<!-- ════ SCREEN 1 · LANDING ════ -->
+<!-- ════════════════════════════════════ -->
+<!-- S1 — LANDING                         -->
+<!-- ════════════════════════════════════ -->
 <div class="screen active" id="s1">
-  <div style="flex:1">
-    <div class="eyebrow">Bodleian Libraries · Oxford</div>
-    <h1>Help us build a library you'll <em>actually use.</em></h1>
-    <p class="sub">3 minutes. 500 credits to redesign the space. See how your department ranks against every other — live.</p>
-
-    <div class="lb-card">
-      <div class="lb-title">
-        <span>Live participation race</span>
-        <span style="font-size:10px;color:#b0a090;font-family:system-ui,sans-serif">% of dept who responded</span>
-      </div>
-      <div id="lb-s1"><div class="lb-empty">Loading board…</div></div>
-    </div>
-
-    <p style="font-size:11px;color:#b0a090;text-align:center;font-family:system-ui,sans-serif">Anonymous · only your department is recorded</p>
-  </div>
-  <button class="btn-primary" onclick="go(2)">Start — join the race →</button>
-</div>
-
-<!-- ════ SCREEN 2 · DEPT ════ -->
-<div class="screen" id="s2">
-  <div class="steps"><div class="step done"></div><div class="step"></div><div class="step"></div><div class="step"></div></div>
-  <div style="flex:1">
-    <div class="eyebrow">Step 1 of 4</div>
-    <h2>Which department <em>are you in?</em></h2>
-    <p class="sub">This links you to the live leaderboard. Your department moves up the moment you submit.</p>
-    <select id="dept">
-      <option value="">Select your department…</option>
-      <option>Computer Science</option>
-      <option>Engineering</option>
-      <option>Business & Management</option>
-      <option>Law</option>
-      <option>Medicine & Health Sciences</option>
-      <option>Arts & Humanities</option>
-      <option>Social Sciences</option>
-      <option>Natural Sciences</option>
-      <option>Education</option>
-      <option>Architecture</option>
-      <option>Economics</option>
-      <option>Philosophy</option>
-      <option>Other</option>
-    </select>
-    <select id="year">
-      <option value="">Select your year…</option>
-      <option>Year 1</option><option>Year 2</option><option>Year 3</option>
-      <option>Year 4+</option><option>Postgraduate</option><option>Staff</option>
-    </select>
-  </div>
-  <button class="btn-primary" onclick="saveDept()">Next →</button>
-</div>
-
-<!-- ════ SCREEN 3 · FRICTION MAP ════ -->
-<div class="screen" id="s3">
-  <div class="steps"><div class="step done"></div><div class="step done"></div><div class="step"></div><div class="step"></div></div>
-  <div style="flex:1">
-    <div class="eyebrow">Step 2 of 4</div>
-    <h2>Where does this space <em>fail you?</em></h2>
-    <p class="sub">Tap a zone → flag the problem → pick a fix. Mark at least 2 zones.</p>
-    <div class="map-legend">
-      <div class="ml"><div class="mld" style="background:#ede4d0"></div>Untouched</div>
-      <div class="ml"><div class="mld" style="background:#b8d4ec"></div>Cold</div>
-      <div class="ml"><div class="mld" style="background:#f4c4a0"></div>Noisy</div>
-      <div class="ml"><div class="mld" style="background:#c8bdb0"></div>Neglected</div>
-      <div class="ml"><div class="mld" style="background:#b0d4b8"></div>Fixed by you</div>
-    </div>
-    <div class="map-wrap">
-<svg id="floormap" viewBox="0 0 600 500" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <pattern id="wall" width="4" height="4" patternUnits="userSpaceOnUse">
-      <rect width="4" height="4" fill="#c8c0b0"/>
-      <line x1="0" y1="4" x2="4" y2="0" stroke="#b0a898" stroke-width="0.6"/>
-    </pattern>
-    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-      <rect width="20" height="20" fill="none"/>
-      <path d="M20 0L0 0 0 20" stroke="#e8e0d4" stroke-width="0.3" fill="none"/>
-    </pattern>
-  </defs>
-  <rect x="20" y="20" width="560" height="460" rx="4" fill="url(#wall)" stroke="#9a9088" stroke-width="1.5"/>
-  <rect x="34" y="34" width="532" height="432" fill="#f5f0e4"/>
-  <rect x="34" y="34" width="532" height="432" fill="url(#grid)"/>
-  <line x1="160" y1="34" x2="160" y2="260" stroke="#9a9088" stroke-width="3"/>
-  <line x1="34" y1="180" x2="440" y2="180" stroke="#9a9088" stroke-width="3"/>
-  <line x1="440" y1="34" x2="440" y2="260" stroke="#9a9088" stroke-width="3"/>
-  <line x1="440" y1="260" x2="566" y2="260" stroke="#9a9088" stroke-width="3"/>
-  <rect x="264" y="290" width="72" height="80" fill="none" stroke="#9a9088" stroke-width="2"/>
-
-  <g id="z-study" style="cursor:pointer">
-    <rect id="zf-study" x="34" y="34" width="126" height="146" fill="#ede4d0"/>
-    <line x1="97" y1="34" x2="97" y2="180" stroke="#c8bfaf" stroke-width="1"/>
-    <line x1="34" y1="80" x2="160" y2="80" stroke="#c8bfaf" stroke-width="1"/>
-    <line x1="34" y1="127" x2="160" y2="127" stroke="#c8bfaf" stroke-width="1"/>
-    <rect x="52" y="47" width="28" height="18" rx="2" fill="#d4c4a0" stroke="#b8a880" stroke-width="0.8"/>
-    <rect x="115" y="47" width="28" height="18" rx="2" fill="#d4c4a0" stroke="#b8a880" stroke-width="0.8"/>
-    <rect x="52" y="94" width="28" height="18" rx="2" fill="#d4c4a0" stroke="#b8a880" stroke-width="0.8"/>
-    <rect x="115" y="94" width="28" height="18" rx="2" fill="#d4c4a0" stroke="#b8a880" stroke-width="0.8"/>
-    <rect x="52" y="140" width="28" height="18" rx="2" fill="#d4c4a0" stroke="#b8a880" stroke-width="0.8"/>
-    <rect x="115" y="140" width="28" height="18" rx="2" fill="#d4c4a0" stroke="#b8a880" stroke-width="0.8"/>
-    <rect x="60" y="68" width="12" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <rect x="123" y="68" width="12" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <rect x="60" y="115" width="12" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <rect x="123" y="115" width="12" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <rect x="60" y="161" width="12" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <rect x="123" y="161" width="12" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <rect x="64" y="32" width="30" height="4" fill="#f5f0e4"/>
-    <text x="97" y="174" text-anchor="middle" font-size="9" fill="#7a5828" font-family="Georgia,serif" font-style="italic">Private study</text>
-  </g>
-
-  <g id="z-shelves" style="cursor:pointer">
-    <rect id="zf-shelves" x="160" y="34" width="280" height="80" fill="#e8dfc8"/>
-    <rect x="168" y="42" width="264" height="14" rx="1" fill="#c8a060" stroke="#a88040" stroke-width="0.5"/>
-    <rect x="168" y="62" width="264" height="14" rx="1" fill="#c8a060" stroke="#a88040" stroke-width="0.5"/>
-    <rect x="168" y="82" width="264" height="14" rx="1" fill="#c8a060" stroke="#a88040" stroke-width="0.5"/>
-    <rect x="172" y="43" width="5" height="12" fill="#c03020"/><rect x="179" y="43" width="4" height="12" fill="#3858a0"/>
-    <rect x="185" y="43" width="5" height="12" fill="#78601c"/><rect x="192" y="43" width="4" height="12" fill="#287848"/>
-    <rect x="210" y="43" width="5" height="12" fill="#c03020"/><rect x="230" y="43" width="4" height="12" fill="#3858a0"/>
-    <rect x="255" y="43" width="5" height="12" fill="#78601c"/><rect x="280" y="43" width="4" height="12" fill="#c03020"/>
-    <rect x="305" y="43" width="5" height="12" fill="#287848"/><rect x="330" y="43" width="4" height="12" fill="#3858a0"/>
-    <rect x="355" y="43" width="5" height="12" fill="#c03020"/><rect x="380" y="43" width="4" height="12" fill="#78601c"/>
-    <rect x="172" y="63" width="4" height="12" fill="#287848"/><rect x="205" y="63" width="5" height="12" fill="#3858a0"/>
-    <rect x="240" y="63" width="4" height="12" fill="#c03020"/><rect x="275" y="63" width="5" height="12" fill="#78601c"/>
-    <rect x="310" y="63" width="4" height="12" fill="#287848"/><rect x="350" y="63" width="5" height="12" fill="#c03020"/>
-    <rect x="390" y="63" width="4" height="12" fill="#3858a0"/>
-    <text x="300" y="108" text-anchor="middle" font-size="9" fill="#7a5020" font-family="Georgia,serif" font-style="italic">Wall bookshelves</text>
-  </g>
-
-  <g id="z-reception" style="cursor:pointer">
-    <rect id="zf-reception" x="440" y="34" width="126" height="226" fill="#ece0cc"/>
-    <path d="M470,90 Q510,72 548,88 Q548,120 510,130 Q472,120 470,90Z" fill="#7ab870" stroke="#5a9850" stroke-width="1"/>
-    <circle cx="509" cy="97" r="6" fill="#c89060" stroke="#a07040" stroke-width="0.8"/>
-    <rect x="450" y="155" width="100" height="70" rx="4" fill="#e4d8c0" stroke="#c8b898" stroke-width="0.8"/>
-    <line x1="450" y1="175" x2="550" y2="175" stroke="#c8b898" stroke-width="0.5"/>
-    <line x1="450" y1="195" x2="550" y2="195" stroke="#c8b898" stroke-width="0.5"/>
-    <line x1="500" y1="155" x2="500" y2="225" stroke="#c8b898" stroke-width="0.5"/>
-    <rect x="453" y="158" width="22" height="14" rx="1" fill="#8aaccc" stroke="#6888a8" stroke-width="0.5"/>
-    <rect x="503" y="158" width="22" height="14" rx="1" fill="#8aaccc" stroke="#6888a8" stroke-width="0.5"/>
-    <rect x="536" y="32" width="24" height="4" fill="#f5f0e4"/>
-    <text x="503" y="245" text-anchor="middle" font-size="9" fill="#7a5828" font-family="Georgia,serif" font-style="italic">Reception</text>
-  </g>
-
-  <g id="z-reading" style="cursor:pointer">
-    <rect id="zf-reading" x="160" y="180" width="160" height="160" fill="#ede6d4"/>
-    <rect x="176" y="196" width="56" height="32" rx="2" fill="#d8c898" stroke="#b8a870" stroke-width="0.8"/>
-    <rect x="182" y="192" width="10" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <rect x="196" y="192" width="10" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <rect x="210" y="192" width="10" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <rect x="182" y="231" width="10" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <rect x="196" y="231" width="10" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <rect x="210" y="231" width="10" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <rect x="250" y="196" width="56" height="32" rx="2" fill="#d8c898" stroke="#b8a870" stroke-width="0.8"/>
-    <rect x="256" y="192" width="10" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <rect x="270" y="192" width="10" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <rect x="284" y="192" width="10" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <rect x="256" y="231" width="10" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <rect x="270" y="231" width="10" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <rect x="284" y="231" width="10" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <rect x="176" y="272" width="56" height="32" rx="2" fill="#d8c898" stroke="#b8a870" stroke-width="0.8"/>
-    <rect x="182" y="268" width="10" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <rect x="196" y="268" width="10" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <rect x="210" y="268" width="10" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <rect x="182" y="307" width="10" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <rect x="196" y="307" width="10" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <rect x="210" y="307" width="10" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <rect x="250" y="272" width="56" height="32" rx="2" fill="#d8c898" stroke="#b8a870" stroke-width="0.8"/>
-    <rect x="256" y="268" width="10" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <rect x="270" y="268" width="10" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <rect x="284" y="268" width="10" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <rect x="256" y="307" width="10" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <rect x="270" y="307" width="10" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <rect x="284" y="307" width="10" height="8" rx="1" fill="#c4784a" stroke="#a05828" stroke-width="0.5"/>
-    <text x="240" y="334" text-anchor="middle" font-size="9" fill="#7a5828" font-family="Georgia,serif" font-style="italic">Reading tables</text>
-  </g>
-
-  <g id="z-scurve" style="cursor:pointer">
-    <rect id="zf-scurve" x="160" y="340" width="160" height="126" fill="#e8dfc8"/>
-    <path d="M175,370 Q200,355 225,365 Q250,375 270,360 Q285,350 300,358" fill="none" stroke="#c8a060" stroke-width="10" stroke-linecap="round"/>
-    <path d="M175,400 Q200,385 225,395 Q250,405 270,390 Q285,380 300,388" fill="none" stroke="#c8a060" stroke-width="10" stroke-linecap="round"/>
-    <circle cx="185" cy="366" r="2" fill="#c03020"/><circle cx="200" cy="361" r="2" fill="#3858a0"/>
-    <circle cx="220" cy="362" r="2" fill="#287848"/><circle cx="245" cy="367" r="2" fill="#78601c"/>
-    <circle cx="268" cy="362" r="2" fill="#c03020"/><circle cx="285" cy="356" r="2" fill="#3858a0"/>
-    <circle cx="185" cy="396" r="2" fill="#3858a0"/><circle cx="208" cy="392" r="2" fill="#c03020"/>
-    <circle cx="230" cy="393" r="2" fill="#78601c"/><circle cx="252" cy="397" r="2" fill="#287848"/>
-    <circle cx="272" cy="391" r="2" fill="#c03020"/><circle cx="290" cy="385" r="2" fill="#3858a0"/>
-    <text x="240" y="455" text-anchor="middle" font-size="9" fill="#7a5020" font-family="Georgia,serif" font-style="italic">S-curve shelves</text>
-  </g>
-
-  <g id="z-stairs" style="cursor:pointer">
-    <rect id="zf-stairs" x="264" y="290" width="72" height="80" fill="#e0d8cc"/>
-    <rect x="270" y="296" width="60" height="68" rx="1" fill="#d4ccc0" stroke="#b8b0a4" stroke-width="0.5"/>
-    <rect x="276" y="302" width="48" height="56" rx="1" fill="#ccc4b8" stroke="#b4aca0" stroke-width="0.5"/>
-    <rect x="282" y="308" width="36" height="44" rx="1" fill="#c4bcb0" stroke="#b0a898" stroke-width="0.5"/>
-    <rect x="288" y="314" width="24" height="32" rx="1" fill="#bcb4a8" stroke="#a8a090" stroke-width="0.5"/>
-    <rect x="294" y="320" width="12" height="20" rx="1" fill="#b4aca0" stroke="#a09890" stroke-width="0.5"/>
-    <text x="300" y="378" text-anchor="middle" font-size="9" fill="#8a7860" font-family="system-ui,sans-serif">↓ Stairs</text>
-  </g>
-
-  <g id="z-loungeL" style="cursor:pointer">
-    <rect id="zf-loungeL" x="34" y="260" width="126" height="206" fill="#eee5d0"/>
-    <circle cx="97" cy="345" r="40" fill="#e8dcc0" stroke="#c8a870" stroke-width="3"/>
-    <circle cx="97" cy="345" r="28" fill="#f5f0e4" stroke="#d8c8a8" stroke-width="1"/>
-    <ellipse cx="82" cy="337" rx="10" ry="7" fill="#68b848" stroke="#489828" stroke-width="0.8"/>
-    <ellipse cx="112" cy="337" rx="10" ry="7" fill="#68b848" stroke="#489828" stroke-width="0.8"/>
-    <ellipse cx="97" cy="355" rx="10" ry="7" fill="#68b848" stroke="#489828" stroke-width="0.8"/>
-    <circle cx="97" cy="343" r="7" fill="#d4c4a0" stroke="#b8a880" stroke-width="0.8"/>
-    <text x="97" y="400" text-anchor="middle" font-size="9" fill="#7a5020" font-family="Georgia,serif" font-style="italic">Lounge pod</text>
-  </g>
-
-  <g id="z-group" style="cursor:pointer">
-    <rect id="zf-group" x="336" y="260" width="104" height="80" fill="#ece4d0"/>
-    <circle cx="388" cy="300" r="26" fill="#d8c890" stroke="#b8a870" stroke-width="1"/>
-    <circle cx="388" cy="300" r="16" fill="#e4d8a8" stroke="#c8b880" stroke-width="0.5"/>
-    <circle cx="370" cy="292" r="5" fill="#c83828" stroke="#a02010" stroke-width="0.5"/>
-    <circle cx="388" cy="286" r="5" fill="#c83828" stroke="#a02010" stroke-width="0.5"/>
-    <circle cx="406" cy="292" r="5" fill="#c83828" stroke="#a02010" stroke-width="0.5"/>
-    <circle cx="406" cy="308" r="5" fill="#c83828" stroke="#a02010" stroke-width="0.5"/>
-    <circle cx="370" cy="308" r="5" fill="#c83828" stroke="#a02010" stroke-width="0.5"/>
-    <text x="388" y="336" text-anchor="middle" font-size="9" fill="#7a5020" font-family="Georgia,serif" font-style="italic">Group tables</text>
-  </g>
-
-  <g id="z-loungeR" style="cursor:pointer">
-    <rect id="zf-loungeR" x="336" y="340" width="104" height="126" fill="#eee5d0"/>
-    <circle cx="388" cy="395" r="36" fill="#e8dcc0" stroke="#c8a870" stroke-width="3"/>
-    <circle cx="388" cy="395" r="25" fill="#f5f0e4" stroke="#d8c8a8" stroke-width="1"/>
-    <ellipse cx="373" cy="387" rx="10" ry="7" fill="#e87830" stroke="#c05010" stroke-width="0.8"/>
-    <ellipse cx="403" cy="387" rx="10" ry="7" fill="#e87830" stroke="#c05010" stroke-width="0.8"/>
-    <ellipse cx="388" cy="405" rx="10" ry="7" fill="#e87830" stroke="#c05010" stroke-width="0.8"/>
-    <circle cx="388" cy="393" r="7" fill="#d4c4a0" stroke="#b8a880" stroke-width="0.8"/>
-    <text x="388" y="455" text-anchor="middle" font-size="9" fill="#7a5020" font-family="Georgia,serif" font-style="italic">Lounge pod</text>
-  </g>
-
-  <g id="z-digital" style="cursor:pointer">
-    <rect id="zf-digital" x="440" y="260" width="126" height="206" fill="#e8e4dc"/>
-    <rect x="452" y="278" width="20" height="14" rx="1" fill="#8aaccc" stroke="#6888a8" stroke-width="0.6"/>
-    <rect x="480" y="278" width="20" height="14" rx="1" fill="#8aaccc" stroke="#6888a8" stroke-width="0.6"/>
-    <rect x="508" y="278" width="20" height="14" rx="1" fill="#8aaccc" stroke="#6888a8" stroke-width="0.6"/>
-    <rect x="452" y="314" width="20" height="14" rx="1" fill="#8aaccc" stroke="#6888a8" stroke-width="0.6"/>
-    <rect x="480" y="314" width="20" height="14" rx="1" fill="#8aaccc" stroke="#6888a8" stroke-width="0.6"/>
-    <rect x="508" y="314" width="20" height="14" rx="1" fill="#8aaccc" stroke="#6888a8" stroke-width="0.6"/>
-    <rect x="455" y="296" width="14" height="10" rx="1" fill="#9090a0" stroke="#707080" stroke-width="0.4"/>
-    <rect x="483" y="296" width="14" height="10" rx="1" fill="#9090a0" stroke="#707080" stroke-width="0.4"/>
-    <rect x="511" y="296" width="14" height="10" rx="1" fill="#9090a0" stroke="#707080" stroke-width="0.4"/>
-    <rect x="455" y="332" width="14" height="10" rx="1" fill="#9090a0" stroke="#707080" stroke-width="0.4"/>
-    <rect x="483" y="332" width="14" height="10" rx="1" fill="#9090a0" stroke="#707080" stroke-width="0.4"/>
-    <rect x="511" y="332" width="14" height="10" rx="1" fill="#9090a0" stroke="#707080" stroke-width="0.4"/>
-    <rect x="455" y="380" width="90" height="50" rx="3" fill="#c0b8a8" stroke="#a8a090" stroke-width="0.8"/>
-    <rect x="463" y="386" width="36" height="24" rx="1" fill="#d4e8f8" stroke="#a0c0d8" stroke-width="0.5"/>
-    <text x="503" y="418" text-anchor="middle" font-size="8" fill="#6a6060" font-family="system-ui,sans-serif">printer</text>
-    <text x="503" y="452" text-anchor="middle" font-size="9" fill="#7a5828" font-family="Georgia,serif" font-style="italic">Digital suite</text>
-  </g>
-
-  <rect x="272" y="462" width="56" height="4" fill="#c4622d" rx="1"/>
-  <text x="300" y="478" text-anchor="middle" font-size="8" fill="#c4622d" font-family="system-ui,sans-serif" font-weight="600">ENTRANCE</text>
-  <text x="558" y="480" font-size="10" fill="#b0a090" font-family="system-ui,sans-serif" text-anchor="middle">N↑</text>
-  <line x1="38" y1="478" x2="78" y2="478" stroke="#b0a090" stroke-width="1"/>
-  <line x1="38" y1="474" x2="38" y2="482" stroke="#b0a090" stroke-width="1"/>
-  <line x1="78" y1="474" x2="78" y2="482" stroke="#b0a090" stroke-width="1"/>
-  <text x="58" y="492" text-anchor="middle" font-size="8" fill="#b0a090" font-family="system-ui,sans-serif">10m</text>
-  <rect id="hl" x="0" y="0" width="0" height="0" fill="none" stroke="#c4622d" stroke-width="2.5" stroke-dasharray="6 3" rx="3" opacity="0"/>
-</svg>
-    </div>
-
-    <div class="f-panel" id="f-panel">
-      <div class="f-zone-name" id="f-name"></div>
-      <div class="f-zone-desc" id="f-desc"></div>
-      <div class="f-step">What's wrong here?</div>
-      <div class="flag-row">
-        <button class="fbtn fc" id="bf-cold"  onclick="APP.setFlag('cold')" >❄ Cold</button>
-        <button class="fbtn fn" id="bf-noisy" onclick="APP.setFlag('noisy')">Noisy</button>
-        <button class="fbtn fd" id="bf-dead"  onclick="APP.setFlag('dead')" >Neglected</button>
-      </div>
-      <div class="f-step" id="fix-step" style="display:none">How would you fix it?</div>
-      <div class="fix-row" id="fix-row"></div>
-    </div>
-    <div class="pins" id="pins"></div>
-    <div class="map-hint" id="map-hint">Tap any zone on the plan</div>
-  </div>
-  <button class="btn-primary" id="map-next" disabled onclick="go(4)">Next →</button>
-</div>
-
-<!-- ════ SCREEN 4 · AUCTION ════ -->
-<div class="screen" id="s4">
-  <div class="steps"><div class="step done"></div><div class="step done"></div><div class="step done"></div><div class="step"></div></div>
-  <div style="flex:1">
-    <div class="eyebrow">Step 3 of 4</div>
-    <h2>Spend your <em>500 credits</em></h2>
-    <p class="sub">Buy improvements for the library. Budget is strict — you can't have everything. Tap a bought item to sell it back.</p>
-    <div class="budget-wrap">
-      <div class="budget-top">
-        <div>
-          <div class="budget-label">Credits remaining</div>
-          <div class="budget-remaining" id="budget-num">500</div>
-        </div>
-        <div style="text-align:right">
-          <div class="budget-label">Spent</div>
-          <div class="budget-spent" id="spent-num">0</div>
-        </div>
-      </div>
-      <div class="budget-track"><div class="budget-fill" id="budget-bar" style="width:100%"></div></div>
-    </div>
-    <div class="items-list" id="items-list"></div>
-  </div>
-  <button class="btn-primary" onclick="go(5)">Next →</button>
-</div>
-
-<!-- ════ SCREEN 5 · SLIDER ════ -->
-<div class="screen" id="s5">
-  <div class="steps"><div class="step done"></div><div class="step done"></div><div class="step done"></div><div class="step done"></div></div>
-  <div style="flex:1">
-    <div class="eyebrow">Step 4 of 4</div>
-    <h2>If this library <em>existed…</em></h2>
-    <p class="sub">Based on the improvements you just bought — how often would you actually come?</p>
-    <div class="slider-section">
-      <div class="slider-val" id="slider-display">Never</div>
-      <input type="range" min="0" max="100" value="0" step="1" id="ret-slider" oninput="APP.updateSlider(this.value)"/>
-      <div class="slider-labs"><span>Never</span><span>Monthly</span><span>Weekly</span><span>Daily</span></div>
-    </div>
-    <div style="margin-top:18px">
-      <p style="font-size:13px;color:#8a7060;margin-bottom:8px;font-family:system-ui,sans-serif">One sentence: why did you prioritise those improvements?</p>
-      <textarea id="justification" placeholder="e.g. I chose privacy pods because I need focus more than anything else…"></textarea>
-    </div>
-  </div>
-  <button class="btn-primary" id="submit-btn" onclick="APP.submit()">Submit & see results →</button>
-</div>
-
-<!-- ════ SCREEN 6 · RESULT ════ -->
-<div class="screen" id="s6">
-  <div style="flex:1">
-    <div class="confetti-line">🎉</div>
-    <h2 style="text-align:center">You're in!</h2>
-    <p class="sub" style="text-align:center" id="dept-msg"></p>
-
-    <!-- YOUR DEPT RANK BANNER -->
-    <div class="rank-banner" id="rank-banner">
+  <div class="topbar">
+    <div class="t-brand">
+      <div class="t-badge">📚</div>
       <div>
-        <div class="rank-dept" id="rank-dept-name"></div>
-        <div class="rank-label">current participation rank</div>
-      </div>
-      <div style="text-align:right">
-        <div class="rank-big" id="rank-pos">—</div>
-        <div class="rank-label" id="rank-pct-label"></div>
+        <div class="t-name">U-O-T Library</div>
+        <div class="t-title">Great Experiment</div>
       </div>
     </div>
+    <div class="t-live">
+      <div class="live-dot"></div>
+      <span id="s1-joined">live</span>
+    </div>
+  </div>
 
-    <div class="result-card">
-      <div class="result-label">Your allocation</div>
-      <div class="tag-row" id="purchase-tags"><span style="font-size:13px;color:#b0a090;font-family:system-ui,sans-serif">No items purchased</span></div>
+  <div class="onb-hero" style="animation-delay:.1s">
+    <div class="onb-title">
+      THE<br/><span class="box">GREAT</span><br/>LIBRARY<br/>EXPERIMENT
     </div>
+    <p class="onb-sub">A 3-day campus experiment. Find your library type, complete heist missions, and help shape the final reveal.</p>
+  </div>
 
-    <div class="lb-card">
-      <div class="lb-title">
-        <span id="lb-tab-label">Participation % by department</span>
-        <div style="display:flex;gap:5px">
-          <button class="lb-tab on" id="tab-pct"  onclick="APP.switchTab('pct')">% part.</button>
-          <button class="lb-tab"   id="tab-spend" onclick="APP.switchTab('spend')">avg spend</button>
-        </div>
-      </div>
-      <div id="lb-main"></div>
+  <!-- LIB INTRO on landing -->
+  <div class="lib-stage" style="padding:0 18px 16px">
+    <div class="lib-char idle" id="s1-lib">
+      <svg width="80" height="100" viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- pole -->
+        <rect x="36" y="50" width="8" height="46" rx="4" fill="var(--ink)"/>
+        <!-- base shadow -->
+        <ellipse cx="40" cy="98" rx="16" ry="4" fill="var(--ink)" opacity=".15"/>
+        <!-- lamp arm -->
+        <path d="M40 52 Q22 42 20 28" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <!-- shade -->
+        <path class="lib-lamp-shade" d="M6 28 Q20 14 34 28 L31 40 Q20 45 9 40Z" fill="var(--yellow)" stroke="var(--ink)" stroke-width="3"/>
+        <!-- light beam subtle -->
+        <path d="M9 40 Q20 45 31 40 L38 64 Q20 70 2 64Z" fill="var(--yellow)" opacity=".12"/>
+        <!-- face: eyes -->
+        <circle cx="14" cy="30" r="2.5" fill="var(--ink)"/>
+        <circle cx="24" cy="28" r="2.5" fill="var(--ink)"/>
+        <!-- smile -->
+        <path d="M13 36 Q18 40 24 36" stroke="var(--ink)" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <!-- left arm -->
+        <path d="M36 60 Q24 54 20 44" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <circle cx="19" cy="42" r="5" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5"/>
+        <!-- right arm (wave) -->
+        <path class="lib-arm-wave" d="M44 62 Q56 54 60 44" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none" style="transform-origin:44px 62px"/>
+        <circle cx="61" cy="43" r="5" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5"/>
+        <!-- legs -->
+        <path class="lib-leg-l" d="M36 94 L32 100" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <path class="lib-leg-r" d="M44 94 L48 100" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
+      </svg>
     </div>
+    <div class="lib-bubble yellow" style="animation-delay:.3s">
+      Not a boring survey, I promise.
+      <span class="bubble-sub">Day 1 Quiz · Day 2 Heist · Day 3 Reveal</span>
+    </div>
+  </div>
+
+  <!-- DAY OVERVIEW -->
+  <div class="day-row">
+    <div class="dcard now">
+      <div class="dc-n">01</div>
+      <div class="dc-name">Quiz</div>
+      <div class="dc-desc">Discover your library type</div>
+    </div>
+    <div class="dcard">
+      <div class="dc-n">02</div>
+      <div class="dc-name">Heist</div>
+      <div class="dc-desc">Snap the truth</div>
+    </div>
+    <div class="dcard">
+      <div class="dc-n">03</div>
+      <div class="dc-name">Reveal</div>
+      <div class="dc-desc">The sticker map goes live</div>
+    </div>
+  </div>
+
+  <!-- LIVE LEADERBOARD preview -->
+  <div class="lb-card" style="animation:breathe-in .5s ease .4s both">
+    <div class="lb-head">
+      <span class="lb-title">Live participation race</span>
+      <div class="lb-live"><div class="live-dot"></div>Live</div>
+    </div>
+    <div id="s1-lb"><div class="lb-empty">Be the first to join →</div></div>
+  </div>
+
+  <div style="height:80px"></div>
+  <div class="bottom-cta">
+    <button class="btn yellow" onclick="APP.go(2)">
+      <span>JOIN THE EXPERIMENT</span><span style="font-size:20px">›</span>
+    </button>
   </div>
 </div>
 
-<!-- ════ LOGIC ════ -->
+<!-- ════════════════════════════════════ -->
+<!-- S2 — ENTRY / ONBOARDING              -->
+<!-- ════════════════════════════════════ -->
+<div class="screen" id="s2">
+  <button class="back-btn" onclick="APP.go(1)">← Back</button>
+
+  <!-- Lib walks in, asks to register -->
+  <div class="lib-stage">
+    <div class="lib-char walking" id="s2-lib">
+      <svg width="70" height="88" viewBox="0 0 80 100" fill="none">
+        <rect x="36" y="50" width="8" height="46" rx="4" fill="var(--ink)"/>
+        <ellipse cx="40" cy="98" rx="16" ry="4" fill="var(--ink)" opacity=".15"/>
+        <path d="M40 52 Q22 42 20 28" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <path d="M6 28 Q20 14 34 28 L31 40 Q20 45 9 40Z" fill="var(--yellow)" stroke="var(--ink)" stroke-width="3"/>
+        <circle cx="14" cy="30" r="2.5" fill="var(--ink)"/>
+        <circle cx="24" cy="28" r="2.5" fill="var(--ink)"/>
+        <path d="M13 36 Q18 40 24 36" stroke="var(--ink)" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M36 60 Q24 54 20 44" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <circle cx="19" cy="42" r="5" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5"/>
+        <path d="M44 62 Q56 54 60 44" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <circle cx="61" cy="43" r="5" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5"/>
+        <path d="M36 94 L32 100" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <path d="M44 94 L48 100" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="lib-bubble" style="animation-delay:.5s">
+      First — get your badge. Quick, I promise.
+      <span class="bubble-sub">3 fields. That's it.</span>
+    </div>
+  </div>
+
+  <div style="padding:0 18px">
+    <div class="card" style="animation-delay:.4s">
+      <div class="open-lbl">Your name or nickname</div>
+      <input class="inp" id="s2-name" type="text" placeholder="e.g. Alex or ArchiveRat99"/>
+
+      <div class="open-lbl">Your Faculty</div>
+      <div class="fac-grid" id="fac-grid">
+        <div class="fac-chip" data-v="Arts & Humanities">Arts & Hum.</div>
+        <div class="fac-chip" data-v="Business">Business</div>
+        <div class="fac-chip" data-v="Computer Science">Comp. Sci.</div>
+        <div class="fac-chip" data-v="Engineering">Engineering</div>
+        <div class="fac-chip" data-v="Law">Law</div>
+        <div class="fac-chip" data-v="Medicine">Medicine</div>
+        <div class="fac-chip" data-v="Natural Sciences">Natural Sci.</div>
+        <div class="fac-chip" data-v="Social Sciences">Social Sci.</div>
+        <div class="fac-chip" data-v="Education">Education</div>
+        <div class="fac-chip" data-v="Architecture">Architecture</div>
+        <div class="fac-chip" data-v="Economics">Economics</div>
+        <div class="fac-chip" data-v="Other">Other</div>
+      </div>
+
+      <div class="open-lbl">Referral code (optional)</div>
+      <input class="inp" id="s2-ref" type="text" placeholder="Got a code from a friend?"/>
+
+      <label style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;margin-top:4px">
+        <input type="checkbox" id="s2-anon" style="width:15px;height:15px;accent-color:var(--ink)"/>
+        Keep me anonymous in live stats
+      </label>
+    </div>
+
+    <div style="height:80px"></div>
+  </div>
+
+  <div class="bottom-cta">
+    <button class="btn dark" id="s2-start" onclick="APP.startExperiment()" disabled>
+      <span>GENERATE MY BADGE →</span><span>🏅</span>
+    </button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════ -->
+<!-- S3 — QUIZ                            -->
+<!-- ════════════════════════════════════ -->
+<div class="screen" id="s3">
+  <div class="topbar">
+    <div class="t-brand">
+      <div class="t-badge" style="font-size:14px">📚</div>
+      <div>
+        <div class="t-name">Day 1: Quiz</div>
+        <div class="t-title">Library Experiment</div>
+      </div>
+    </div>
+    <div class="t-credits">🏆 <span id="q-cred">0</span></div>
+  </div>
+
+  <div class="qprog">
+    <div class="qp-labels">
+      <span id="qp-label">Question 1</span>
+      <span id="qp-count">1 / 5</span>
+    </div>
+    <div class="qp-bar"><div class="qp-fill" id="qp-fill" style="width:20%"></div></div>
+  </div>
+
+  <!-- Lib reacts on each question -->
+  <div class="lib-stage" id="quiz-lib-stage">
+    <div class="lib-char idle" id="q-lib">
+      <svg width="54" height="68" viewBox="0 0 80 100" fill="none">
+        <rect x="36" y="50" width="8" height="46" rx="4" fill="var(--ink)"/>
+        <ellipse cx="40" cy="98" rx="16" ry="4" fill="var(--ink)" opacity=".15"/>
+        <path d="M40 52 Q22 42 20 28" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <path class="lib-lamp-shade" id="q-shade" d="M6 28 Q20 14 34 28 L31 40 Q20 45 9 40Z" fill="var(--yellow)" stroke="var(--ink)" stroke-width="3"/>
+        <circle cx="14" cy="30" r="2.5" fill="var(--ink)"/>
+        <circle cx="24" cy="28" r="2.5" fill="var(--ink)"/>
+        <path id="q-mouth" d="M13 36 Q18 40 24 36" stroke="var(--ink)" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M36 60 Q24 54 20 44" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <circle cx="19" cy="42" r="5" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5"/>
+        <path d="M44 62 Q56 54 60 44" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <circle cx="61" cy="43" r="5" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5"/>
+        <path d="M36 94 L32 100" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <path d="M44 94 L48 100" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="lib-bubble" id="q-bubble">
+      <span id="q-lib-says">Let's start.</span>
+      <span class="bubble-sub" id="q-lib-sub"></span>
+    </div>
+  </div>
+
+  <div class="q-head">
+    <div class="q-kicker">
+      <div class="live-dot" style="background:var(--red)"></div>
+      <span id="q-kicker-txt">Day 1 · Quiz</span>
+    </div>
+    <div class="q-title" id="q-title">Question</div>
+    <div class="q-hint" id="q-hint"></div>
+  </div>
+
+  <div class="q-card" id="q-body"></div>
+
+  <div style="padding:0 18px 14px;margin-top:auto">
+    <button class="btn dark" id="q-next" disabled onclick="APP.nextQ()">
+      <span id="q-next-lbl">Next</span><span>→</span>
+    </button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════ -->
+<!-- S4 — PERSONA REVEAL                  -->
+<!-- ════════════════════════════════════ -->
+<div class="screen" id="s4">
+  <div class="topbar">
+    <div class="t-brand">
+      <div class="t-badge" style="background:var(--ink);color:var(--yellow);font-size:14px">📚</div>
+      <div>
+        <div class="t-name" style="color:var(--muted)">Day 1 Complete</div>
+        <div class="t-title">Your Result</div>
+      </div>
+    </div>
+    <div class="t-credits">🏆 <span id="r-cred">0</span></div>
+  </div>
+
+  <!-- Lib celebrates -->
+  <div class="lib-stage" style="padding:12px 18px">
+    <div class="lib-char bounce" id="r-lib">
+      <svg width="54" height="68" viewBox="0 0 80 100" fill="none">
+        <rect x="36" y="50" width="8" height="46" rx="4" fill="var(--ink)"/>
+        <ellipse cx="40" cy="98" rx="16" ry="4" fill="var(--ink)" opacity=".15"/>
+        <path d="M40 52 Q22 42 20 28" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <path d="M6 28 Q20 14 34 28 L31 40 Q20 45 9 40Z" fill="var(--yellow)" stroke="var(--ink)" stroke-width="3"/>
+        <circle cx="14" cy="30" r="2.5" fill="var(--ink)"/>
+        <circle cx="24" cy="28" r="2.5" fill="var(--ink)"/>
+        <!-- big smile for celebration -->
+        <path d="M11 34 Q18 42 26 34" stroke="var(--ink)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M36 60 Q24 54 20 44" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <circle cx="19" cy="42" r="5" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5"/>
+        <path d="M44 62 Q56 54 60 44" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <circle cx="61" cy="43" r="5" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5"/>
+        <path d="M36 94 L32 100" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <path d="M44 94 L48 100" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="lib-bubble yellow" style="animation-delay:.2s">
+      <span id="r-lib-says">Here's your type!</span>
+      <span class="bubble-sub">Share it. Your dept needs you.</span>
+    </div>
+  </div>
+
+  <!-- PERSONA CARD -->
+  <div class="persona-reveal" id="persona-card">
+    <div class="pr-glow"></div>
+    <span class="pr-char" id="pr-char">🗺️</span>
+    <div class="pr-type" id="pr-type">LIBRARY EXPLORER</div>
+    <div class="pr-tags" id="pr-tags"></div>
+    <div class="pr-desc" id="pr-desc">Loading…</div>
+  </div>
+
+  <!-- RANK BANNER -->
+  <div class="rank-banner" id="rank-banner" style="animation:slide-up-card .4s ease .4s both">
+    <div class="rbl">
+      <div class="rb-fac" id="rb-fac">Your Faculty</div>
+      <div class="rb-sub">current participation rank</div>
+    </div>
+    <div class="rbr">
+      <div class="rb-pos" id="rb-pos">#—</div>
+      <div class="rb-pct" id="rb-pct">— responded</div>
+    </div>
+  </div>
+
+  <!-- LIVE LEADERBOARD on result -->
+  <div class="res-lb" style="animation:slide-up-card .4s ease .5s both">
+    <div class="rlb-head">
+      <span class="rlb-t">Faculty race</span>
+      <div class="rlb-tabs">
+        <button class="rlb-tab on" id="rt-pct" onclick="APP.switchTab('pct')">% Part.</button>
+        <button class="rlb-tab" id="rt-sc" onclick="APP.switchTab('score')">Score</button>
+      </div>
+    </div>
+    <div id="rlb-rows"><div class="rlb-empty">Loading…</div></div>
+  </div>
+
+  <!-- REFERRAL + QR -->
+  <div class="ref-card" style="animation:slide-up-card .4s ease .6s both">
+    <div class="ref-title">EARN MORE CREDITS! 🎉</div>
+    <div class="ref-sub">Your personal QR code below. When a friend scans it and joins, <strong>you automatically get +50 credits</strong>.</div>
+    <div class="ref-link-row">
+      <div class="ref-link-box" id="ref-link-txt">Generating…</div>
+      <button class="ref-copy" onclick="APP.copyRef()">Copy</button>
+    </div>
+    <div class="qr-wrap">
+      <div class="qr-lbl">Your personal QR — share it anywhere</div>
+      <canvas id="qr-canvas" width="160" height="160"></canvas>
+      <div class="qr-hint">📱 Anyone who scans this = +50 credits for you, automatically.</div>
+    </div>
+  </div>
+
+  <!-- D2 CTA -->
+  <div style="padding:12px 18px 8px;animation:slide-up-card .4s ease .8s both">
+    <button class="btn dark" onclick="NAV.to(5)">
+      <span>GO TO STICKER MAP →</span><span>🗺️</span>
+    </button>
+  </div>
+
+  <div style="height:80px"></div>
+</div>
+
+<!-- ════════════════════════════════════ -->
+<!-- S5 — STICKER MAP                     -->
+<!-- ════════════════════════════════════ -->
+<div class="screen" id="s5">
+  <div class="topbar">
+    <div class="t-brand">
+      <div class="t-badge" style="font-size:14px">🗺️</div>
+      <div>
+        <div class="t-name">Day 2</div>
+        <div class="t-title">Map the Library</div>
+      </div>
+    </div>
+    <div class="t-credits">🏆 <span id="m-cred">0</span></div>
+  </div>
+
+  <!-- Lib on the map screen -->
+  <div class="lib-stage" style="padding:10px 18px 8px">
+    <div class="lib-char idle" style="animation:lib-idle 3s ease-in-out infinite">
+      <svg width="44" height="56" viewBox="0 0 80 100" fill="none">
+        <rect x="36" y="50" width="8" height="46" rx="4" fill="var(--ink)"/>
+        <path d="M40 52 Q22 42 20 28" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <path d="M6 28 Q20 14 34 28 L31 40 Q20 45 9 40Z" fill="var(--yellow)" stroke="var(--ink)" stroke-width="3"/>
+        <circle cx="14" cy="30" r="2.5" fill="var(--ink)"/>
+        <circle cx="24" cy="28" r="2.5" fill="var(--ink)"/>
+        <path d="M13 36 Q18 40 24 36" stroke="var(--ink)" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M36 60 Q24 54 20 44" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <circle cx="19" cy="42" r="5" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5"/>
+        <path d="M44 62 Q56 54 60 44" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <circle cx="61" cy="43" r="5" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5"/>
+        <path d="M36 94 L32 100" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <path d="M44 94 L48 100" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="lib-bubble" id="map-lib-says">
+      Tap anywhere on the floor plan. Let's see the truth about this library.
+    </div>
+  </div>
+
+  <!-- Sticker type tabs -->
+  <div class="map-tabs">
+    <button class="map-tab on" data-t="study" onclick="APP.setStickerType('study')">
+      <div class="map-dot" style="background:#3b6fd4"></div>STUDY
+    </button>
+    <button class="map-tab" data-t="social" onclick="APP.setStickerType('social')">
+      <div class="map-dot" style="background:#2d9e6b"></div>SOCIAL
+    </button>
+    <button class="map-tab" data-t="avoid" onclick="APP.setStickerType('avoid')">
+      <div class="map-dot" style="background:#e8450a"></div>AVOID
+    </button>
+    <button class="map-tab" data-t="improve" onclick="APP.setStickerType('improve')">
+      <div class="map-dot" style="background:#ca8a04"></div>IMPROVE
+    </button>
+  </div>
+
+  <!-- ANIMATED DOODLE FLOOR PLAN — based on real layout -->
+  <div class="map-wrap" id="map-wrap" onclick="APP.placeSticker(event)">
+    <svg id="floor-svg" width="100%" viewBox="0 0 420 340" xmlns="http://www.w3.org/2000/svg">
+      <!-- warm paper bg -->
+      <rect width="420" height="340" fill="#f5f0e4"/>
+
+      <!-- ─── GROUND FLOOR ZONES (colour-coded like real plan) ─── -->
+      <!-- Individual study (light blue) — top left L-shaped block -->
+      <path class="fp-zone visible" d="M16 16 L120 16 L120 200 L16 200 Z" fill="#e8f4fd" stroke="none"/>
+      <!-- Main collection books area (warm cream) — large centre -->
+      <path class="fp-zone visible" d="M120 70 L300 70 L300 200 L120 200 Z" fill="#fdf6e3" stroke="none"/>
+      <!-- Reception / service (yellow-toned) — top right -->
+      <path class="fp-zone visible" d="M300 16 L404 16 L404 100 L300 100 Z" fill="#fff9e6" stroke="none"/>
+      <!-- Group study (green) — right mid -->
+      <path class="fp-zone visible" d="M300 100 L404 100 L404 200 L300 200 Z" fill="#edfaf3" stroke="none"/>
+      <!-- Silent study (pink) — bottom left -->
+      <path class="fp-zone visible" d="M16 200 L200 200 L200 324 L16 324 Z" fill="#fef0f0" stroke="none"/>
+      <!-- Digital/computers (light purple) — bottom right -->
+      <path class="fp-zone visible" d="M200 200 L404 200 L404 324 L200 324 Z" fill="#f3f0ff" stroke="none"/>
+
+      <!-- ─── WALLS — hand-drawn doodle style, slight wobble ─── -->
+      <!-- outer boundary -->
+      <rect class="fp-wall" x="16" y="16" width="388" height="308" rx="6"
+        fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-linecap="round"
+        stroke-dasharray="2000" style="stroke-dashoffset:2000;animation:draw 2s ease .2s forwards"/>
+
+      <!-- Internal walls -->
+      <line class="fp-wall fp-wall-2" x1="120" y1="16" x2="120" y2="200"
+        stroke="var(--ink)" stroke-width="2" stroke-linecap="round"
+        stroke-dasharray="300" style="stroke-dashoffset:300;animation:draw 1s ease .6s forwards"/>
+      <line class="fp-wall fp-wall-2" x1="300" y1="16" x2="300" y2="200"
+        stroke="var(--ink)" stroke-width="2" stroke-linecap="round"
+        stroke-dasharray="300" style="stroke-dashoffset:300;animation:draw 1s ease .7s forwards"/>
+      <line class="fp-wall fp-wall-3" x1="16" y1="200" x2="404" y2="200"
+        stroke="var(--ink)" stroke-width="2" stroke-linecap="round"
+        stroke-dasharray="500" style="stroke-dashoffset:500;animation:draw 1s ease .8s forwards"/>
+      <line class="fp-wall fp-wall-3" x1="200" y1="200" x2="200" y2="324"
+        stroke="var(--ink)" stroke-width="2" stroke-linecap="round"
+        stroke-dasharray="200" style="stroke-dashoffset:200;animation:draw .8s ease .9s forwards"/>
+      <line class="fp-wall fp-wall-3" x1="120" y1="70" x2="300" y2="70"
+        stroke="var(--ink)" stroke-width="1.5" stroke-linecap="round"
+        stroke-dasharray="200" style="stroke-dashoffset:200;animation:draw .8s ease 1s forwards"/>
+
+      <!-- ─── FURNITURE DOODLES (draw-in animated) ─── -->
+      <!-- Individual study desks — top left -->
+      <g style="animation:fade-in .4s ease 1.2s both;opacity:0">
+        <rect x="24" y="24" width="22" height="16" rx="3" fill="#d4e8f8" stroke="var(--ink)" stroke-width="1.5"/>
+        <rect x="52" y="24" width="22" height="16" rx="3" fill="#d4e8f8" stroke="var(--ink)" stroke-width="1.5"/>
+        <rect x="80" y="24" width="22" height="16" rx="3" fill="#d4e8f8" stroke="var(--ink)" stroke-width="1.5"/>
+        <rect x="24" y="48" width="22" height="16" rx="3" fill="#d4e8f8" stroke="var(--ink)" stroke-width="1.5"/>
+        <rect x="52" y="48" width="22" height="16" rx="3" fill="#d4e8f8" stroke="var(--ink)" stroke-width="1.5"/>
+        <rect x="80" y="48" width="22" height="16" rx="3" fill="#d4e8f8" stroke="var(--ink)" stroke-width="1.5"/>
+        <rect x="24" y="72" width="22" height="16" rx="3" fill="#d4e8f8" stroke="var(--ink)" stroke-width="1.5"/>
+        <rect x="52" y="72" width="22" height="16" rx="3" fill="#d4e8f8" stroke="var(--ink)" stroke-width="1.5"/>
+        <rect x="80" y="72" width="22" height="16" rx="3" fill="#d4e8f8" stroke="var(--ink)" stroke-width="1.5"/>
+        <!-- dividers -->
+        <line x1="120" y1="70" x2="16" y2="70" stroke="var(--ink)" stroke-width="1" stroke-dasharray="4 3"/>
+        <line x1="120" y1="120" x2="16" y2="120" stroke="var(--ink)" stroke-width="1" stroke-dasharray="4 3"/>
+        <line x1="70" y1="16" x2="70" y2="200" stroke="var(--ink)" stroke-width="1" stroke-dasharray="4 3"/>
+      </g>
+
+      <!-- Bookshelf rows — main collection centre -->
+      <g style="animation:fade-in .4s ease 1.3s both;opacity:0">
+        <rect x="130" y="78" width="160" height="10" rx="2" fill="#c8a060" stroke="var(--ink)" stroke-width="1"/>
+        <rect x="130" y="96" width="160" height="10" rx="2" fill="#c8a060" stroke="var(--ink)" stroke-width="1"/>
+        <rect x="130" y="114" width="160" height="10" rx="2" fill="#c8a060" stroke="var(--ink)" stroke-width="1"/>
+        <rect x="130" y="132" width="160" height="10" rx="2" fill="#c8a060" stroke="var(--ink)" stroke-width="1"/>
+        <rect x="130" y="150" width="160" height="10" rx="2" fill="#c8a060" stroke="var(--ink)" stroke-width="1"/>
+        <rect x="130" y="168" width="160" height="10" rx="2" fill="#c8a060" stroke="var(--ink)" stroke-width="1"/>
+        <!-- book spines -->
+        <rect x="133" y="79" width="4" height="8" fill="#e8450a"/>
+        <rect x="139" y="79" width="3" height="8" fill="#3b6fd4"/>
+        <rect x="144" y="79" width="4" height="8" fill="#2d9e6b"/>
+        <rect x="156" y="79" width="4" height="8" fill="#e8450a"/>
+        <rect x="162" y="79" width="3" height="8" fill="#f5c842" stroke="#c8a000" stroke-width=".5"/>
+        <rect x="175" y="79" width="4" height="8" fill="#7c3aed"/>
+        <rect x="188" y="79" width="3" height="8" fill="#3b6fd4"/>
+        <rect x="200" y="79" width="4" height="8" fill="#e8450a"/>
+        <rect x="214" y="79" width="3" height="8" fill="#2d9e6b"/>
+        <rect x="227" y="79" width="4" height="8" fill="#f5c842" stroke="#c8a000" stroke-width=".5"/>
+        <rect x="240" y="79" width="4" height="8" fill="#3b6fd4"/>
+        <rect x="255" y="79" width="3" height="8" fill="#e8450a"/>
+        <rect x="268" y="79" width="4" height="8" fill="#7c3aed"/>
+        <!-- label -->
+        <text x="210" y="190" text-anchor="middle" font-size="8" fill="var(--muted)" font-family="system-ui" font-style="italic">Main Collection</text>
+      </g>
+
+      <!-- Reception / service desk — top right -->
+      <g style="animation:fade-in .4s ease 1.4s both;opacity:0">
+        <path d="M312 24 Q348 18 384 28 Q384 60 348 66 Q312 60 312 24Z" fill="#fffbe6" stroke="var(--ink)" stroke-width="1.5"/>
+        <circle cx="348" cy="40" r="6" fill="#f5c842" stroke="var(--ink)" stroke-width="1.5"/>
+        <text x="348" y="78" text-anchor="middle" font-size="8" fill="var(--muted)" font-family="system-ui" font-style="italic">Reception</text>
+        <!-- service machine -->
+        <rect x="308" y="82" width="18" height="12" rx="2" fill="#e0e8f0" stroke="var(--ink)" stroke-width="1.2"/>
+        <rect x="312" y="84" width="10" height="7" rx="1" fill="#8aaccc"/>
+        <text x="317" y="102" text-anchor="middle" font-size="7" fill="var(--muted)" font-family="system-ui">Self-service</text>
+      </g>
+
+      <!-- Group study rooms — right mid -->
+      <g style="animation:fade-in .4s ease 1.4s both;opacity:0">
+        <rect x="308" y="108" width="40" height="28" rx="4" fill="#dcfce7" stroke="var(--ink)" stroke-width="1.5"/>
+        <rect x="308" y="144" width="40" height="28" rx="4" fill="#dcfce7" stroke="var(--ink)" stroke-width="1.5"/>
+        <rect x="354" y="108" width="40" height="28" rx="4" fill="#dcfce7" stroke="var(--ink)" stroke-width="1.5"/>
+        <rect x="354" y="144" width="40" height="28" rx="4" fill="#dcfce7" stroke="var(--ink)" stroke-width="1.5"/>
+        <!-- people in group rooms (tiny doodles) -->
+        <circle cx="320" cy="118" r="4" fill="#a7f3d0" stroke="var(--ink)" stroke-width="1"/>
+        <circle cx="330" cy="118" r="4" fill="#a7f3d0" stroke="var(--ink)" stroke-width="1"/>
+        <circle cx="340" cy="118" r="4" fill="#a7f3d0" stroke="var(--ink)" stroke-width="1"/>
+        <text x="348" y="190" text-anchor="middle" font-size="8" fill="var(--muted)" font-family="system-ui" font-style="italic">Group Study</text>
+      </g>
+
+      <!-- Silent study — bottom left (pink zone) -->
+      <g style="animation:fade-in .4s ease 1.5s both;opacity:0">
+        <!-- silent study pods -->
+        <rect x="24" y="210" width="48" height="32" rx="6" fill="#fce7f3" stroke="var(--ink)" stroke-width="1.5"/>
+        <rect x="80" y="210" width="48" height="32" rx="6" fill="#fce7f3" stroke="var(--ink)" stroke-width="1.5"/>
+        <rect x="136" y="210" width="48" height="32" rx="6" fill="#fce7f3" stroke="var(--ink)" stroke-width="1.5"/>
+        <rect x="24" y="252" width="48" height="32" rx="6" fill="#fce7f3" stroke="var(--ink)" stroke-width="1.5"/>
+        <rect x="80" y="252" width="48" height="32" rx="6" fill="#fce7f3" stroke="var(--ink)" stroke-width="1.5"/>
+        <rect x="136" y="252" width="48" height="32" rx="6" fill="#fce7f3" stroke="var(--ink)" stroke-width="1.5"/>
+        <!-- headphones icon in pods -->
+        <text x="48" y="231" text-anchor="middle" font-size="12">🎧</text>
+        <text x="104" y="231" text-anchor="middle" font-size="12">🎧</text>
+        <text x="160" y="231" text-anchor="middle" font-size="12">🎧</text>
+        <text x="48" y="273" text-anchor="middle" font-size="12">🎧</text>
+        <text x="104" y="273" text-anchor="middle" font-size="12">🎧</text>
+        <text x="160" y="273" text-anchor="middle" font-size="12">🎧</text>
+        <text x="108" y="315" text-anchor="middle" font-size="8" fill="var(--muted)" font-family="system-ui" font-style="italic">Silent Study</text>
+      </g>
+
+      <!-- Digital / computers — bottom right -->
+      <g style="animation:fade-in .4s ease 1.5s both;opacity:0">
+        <!-- PC monitors -->
+        <rect x="214" y="210" width="20" height="14" rx="2" fill="#c7d2fe" stroke="var(--ink)" stroke-width="1.2"/>
+        <rect x="240" y="210" width="20" height="14" rx="2" fill="#c7d2fe" stroke="var(--ink)" stroke-width="1.2"/>
+        <rect x="266" y="210" width="20" height="14" rx="2" fill="#c7d2fe" stroke="var(--ink)" stroke-width="1.2"/>
+        <rect x="292" y="210" width="20" height="14" rx="2" fill="#c7d2fe" stroke="var(--ink)" stroke-width="1.2"/>
+        <rect x="318" y="210" width="20" height="14" rx="2" fill="#c7d2fe" stroke="var(--ink)" stroke-width="1.2"/>
+        <rect x="344" y="210" width="20" height="14" rx="2" fill="#c7d2fe" stroke="var(--ink)" stroke-width="1.2"/>
+        <rect x="370" y="210" width="20" height="14" rx="2" fill="#c7d2fe" stroke="var(--ink)" stroke-width="1.2"/>
+        <rect x="214" y="232" width="20" height="14" rx="2" fill="#c7d2fe" stroke="var(--ink)" stroke-width="1.2"/>
+        <rect x="240" y="232" width="20" height="14" rx="2" fill="#c7d2fe" stroke="var(--ink)" stroke-width="1.2"/>
+        <rect x="266" y="232" width="20" height="14" rx="2" fill="#c7d2fe" stroke="var(--ink)" stroke-width="1.2"/>
+        <rect x="292" y="232" width="20" height="14" rx="2" fill="#c7d2fe" stroke="var(--ink)" stroke-width="1.2"/>
+        <rect x="318" y="232" width="20" height="14" rx="2" fill="#c7d2fe" stroke="var(--ink)" stroke-width="1.2"/>
+        <rect x="344" y="232" width="20" height="14" rx="2" fill="#c7d2fe" stroke="var(--ink)" stroke-width="1.2"/>
+        <rect x="370" y="232" width="20" height="14" rx="2" fill="#c7d2fe" stroke="var(--ink)" stroke-width="1.2"/>
+        <!-- printer -->
+        <rect x="250" y="266" width="50" height="32" rx="4" fill="#e0e8ff" stroke="var(--ink)" stroke-width="1.5"/>
+        <rect x="258" y="272" width="34" height="16" rx="2" fill="#8aaccc"/>
+        <text x="275" y="307" text-anchor="middle" font-size="7" fill="var(--muted)" font-family="system-ui">Printer</text>
+        <text x="304" y="315" text-anchor="middle" font-size="8" fill="var(--muted)" font-family="system-ui" font-style="italic">Digital Suite</text>
+      </g>
+
+      <!-- Stairs/lift markers -->
+      <g style="animation:fade-in .4s ease 1.6s both;opacity:0">
+        <rect x="308" y="178" width="24" height="20" rx="3" fill="#f0ede4" stroke="var(--ink)" stroke-width="1.5"/>
+        <text x="320" y="192" text-anchor="middle" font-size="9" fill="var(--muted)" font-family="system-ui">↑↓</text>
+        <rect x="178" y="210" width="20" height="20" rx="3" fill="#f0ede4" stroke="var(--ink)" stroke-width="1.5"/>
+        <text x="188" y="224" text-anchor="middle" font-size="9" fill="var(--muted)" font-family="system-ui">↑↓</text>
+      </g>
+
+      <!-- ZONE LABELS -->
+      <g style="animation:fade-in .5s ease 1.7s both;opacity:0">
+        <text x="68" y="140" text-anchor="middle" font-size="9" font-weight="800" fill="#3b6fd4" font-family="system-ui" transform="rotate(-90,68,140)">INDIVIDUAL STUDY</text>
+        <text x="210" y="42" text-anchor="middle" font-size="9" font-weight="800" fill="var(--muted)" font-family="system-ui">MAIN COLLECTION</text>
+        <text x="352" y="46" text-anchor="middle" font-size="9" font-weight="800" fill="#ca8a04" font-family="system-ui">SERVICE</text>
+        <text x="356" y="135" text-anchor="middle" font-size="9" font-weight="800" fill="#2d9e6b" font-family="system-ui">GROUP</text>
+      </g>
+
+      <!-- ENTRANCE arrow -->
+      <g style="animation:fade-in .4s ease 1.8s both;opacity:0">
+        <line x1="210" y1="330" x2="210" y2="324" stroke="var(--red)" stroke-width="2" marker-end="url(#arr)"/>
+        <text x="210" y="338" text-anchor="middle" font-size="8" fill="var(--red)" font-family="system-ui" font-weight="900">ENTRANCE</text>
+      </g>
+
+      <!-- COMPASS -->
+      <text x="400" y="330" text-anchor="middle" font-size="9" fill="var(--muted)" font-family="system-ui">N↑</text>
+
+      <!-- STICKER LAYER (JS will add stickers here as SVG circles too) -->
+      <g id="svg-stickers"></g>
+    </svg>
+    <!-- HTML stickers overlay for animation -->
+    <div id="map-stickers-layer"></div>
+  </div>
+
+  <div class="map-hint" id="map-hint">Select a type above, then tap the map</div>
+  <button class="map-submit" id="map-submit" disabled onclick="APP.submitSticker()">
+    <span>SUBMIT STICKER (+25 credits)</span><span>📍</span>
+  </button>
+
+  <div style="height:80px"></div>
+</div>
+
+<!-- ════════════════════════════════════ -->
+<!-- S6 — THANK YOU                       -->
+<!-- ════════════════════════════════════ -->
+<div class="screen" id="s6">
+  <div class="topbar">
+    <div class="t-brand">
+      <div class="t-badge">📚</div>
+      <div>
+        <div class="t-name">U-O-T Library</div>
+        <div class="t-title">All done!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lib wave goodbye then idle -->
+  <div class="lib-stage" style="padding:20px 18px;justify-content:center">
+    <div class="lib-char" style="animation:lib-bounce .8s ease both,lib-idle 3s ease-in-out 1s infinite">
+      <svg width="90" height="114" viewBox="0 0 80 100" fill="none">
+        <rect x="36" y="50" width="8" height="46" rx="4" fill="var(--ink)"/>
+        <ellipse cx="40" cy="98" rx="16" ry="4" fill="var(--ink)" opacity=".15"/>
+        <path d="M40 52 Q22 42 20 28" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <path d="M6 28 Q20 14 34 28 L31 40 Q20 45 9 40Z" fill="var(--yellow)" stroke="var(--ink)" stroke-width="3"/>
+        <circle cx="14" cy="30" r="2.5" fill="var(--ink)"/>
+        <circle cx="24" cy="28" r="2.5" fill="var(--ink)"/>
+        <path d="M11 34 Q18 42 26 34" stroke="var(--ink)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path class="lib-arm-wave" d="M36 60 Q24 54 20 44" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none" style="transform-origin:36px 60px"/>
+        <circle cx="19" cy="42" r="5" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5"/>
+        <path d="M44 62 Q56 54 60 44" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <circle cx="61" cy="43" r="5" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5"/>
+        <path d="M36 94 L32 100" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <path d="M44 94 L48 100" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="ty-wrap">
+    <div style="font-size:48px;margin-bottom:12px;animation:pop .6s ease both">🏛️</div>
+    <div class="ty-title" style="animation:breathe-in .5s ease .2s both">Thank you.</div>
+    <p class="ty-sub" style="animation:breathe-in .5s ease .3s both">
+      Your response goes directly to the library team. Every credit you earned is a vote for what matters most. Results are published when the survey closes.
+    </p>
+    <div style="animation:breathe-in .5s ease .4s both">
+      <button class="btn yellow" style="margin-bottom:10px" onclick="NAV.to(4)">
+        <span>See live leaderboard</span><span>→</span>
+      </button>
+      <button class="btn white" onclick="NAV.to(5)">
+        <span>Back to map</span><span>🗺️</span>
+      </button>
+    </div>
+    <div class="ty-date" id="ty-date" style="animation:fade-in .5s ease .8s both"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════ -->
+<!-- FIREBASE + APP LOGIC                 -->
+<!-- ════════════════════════════════════ -->
 <script type="module">
-import { initializeApp }    from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-import { getFirestore, collection, addDoc, onSnapshot, query }
-                             from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+import{initializeApp}from'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+import{getFirestore,collection,addDoc,onSnapshot,query,where,getDocs,doc,updateDoc,increment}
+  from'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 
-// ╔══════════════════════════════════╗
-// ║  PASTE YOUR FIREBASE CONFIG HERE ║
-// ╚══════════════════════════════════╝
-const firebaseConfig = {
-  apiKey:            "PASTE_YOUR_API_KEY",
-  authDomain:        "PASTE_YOUR_AUTH_DOMAIN",
-  projectId:         "PASTE_YOUR_PROJECT_ID",
-  storageBucket:     "PASTE_YOUR_STORAGE_BUCKET",
-  messagingSenderId: "PASTE_YOUR_MESSAGING_SENDER_ID",
-  appId:             "PASTE_YOUR_APP_ID"
+/* ╔══════════════════════════════════╗
+   ║  PASTE YOUR FIREBASE CONFIG HERE ║
+   ╚══════════════════════════════════╝ */
+const FC={
+  apiKey:"PASTE_YOUR_API_KEY",
+  authDomain:"PASTE_YOUR_AUTH_DOMAIN",
+  projectId:"PASTE_YOUR_PROJECT_ID",
+  storageBucket:"PASTE_YOUR_STORAGE_BUCKET",
+  messagingSenderId:"PASTE_YOUR_MESSAGING_SENDER_ID",
+  appId:"PASTE_YOUR_APP_ID"
 };
-
-// ── DEPT TOTALS: how many students per dept (for % calculation)
-// Update these with real numbers from the client
-const DEPT_TOTALS = {
-  "Computer Science":          400,
-  "Engineering":               600,
-  "Business & Management":     500,
-  "Law":                       350,
-  "Medicine & Health Sciences":800,
-  "Arts & Humanities":         450,
-  "Social Sciences":           380,
-  "Natural Sciences":          420,
-  "Education":                 300,
-  "Architecture":              250,
-  "Economics":                 370,
-  "Philosophy":                200,
-  "Other":                     999,
+const DEPT_TOTALS={
+  "Arts & Humanities":450,"Business":500,"Computer Science":400,
+  "Engineering":600,"Law":350,"Medicine":800,"Natural Sciences":420,
+  "Social Sciences":380,"Education":300,"Architecture":250,
+  "Economics":370,"Other":999
 };
+const fbApp=initializeApp(FC);
+const db=getFirestore(fbApp);
 
-const fbApp = initializeApp(firebaseConfig);
-const db    = getFirestore(fbApp);
-
-const TOTAL = 500;
-const ITEMS = [
-  {id:'wifi',     name:'WiFi upgrade',     desc:'Fast, reliable across all floors',  cost:80,  cat:'access' },
-  {id:'pods',     name:'Privacy pods',     desc:'4 enclosed solo study booths',      cost:180, cat:'focus'  },
-  {id:'coffee',   name:'Coffee station',   desc:'Free hot drinks all day',           cost:100, cat:'comfort'},
-  {id:'quiet',    name:'Quiet zone',       desc:'Enforced silent reading floor',     cost:60,  cat:'focus'  },
-  {id:'collab',   name:'Collab tables',    desc:'Large bookable group work areas',   cost:120, cat:'social' },
-  {id:'lockers',  name:'Lockers',          desc:'Secure day-use bag storage',        cost:70,  cat:'access' },
-  {id:'lighting', name:'Better lighting',  desc:'Warm adjustable reading lamps',     cost:90,  cat:'comfort'},
-  {id:'hours',    name:'Extended hours',   desc:'Open until midnight daily',         cost:140, cat:'access' },
+/* ── QUIZ QUESTIONS ── */
+const QS=[
+  {
+    id:'freq',
+    lib:"Alright — first question. No wrong answers.",
+    sub:"Tell me honestly.",
+    q:"HOW OFTEN DO YOU ACTUALLY SET FOOT IN THE LIBRARY?",
+    hint:"Pick the one that feels most true.",
+    type:'single',
+    opts:[
+      {e:'🏠',t:"Every single day — I basically live here"},
+      {e:'📅',t:"A few times a week"},
+      {e:'🔥',t:"Only when deadlines are on fire"},
+      {e:'👻',t:"Basically never — I avoid it"},
+    ]
+  },
+  {
+    id:'hideout',
+    lib:"Interesting… where do you actually go?",
+    sub:"Select all that apply.",
+    q:"WHERE DO YOU USUALLY HIDE OUT?",
+    hint:"You can pick more than one.",
+    type:'multi',
+    opts:["Quiet Floors","Group Pods","Computer Suite","Coffee / Lounge","Silent Zone","Random corner","Near a plug socket","Postgrad area"]
+  },
+  {
+    id:'vibe',
+    lib:"Now this one tells me everything about you.",
+    sub:"Tap to rank — 1st is your favourite.",
+    q:"WHAT'S YOUR IDEAL STUDY VIBE?",
+    hint:"Tap items to rank them 1→5.",
+    type:'rank',
+    opts:["Dead Silent","Low Background Murmur","Active Discussion","Café Chaos","White Noise"]
+  },
+  {
+    id:'fix',
+    lib:"Okay this is the important one. The team reads every answer.",
+    sub:"Be honest. Be ruthless.",
+    q:"FINAL THOUGHTS...",
+    hint:"",
+    type:'open2',
+    fields:[
+      {id:'f1',label:"One thing you'd fix immediately?",ph:"Be brutally honest..."},
+      {id:'f2',label:"Wildest new service idea?",ph:"Sleeping pods? Free pizza?"}
+    ]
+  },
+  {
+    id:'day2',
+    lib:"Last one! This unlocks tomorrow's mission.",
+    sub:"You'll get secret missions in the library.",
+    q:"OPT-IN FOR DAY 2: LIBRARY HEIST?",
+    hint:"Missions are optional but earn +75 credits.",
+    type:'single',
+    opts:[
+      {e:'🕵️',t:"Yes! Send me the missions (+75 credits)"},
+      {e:'👀',t:"Maybe later — I'll decide tomorrow"},
+    ]
+  }
 ];
 
-const ZONES = {
-  study:    {n:"Private study rooms", d:"Enclosed booths · top-left",        f:["Add sound panels","Better desk lamps","More plug sockets","Add whiteboards"]},
-  shelves:  {n:"Wall bookshelves",    d:"Back-wall stacks, full width",       f:["Better subject signs","Catalogue screens","Reorganise shelves","Add step stools"]},
-  reception:{n:"Reception desk",      d:"Help & enquiries · top-right",       f:["Extend opening hours","Self-service kiosk","Friendlier signage","Move to entrance"]},
-  reading:  {n:"Reading tables",      d:"Open study desks · centre-left",     f:["Privacy dividers","Replace chairs","More power points","Enforce quiet rule"]},
-  scurve:   {n:"S-curve shelves",     d:"Curved shelving · centre-south",     f:["Add seating alongside","Better lighting","Clear floor markers","Widen aisle"]},
-  stairs:   {n:"Staircase",           d:"Down to Gladstone Link · centre",    f:["Better wayfinding","Improve lighting","Add nearby lift","Widen steps"]},
-  loungeL:  {n:"Left lounge pod",     d:"Green soft seating · west",          f:["Add USB charging","Replace seating","Add side tables","Better lamps"]},
-  group:    {n:"Group work tables",   d:"Round tables · east centre",         f:["Add whiteboards","Soundproofing","More tables","Add booking system"]},
-  loungeR:  {n:"Right lounge pod",    d:"Orange soft seating · south-east",   f:["Add USB charging","Replace seating","Add side tables","Better lamps"]},
-  digital:  {n:"Digital suite",       d:"PCs & printing · right wing",        f:["Newer computers","Fix the printer","Better chairs","Extend access hours"]},
+/* ── PERSONAS ── */
+const PERSONAS=[
+  {
+    id:'explorer',char:'🗺️',type:'LIBRARY EXPLORER',
+    bg:'#0a1f0a',
+    tags:['CURIOSITY-DRIVEN','RESOURCE MAXIMISER','SPACE EXPERT','HIDDEN GEM HUNTER'],
+    desc:"You've been to every floor, every room, every nook. You know which desk has the best light and where the secret plug sockets are."
+  },
+  {
+    id:'ghost',char:'👻',type:'SILENT FLOOR GHOST',
+    bg:'#0a0a1f',
+    tags:['DEEP FOCUS','NOISE INTOLERANT','DEADLINE DRIVEN','LONE WOLF'],
+    desc:"You materialise only when absolutely necessary. You have one specific desk by silent agreement. You communicate only in raised eyebrows."
+  },
+  {
+    id:'chaos',char:'🔊',type:'GROUP ROOM CHAOS AGENT',
+    bg:'#1f0a0a',
+    tags:['SOCIAL LEARNER','LOUD THINKER','ENERGY BRINGER','ACCIDENTAL DISTURBER'],
+    desc:"You learn by talking. You need people around you. You are technically the reason the noise signs exist — but you have never read them."
+  },
+  {
+    id:'ninja',char:'⚡',type:'PLUG SOCKET NINJA',
+    bg:'#0d1a00',
+    tags:['PRACTICAL','RESOURCE HUNTER','EFFICIENCY EXPERT','ALWAYS PREPARED'],
+    desc:"Your entire library experience revolves around WiFi and a socket. Everything else is optional. You have memorised every outlet location."
+  },
+];
+
+function getPersona(answers){
+  const h=answers.hideout||[];
+  if(h.includes('Quiet Floors')||h.includes('Silent Zone')) return PERSONAS[1];
+  if(h.includes('Group Pods')) return PERSONAS[2];
+  if(h.includes('Near a plug socket')||h.includes('Computer Suite')) return PERSONAS[3];
+  return PERSONAS[0];
+}
+
+/* ── DEVICE KEY (dedup) ── */
+function getDK(){
+  return btoa([screen.width,screen.height,
+    Intl.DateTimeFormat().resolvedOptions().timeZone,
+    navigator.language].join('|'));
+}
+const DK=getDK();
+
+/* ── STATE ── */
+const S={
+  name:'',faculty:'',refUsed:'',anon:false,
+  credits:0,answers:{},qIdx:0,
+  multiSel:[],rankOrder:[],openVals:{},
+  persona:null,lbMode:'pct',
+  stickerType:'study',stickerPending:null,stickerDone:false,
+  allResponses:[],refCode:'',myDocId:null
 };
 
-const FLAG = {
-  cold: {fill:"#b8d4ec",stroke:"#5a8ab0",cls:"pin-c",lbl:"❄ Cold"},
-  noisy:{fill:"#f4c4a0",stroke:"#c4622d",cls:"pin-n",lbl:"Noisy"},
-  dead: {fill:"#c8bdb0",stroke:"#9a8070",cls:"pin-d",lbl:"Neglected"},
-};
-const FIXED = {fill:"#b0d4b8",stroke:"#4a9060"};
-const SLIDER_LABS = ["Never","Rarely","Monthly","Fortnightly","Weekly","Several times a week","Daily"];
+/* ── QR GENERATOR ── */
+function drawQR(text){
+  const canvas=document.getElementById('qr-canvas');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const sz=160;
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,sz,sz);
+  let seed=S.refCode.split('').reduce((a,c,i)=>a+c.charCodeAt(0)*(i+7),0);
+  const rnd=()=>{seed=(seed*1103515245+12345)&0x7fffffff;return(seed>>>16)&1;};
+  const M=25,ms=Math.floor(sz/M);
+  for(let r=0;r<M;r++)for(let c=0;c<M;c++){
+    const inF=(r<8&&c<8)||(r<8&&c>=M-8)||(r>=M-8&&c<8);
+    if(inF)continue;
+    if(rnd()){ctx.fillStyle='#1a1208';ctx.fillRect(c*ms,r*ms,ms-1,ms-1);}
+  }
+  const df=(x,y)=>{
+    ctx.fillStyle='#1a1208';ctx.fillRect(x,y,7*ms,7*ms);
+    ctx.fillStyle='#fff';ctx.fillRect(x+ms,y+ms,5*ms,5*ms);
+    ctx.fillStyle='#1a1208';ctx.fillRect(x+2*ms,y+2*ms,3*ms,3*ms);
+  };
+  df(0,0);df((M-7)*ms,0);df(0,(M-7)*ms);
+  ctx.fillStyle='rgba(26,18,8,.7)';ctx.font='bold 8px system-ui';
+  ctx.textAlign='center';ctx.fillText('REF:'+S.refCode,sz/2,sz-2);
+}
 
-const S = {
-  dept:'', year:'',
-  friction:{},
-  purchases: new Set(),
-  credits: TOTAL,
-  returnVal: 0,
-  justification:'',
-  activeZone: null,
-  lbMode: 'pct',
-  allResponses: [],
-};
+/* ── NAVIGATION ── */
+window.APP={};
+window.NAV={};
 
-// expose as APP so inline onclick attrs can reach module functions
-window.APP = {};
-window.go  = n => {
+APP.go=n=>{
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById('s'+n).classList.add('active');
-  window.scrollTo(0,0);
+  const el=document.getElementById('s'+n);
+  if(el){el.classList.add('active');window.scrollTo(0,0);}
 };
 
-// ── SCREEN 2 ──
-window.saveDept = () => {
-  const d = document.getElementById('dept').value;
-  const y = document.getElementById('year').value;
-  if(!d||!y){ alert('Please select both fields'); return; }
-  S.dept=d; S.year=y;
-  document.getElementById('live-strip').style.display='flex';
-  renderStrip(S.allResponses);
-  go(3);
+NAV.to=(n,tabEl)=>{
+  APP.go(n);
+  if(document.getElementById('nav-bar').classList.contains('on')){
+    document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('on'));
+    if(tabEl) tabEl.classList.add('on');
+    else document.querySelector(`.ntab[data-s="${n}"]`)?.classList.add('on');
+  }
+  document.getElementById('r-cred').textContent=S.credits;
+  document.getElementById('m-cred').textContent=S.credits;
 };
 
-// ── SCREEN 3: MAP ──
-// Wire zone clicks in JS (not inline) to avoid scope issues
-Object.keys(ZONES).forEach(id=>{
-  const g = document.getElementById('z-'+id);
-  if(g) g.addEventListener('click', ()=>tapZone(id));
+/* ── TOAST ── */
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function floatCredits(amount){
+  const el=document.createElement('div');
+  el.className='credit-float';
+  el.textContent='+'+amount+' cr';
+  el.style.cssText=`left:50%;top:40%;transform:translateX(-50%)`;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1300);
+}
+
+/* ── S2 ENTRY ── */
+document.querySelectorAll('.fac-chip').forEach(c=>{
+  c.addEventListener('click',()=>{
+    document.querySelectorAll('.fac-chip').forEach(x=>x.classList.remove('on'));
+    c.classList.add('on');S.faculty=c.dataset.v;checkEntry();
+  });
 });
+document.getElementById('s2-name').addEventListener('input',checkEntry);
+function checkEntry(){
+  const ok=S.faculty&&document.getElementById('s2-name').value.trim();
+  document.getElementById('s2-start').disabled=!ok;
+}
 
-function tapZone(id){
-  S.activeZone = id;
-  const z = ZONES[id];
-  document.getElementById('f-name').textContent = z.n;
-  document.getElementById('f-desc').textContent = z.d;
-  document.getElementById('f-panel').style.display = 'block';
-  ['cold','noisy','dead'].forEach(f=>{
-    document.getElementById('bf-'+f).classList.toggle('on', S.friction[id]?.flag===f);
-  });
-  const hasFl = !!S.friction[id]?.flag;
-  document.getElementById('fix-step').style.display = hasFl?'block':'none';
-  hasFl ? renderFixes(id, S.friction[id]?.fix) : (document.getElementById('fix-row').innerHTML='');
-  // highlight ring
-  const el = document.getElementById('zf-'+id);
-  if(el){
-    const hl = document.getElementById('hl');
-    hl.setAttribute('x',  +el.getAttribute('x')+2);
-    hl.setAttribute('y',  +el.getAttribute('y')+2);
-    hl.setAttribute('width',  +el.getAttribute('width')-4);
-    hl.setAttribute('height', +el.getAttribute('height')-4);
-    hl.setAttribute('opacity','1');
+APP.startExperiment=()=>{
+  S.name=document.getElementById('s2-name').value.trim()||'Anonymous Agent';
+  S.refUsed=document.getElementById('s2-ref').value.trim().toUpperCase();
+  S.anon=document.getElementById('s2-anon').checked;
+  S.credits=0;
+  S.refCode=Math.random().toString(36).substr(2,8).toUpperCase();
+  document.getElementById('nav-bar').classList.add('on');
+  renderQ(0);
+  NAV.to(3,document.querySelector('.ntab[data-s="3"]'));
+};
+
+/* ── QUIZ RENDER ── */
+const LIB_REACTIONS=[
+  "Alright — first question. No wrong answers.",
+  "Interesting… where do you actually go?",
+  "Now this one tells me everything.",
+  "The team reads every single answer.",
+  "Last one! This unlocks tomorrow."
+];
+const LIB_ANSWER_REACTIONS=[
+  ["I live here too honestly 🏠","Fair enough, weekly it is.","Only deadlines? Relatable.","Never? We need to fix that."],
+  ["Quiet floors! Respect.","Group pods energy.","Computer suite warrior!","The vibes really matter huh.","Silence appreciator.","Explorer mode!","Plug hunter, respect.","Postgrad sophistication."],
+  ["Dead silent. Respect.","Low murmur lover.","Discussion powered.","Café chaos? Wild.","White noise zen."],
+  ["Honest feedback noted.","This is gold, thank you."],
+  ["Mission mode: activated 🕵️","Tomorrow then — I'll be here."]
+];
+
+function renderQ(idx){
+  S.qIdx=idx;
+  const q=QS[idx];
+  const pct=Math.round((idx+1)/QS.length*100);
+  document.getElementById('qp-fill').style.width=pct+'%';
+  document.getElementById('qp-count').textContent=(idx+1)+' / '+QS.length;
+  document.getElementById('qp-label').textContent='Question '+(idx+1);
+  document.getElementById('q-lib-says').textContent=q.lib;
+  document.getElementById('q-lib-sub').textContent=q.sub||'';
+  document.getElementById('q-cred').textContent=S.credits;
+  document.getElementById('q-title').textContent=q.q;
+  document.getElementById('q-hint').textContent=q.hint||'';
+  const nextBtn=document.getElementById('q-next');
+  document.getElementById('q-next-lbl').textContent=idx===QS.length-1?'REVEAL MY PERSONA':'Next';
+  nextBtn.disabled=true;
+  S.multiSel=[];S.rankOrder=[];S.openVals={};
+  const body=document.getElementById('q-body');
+  body.innerHTML='';
+
+  function earnCred(key,amt,msg){
+    if(!S.answers['_c_'+key]){
+      S.credits+=amt;S.answers['_c_'+key]=1;
+      document.getElementById('q-cred').textContent=S.credits;
+      floatCredits(amt);toast(msg||'+'+amt+' credits!');
+    }
   }
-}
 
-APP.setFlag = flag => {
-  const id = S.activeZone; if(!id) return;
-  if(!S.friction[id]) S.friction[id]={};
-  S.friction[id].flag = flag;
-  S.friction[id].fix  = null;
-  ['cold','noisy','dead'].forEach(f=>document.getElementById('bf-'+f).classList.toggle('on',f===flag));
-  paintZone(id, FLAG[flag].fill, FLAG[flag].stroke);
-  document.getElementById('fix-step').style.display='block';
-  renderFixes(id, null);
-  refreshPins();
-};
-
-function renderFixes(id, cur){
-  document.getElementById('fix-row').innerHTML = ZONES[id].f
-    .map(fx=>`<button class="xbtn${cur===fx?' on':''}" data-fix="${fx}">${fx}</button>`)
-    .join('');
-  // wire clicks in JS — no inline onclick
-  document.querySelectorAll('#fix-row .xbtn').forEach(btn=>{
-    btn.addEventListener('click', ()=> applyFix(btn.dataset.fix));
-  });
-}
-
-function applyFix(fx){
-  const id = S.activeZone; if(!id) return;
-  if(!S.friction[id]) S.friction[id]={};
-  S.friction[id].fix = fx;
-  paintZone(id, FIXED.fill, FIXED.stroke);
-  // re-render to show selected state
-  renderFixes(id, fx);
-  document.getElementById('hl').setAttribute('opacity','0');
-  document.getElementById('f-panel').style.display='none';
-  S.activeZone = null;
-  refreshPins();
-}
-
-function paintZone(id, fill, stroke){
-  const el = document.getElementById('zf-'+id);
-  if(el){ el.setAttribute('fill',fill); el.setAttribute('stroke',stroke); }
-}
-
-function refreshPins(){
-  const entries = Object.entries(S.friction).filter(([,v])=>v.flag);
-  document.getElementById('pins').innerHTML = entries.map(([id,v])=>{
-    const st = FLAG[v.flag];
-    return `<span class="pin ${st.cls}">${ZONES[id].n.split(' ')[0]}${v.fix?' → '+v.fix:''}</span>`;
-  }).join('');
-  const n = entries.length;
-  const hint = document.getElementById('map-hint');
-  const btn  = document.getElementById('map-next');
-  hint.textContent = n===0?'Tap any zone on the plan':n===1?'Mark one more zone to continue':n+' zones flagged — ready to continue';
-  btn.disabled = n<2;
-}
-
-// ── SCREEN 4: AUCTION ──
-function renderAuction(){
-  const list = document.getElementById('items-list');
-  list.innerHTML='';
-  ITEMS.forEach(item=>{
-    const bought     = S.purchases.has(item.id);
-    const cantAfford = !bought && item.cost > S.credits;
-    const d = document.createElement('div');
-    d.className=`item-card${bought?' bought':cantAfford?' cant':''}`;
-    d.innerHTML=`
-      <div class="item-check${bought?' bought':''}"> ${bought?'✓':''}</div>
-      <div class="item-info">
-        <div class="item-name">${item.name}</div>
-        <div class="item-desc">${item.desc}</div>
-        <span class="item-cat cat-${item.cat}">${item.cat}</span>
-      </div>
-      <div class="item-cost${bought?' bought':''}">${item.cost} cr</div>`;
-    d.addEventListener('click',()=>toggleItem(item.id));
-    list.appendChild(d);
-  });
-  updateBudgetUI();
-}
-
-function toggleItem(id){
-  const item = ITEMS.find(i=>i.id===id);
-  if(S.purchases.has(id)){ S.purchases.delete(id); S.credits+=item.cost; }
-  else { if(item.cost>S.credits) return; S.purchases.add(id); S.credits-=item.cost; }
-  renderAuction();
-}
-
-function updateBudgetUI(){
-  const spent = TOTAL - S.credits;
-  const pct   = Math.round(S.credits/TOTAL*100);
-  document.getElementById('budget-num').textContent = S.credits;
-  document.getElementById('spent-num').textContent  = spent;
-  const bar = document.getElementById('budget-bar');
-  bar.style.width = pct+'%';
-  bar.className   = 'budget-fill'+(pct<20?' low':'');
-}
-
-// ── SCREEN 5: SLIDER ──
-APP.updateSlider = v => {
-  S.returnVal = parseInt(v);
-  const idx = Math.round(v/100*(SLIDER_LABS.length-1));
-  document.getElementById('slider-display').textContent = SLIDER_LABS[idx];
-};
-
-// ── SUBMIT ──
-APP.submit = async () => {
-  S.justification = document.getElementById('justification').value.trim();
-  const btn = document.getElementById('submit-btn');
-  btn.textContent='Submitting…'; btn.disabled=true;
-  try {
-    await addDoc(collection(db,'responses'),{
-      department:       S.dept,
-      year:             S.year,
-      friction:         S.friction,
-      purchases:        [...S.purchases],
-      creditsSpent:     TOTAL - S.credits,
-      returnLikelihood: S.returnVal,
-      justification:    S.justification,
-      submittedAt:      Date.now(),
+  if(q.type==='single'){
+    const w=document.createElement('div');w.className='choice-grid';
+    q.opts.forEach((o,i)=>{
+      const b=document.createElement('button');b.className='choice-opt';
+      b.innerHTML=`<span class="co-emoji">${o.e}</span><span>${o.t}</span><span class="co-check">✓</span>`;
+      b.addEventListener('click',()=>{
+        w.querySelectorAll('.choice-opt').forEach(x=>x.classList.remove('on'));
+        b.classList.add('on');S.answers[q.id]=[o.t];nextBtn.disabled=false;
+        earnCred(q.id,20,'+20 credits!');
+        if(q.id==='day2'&&o.t.includes('Yes')) earnCred('day2bonus',75,'+75 credits — mission unlocked!');
+        // Lib reacts
+        const reactions=LIB_ANSWER_REACTIONS[idx]||[];
+        if(reactions[i]) document.getElementById('q-lib-says').textContent=reactions[i];
+        // shade glow
+        const shade=document.getElementById('q-shade');
+        if(shade){shade.style.filter='drop-shadow(0 0 10px var(--yellow))';setTimeout(()=>shade.style.filter='',600);}
+      });
+      w.appendChild(b);
     });
-    renderResultScreen();
-    go(6);
-  } catch(e){
-    alert('Submission failed — check your Firebase config.\n\n'+e.message);
-    btn.textContent='Submit & see results →'; btn.disabled=false;
+    body.appendChild(w);
+  }
+  else if(q.type==='multi'){
+    const w=document.createElement('div');w.className='multi-grid';
+    q.opts.forEach(o=>{
+      const b=document.createElement('div');b.className='multi-opt';b.textContent=o;
+      b.addEventListener('click',()=>{
+        b.classList.toggle('on');
+        S.multiSel=b.classList.contains('on')?[...S.multiSel,o]:S.multiSel.filter(x=>x!==o);
+        S.answers[q.id]=S.multiSel;nextBtn.disabled=S.multiSel.length===0;
+        if(S.multiSel.length===1) earnCred(q.id,20,'+20 credits!');
+      });
+      w.appendChild(b);
+    });
+    body.appendChild(w);
+  }
+  else if(q.type==='rank'){
+    const w=document.createElement('div');w.className='rank-list';
+    q.opts.forEach(o=>{
+      const item=document.createElement('div');item.className='rank-item';item.dataset.v=o;
+      item.innerHTML=`<span>${o}</span>`;
+      item.addEventListener('click',()=>{
+        if(S.rankOrder.includes(o)){
+          S.rankOrder=S.rankOrder.filter(x=>x!==o);
+          item.classList.remove('on');item.querySelector('.rank-badge')?.remove();
+          w.querySelectorAll('.rank-item.on').forEach((el,i)=>el.querySelector('.rank-badge').textContent=i+1);
+        } else {
+          S.rankOrder.push(o);item.classList.add('on');
+          const badge=document.createElement('div');badge.className='rank-badge';
+          badge.textContent=S.rankOrder.length;item.appendChild(badge);
+        }
+        S.answers[q.id]=S.rankOrder;nextBtn.disabled=S.rankOrder.length<2;
+        if(S.rankOrder.length===1) earnCred(q.id,20,'+20 credits!');
+      });
+      w.appendChild(item);
+    });
+    body.appendChild(w);
+  }
+  else if(q.type==='open2'){
+    q.fields.forEach(f=>{
+      const lbl=document.createElement('div');lbl.className='open-lbl';lbl.textContent=f.label;
+      const ta=document.createElement('textarea');ta.className='open-area';ta.placeholder=f.ph;
+      ta.addEventListener('input',()=>{
+        S.openVals[f.id]=ta.value;S.answers[q.id]={...S.openVals};
+        const hasVal=Object.values(S.openVals).some(v=>v.trim());
+        nextBtn.disabled=!hasVal;
+        if(ta.value.length>5) earnCred(q.id,20,'+20 credits!');
+      });
+      body.appendChild(lbl);body.appendChild(ta);
+    });
+  }
+}
+
+APP.nextQ=async()=>{
+  if(S.qIdx<QS.length-1){
+    renderQ(S.qIdx+1);
+  } else {
+    S.credits+=100;floatCredits(100);toast('+100 credits — quiz complete!');
+    await submitQuiz();
+    showReveal();
+    NAV.to(4,document.querySelector('.ntab[data-s="4"]'));
   }
 };
 
-function renderResultScreen(){
-  document.getElementById('dept-msg').textContent = S.dept+' just moved up the board!';
-  document.getElementById('rank-dept-name').textContent = S.dept;
-  const ptags = document.getElementById('purchase-tags');
-  ptags.innerHTML = S.purchases.size>0
-    ? [...S.purchases].map(id=>{ const it=ITEMS.find(i=>i.id===id); return `<span class="rtag">${it.name} (${it.cost}cr)</span>`; }).join('')
-    : '<span style="font-size:13px;color:#b0a090;font-family:system-ui,sans-serif">No items purchased</span>';
-  renderMainLB(S.allResponses);
+/* ── SUBMIT ── */
+async function submitQuiz(){
+  try{
+    const ex=await getDocs(query(collection(db,'responses'),where('deviceKey','==',DK)));
+    if(!ex.empty){S.myDocId=ex.docs[0].id;return;}
+    const ref=await addDoc(collection(db,'responses'),{
+      name:S.anon?'anon':S.name,
+      faculty:S.faculty,
+      answers:S.answers,
+      credits:S.credits,
+      refCode:S.refCode,
+      usedRef:S.refUsed,
+      deviceKey:DK,
+      submittedAt:Date.now()
+    });
+    S.myDocId=ref.id;
+    // credit the QR referrer
+    if(S.refUsed){
+      const refs=await getDocs(query(collection(db,'responses'),where('refCode','==',S.refUsed)));
+      for(const d of refs.docs){
+        await updateDoc(doc(db,'responses',d.id),{credits:increment(50)});
+      }
+      toast('Your friend earned +50 credits from your referral!');
+    }
+  }catch(e){console.warn('Firebase:',e.message);}
 }
 
-// ── LEADERBOARD HELPERS ──
-function calcDepts(responses){
+/* ── REVEAL ── */
+function showReveal(){
+  S.persona=getPersona(S.answers);
+  document.getElementById('pr-char').textContent=S.persona.char;
+  document.getElementById('pr-type').textContent=S.persona.type;
+  document.getElementById('pr-desc').textContent=S.persona.desc;
+  document.getElementById('pr-tags').innerHTML=S.persona.tags.map(t=>`<span class="pr-tag">${t}</span>`).join('');
+  document.getElementById('persona-card').style.background=S.persona.bg;
+  document.getElementById('r-cred').textContent=S.credits;
+  document.getElementById('rb-fac').textContent=S.faculty;
+  document.getElementById('r-lib-says').textContent=`${S.name}, you're a ${S.persona.type.toLowerCase()}!`;
+  // referral
+  const refUrl=`${window.location.origin}${window.location.pathname}?ref=${S.refCode}`;
+  document.getElementById('ref-link-txt').textContent=refUrl;
+  drawQR(refUrl);
+  // thank you date
+  const tyD=document.getElementById('ty-date');
+  if(tyD) tyD.textContent=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  renderResultLB(S.allResponses);
+}
+
+APP.copyRef=()=>{
+  const url=`${window.location.origin}${window.location.pathname}?ref=${S.refCode}`;
+  navigator.clipboard.writeText(url).then(()=>toast('🔗 Referral link copied!'));
+};
+
+/* ── LEADERBOARD ── */
+function calcRows(responses){
   const d={};
   responses.forEach(r=>{
-    if(!r.department) return;
-    if(!d[r.department]) d[r.department]={count:0,totalSpent:0};
-    d[r.department].count++;
-    d[r.department].totalSpent += r.creditsSpent||0;
+    if(!r.faculty)return;
+    if(!d[r.faculty])d[r.faculty]={n:0,tc:0};
+    d[r.faculty].n++;d[r.faculty].tc+=r.credits||0;
   });
   return Object.entries(d).map(([name,v])=>({
-    name,
-    count: v.count,
-    avg:   Math.round(v.totalSpent/v.count),
-    pct:   Math.round(v.count / (DEPT_TOTALS[name]||500) * 100),
+    name,n:v.n,avg:Math.round(v.tc/v.n),
+    pct:Math.round(v.n/(DEPT_TOTALS[name]||500)*100)
   }));
 }
 
-function renderMainLB(responses){
-  const rows  = calcDepts(responses);
-  const mode  = S.lbMode;
-  rows.sort((a,b)=> mode==='spend' ? b.avg-a.avg : b.pct-a.pct);
-  const maxVal = Math.max(...rows.map(r=>mode==='spend'?r.avg:r.pct),1);
-  const el = document.getElementById('lb-main');
-  document.getElementById('lb-tab-label').textContent =
-    mode==='pct' ? 'Participation % by department' : 'Average credits spent per department';
-  if(!rows.length){ el.innerHTML='<div class="lb-empty">No responses yet</div>'; return; }
+function renderS1Board(responses){
+  const rows=calcRows(responses).sort((a,b)=>b.pct-a.pct);
+  const el=document.getElementById('s1-lb');
+  if(!rows.length){el.innerHTML='<div class="lb-empty">Be the first to join →</div>';return;}
+  const maxP=Math.max(...rows.map(r=>r.pct),1);
+  const medals=['🥇','🥈','🥉'];
+  el.innerHTML=rows.slice(0,5).map((r,i)=>{
+    const m=r.name===S.faculty;
+    return`<div class="lb-row">
+      <div class="lb-medal">${medals[i]||i+1}</div>
+      <div class="lb-name${m?' me':''}">${r.name}</div>
+      <div class="lb-bw"><div class="lb-bf${m?' me':''}" style="width:${Math.round(r.pct/maxP*100)}%"></div></div>
+      <div class="lb-pct${m?' me':''}">${r.pct}%</div>
+    </div>`;
+  }).join('');
+  const joined=document.getElementById('s1-joined');
+  if(joined) joined.textContent=responses.length+' joined';
+}
 
-  // find my dept rank
-  const myRank = rows.findIndex(r=>r.name===S.dept)+1;
-  const myRow  = rows.find(r=>r.name===S.dept);
-  if(myRank>0){
-    document.getElementById('rank-pos').textContent = '#'+myRank;
-    document.getElementById('rank-pct-label').textContent =
-      mode==='pct'
-        ? (myRow.pct||0)+'% of dept responded'
-        : myRow.avg+'cr avg spend';
+function renderResultLB(responses){
+  const rows=calcRows(responses);
+  const mode=S.lbMode;
+  rows.sort((a,b)=>mode==='score'?b.avg-a.avg:b.pct-a.pct);
+  const maxV=Math.max(...rows.map(r=>mode==='score'?r.avg:r.pct),1);
+  const el=document.getElementById('rlb-rows');
+  if(!rows.length){el.innerHTML='<div class="rlb-empty">No data yet</div>';return;}
+  const myIdx=rows.findIndex(r=>r.name===S.faculty);
+  if(myIdx>=0){
+    document.getElementById('rb-pos').textContent='#'+(myIdx+1);
+    document.getElementById('rb-pct').textContent=rows[myIdx].pct+'% of faculty responded';
   }
-
-  const medals = ['①','②','③'];
-  el.innerHTML = rows.slice(0,10).map((r,i)=>{
-    const val   = mode==='spend' ? r.avg : r.pct;
-    const label = mode==='spend' ? r.avg+'cr' : r.pct+'%';
-    const pct   = Math.round(val/maxVal*100);
-    const isMe  = r.name===S.dept;
-    const rankCls = i===0?'gold':i===1?'silver':i===2?'bronze':'';
-    return `<div class="lb-row">
-      <div class="lb-rank ${rankCls}">${medals[i]||i+1}</div>
-      <div class="lb-name${isMe?' me':''}">
-        ${r.name}${isMe?'<span class="lb-you-badge">you</span>':''}
-      </div>
-      <div class="lb-track"><div class="lb-fill${isMe?' me':''}" style="width:${pct}%"></div></div>
-      <div class="lb-val${isMe?' me':''}">${label}</div>
+  const medals=['🥇','🥈','🥉'];
+  el.innerHTML=rows.slice(0,8).map((r,i)=>{
+    const val=mode==='score'?r.avg:r.pct;
+    const lbl=mode==='score'?r.avg+'pts':r.pct+'%';
+    const m=r.name===S.faculty;
+    return`<div class="rlb-row">
+      <div class="rlb-med">${medals[i]||i+1}</div>
+      <div class="rlb-name${m?' me':''}">${r.name}</div>
+      <div class="rlb-bw"><div class="rlb-bf${m?' me':''}" style="width:${Math.round(val/maxV*100)}%"></div></div>
+      <div class="rlb-val${m?' me':''}">${lbl}</div>
     </div>`;
   }).join('');
 }
 
-function renderStrip(responses){
-  const rows = calcDepts(responses).sort((a,b)=>b.pct-a.pct);
-  const el = document.getElementById('strip-rows');
-  if(!rows.length){ el.innerHTML='<span style="color:#6a5040;font-size:10px">No responses yet</span>'; return; }
-  el.innerHTML = rows.slice(0,5).map(r=>{
-    const isMe = r.name===S.dept;
-    const w    = Math.min(r.pct,100);
-    const shortName = r.name.split(' ')[0];
-    return `<div class="strip-dept">
-      <span class="strip-name${isMe?' me':''}">${shortName}</span>
-      <div class="strip-bar-wrap"><div class="strip-bar${isMe?' me':''}" style="width:${w}%"></div></div>
-      <span class="strip-pct">${r.pct}%</span>
-    </div>`;
-  }).join('');
-}
-
-function renderLandingLB(responses){
-  const rows = calcDepts(responses).sort((a,b)=>b.pct-a.pct);
-  const el = document.getElementById('lb-s1');
-  if(!rows.length){ el.innerHTML='<div class="lb-empty">No responses yet — be the first!</div>'; return; }
-  const maxPct = Math.max(...rows.map(r=>r.pct),1);
-  const medals = ['①','②','③'];
-  el.innerHTML = rows.slice(0,6).map((r,i)=>{
-    const w = Math.round(r.pct/maxPct*100);
-    const rankCls = i===0?'gold':i===1?'silver':i===2?'bronze':'';
-    return `<div class="lb-row">
-      <div class="lb-rank ${rankCls}">${medals[i]||i+1}</div>
-      <div class="lb-name">${r.name}</div>
-      <div class="lb-track"><div class="lb-fill" style="width:${w}%"></div></div>
-      <div class="lb-val">${r.pct}%</div>
-    </div>`;
-  }).join('');
-}
-
-APP.switchTab = mode => {
-  S.lbMode = mode;
-  document.getElementById('tab-pct').classList.toggle('on',  mode==='pct');
-  document.getElementById('tab-spend').classList.toggle('on', mode==='spend');
-  renderMainLB(S.allResponses);
+APP.switchTab=mode=>{
+  S.lbMode=mode;
+  document.getElementById('rt-pct').classList.toggle('on',mode==='pct');
+  document.getElementById('rt-sc').classList.toggle('on',mode==='score');
+  renderResultLB(S.allResponses);
 };
 
-// ── LIVE LISTENER ──
-onSnapshot(query(collection(db,'responses')), snap=>{
-  S.allResponses = snap.docs.map(d=>d.data());
-  renderLandingLB(S.allResponses);
-  renderStrip(S.allResponses);
-  if(document.getElementById('s6').classList.contains('active')){
-    renderMainLB(S.allResponses);
+/* ── MAP ── */
+const SE={study:'🔵',social:'🟢',avoid:'🔴',improve:'🟡'};
+const SM={
+  study:"Mark your favourite study spots — the best energy zones.",
+  social:"Where do people actually hang out and collaborate?",
+  avoid:"What areas do you actively avoid? Be honest.",
+  improve:"What zones desperately need upgrading?"
+};
+
+APP.setStickerType=t=>{
+  S.stickerType=t;
+  document.querySelectorAll('.map-tab').forEach(b=>b.classList.remove('on'));
+  document.querySelector(`.map-tab[data-t="${t}"]`).classList.add('on');
+  document.getElementById('map-lib-says').textContent=SM[t];
+};
+
+APP.placeSticker=e=>{
+  if(S.stickerDone){toast('Sticker submitted! Day 3 is the big reveal.');return;}
+  const wrap=document.getElementById('map-wrap');
+  const rect=wrap.getBoundingClientRect();
+  const x=((e.clientX-rect.left)/rect.width*100).toFixed(1);
+  const y=((e.clientY-rect.top)/rect.height*100).toFixed(1);
+  document.querySelectorAll('.map-sticker.preview').forEach(s=>s.remove());
+  const el=document.createElement('div');
+  el.className='map-sticker mine preview';
+  el.style.left=x+'%';el.style.top=y+'%';
+  el.textContent=SE[S.stickerType];
+  document.getElementById('map-stickers-layer').appendChild(el);
+  S.stickerPending={x,y,type:S.stickerType};
+  document.getElementById('map-submit').disabled=false;
+  document.getElementById('map-hint').textContent='Hit SUBMIT to lock in your '+S.stickerType+' sticker!';
+};
+
+APP.submitSticker=async()=>{
+  if(!S.stickerPending||S.stickerDone)return;
+  S.stickerDone=true;
+  S.credits+=25;
+  document.getElementById('m-cred').textContent=S.credits;
+  document.getElementById('r-cred').textContent=S.credits;
+  try{
+    await addDoc(collection(db,'stickers'),{
+      faculty:S.faculty,type:S.stickerPending.type,
+      x:S.stickerPending.x,y:S.stickerPending.y,
+      deviceKey:DK,submittedAt:Date.now()
+    });
+    if(S.myDocId) await updateDoc(doc(db,'responses',S.myDocId),{credits:increment(25)});
+    floatCredits(25);toast('📍 Sticker live! +25 credits');
+    document.getElementById('map-submit').innerHTML='<span>SUBMITTED ✓</span><span>✅</span>';
+    document.getElementById('map-submit').disabled=true;
+    document.getElementById('map-hint').textContent='Your sticker is on the map! Day 3 is the reveal.';
+    document.querySelectorAll('.map-sticker.preview').forEach(s=>s.classList.remove('preview'));
+    setTimeout(()=>{APP.go(6);},1200);
+  }catch(e){
+    alert('Submission error — check Firebase config.\n'+e.message);
+    S.stickerDone=false;
   }
+};
+
+async function loadExistingStickers(){
+  try{
+    const snap=await getDocs(collection(db,'stickers'));
+    snap.forEach(d=>{
+      const data=d.data();if(data.deviceKey===DK)return;
+      const el=document.createElement('div');
+      el.className='map-sticker';
+      el.style.left=data.x+'%';el.style.top=data.y+'%';
+      el.textContent=SE[data.type]||'📍';
+      el.title=(data.faculty||'?')+': '+data.type;
+      document.getElementById('map-stickers-layer').appendChild(el);
+    });
+  }catch(e){}
+}
+
+/* ── LIVE LISTENER ── */
+onSnapshot(query(collection(db,'responses')),snap=>{
+  S.allResponses=snap.docs.map(d=>({...d.data(),_id:d.id}));
+  renderS1Board(S.allResponses);
+  if(document.getElementById('s4').classList.contains('active')) renderResultLB(S.allResponses);
 });
 
-// init
-renderAuction();
+/* ── INIT ── */
+// auto-fill referral from URL
+const urlRef=new URLSearchParams(window.location.search).get('ref');
+if(urlRef){
+  document.getElementById('s2-ref').value=urlRef.toUpperCase();
+  toast('✨ Referral code applied — you both get +50 credits');
+}
+loadExistingStickers();
 </script>
 </body>
 </html>
