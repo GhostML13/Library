@@ -1,1825 +1,2234 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
-<title>The Great Library Experiment</title>
-<link href="https://fonts.bunny.net/css?family=cabinet-grotesk:400,500,700,800,900&display=swap" rel="stylesheet"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lib's Library World</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* ═══════════════════════════════════════════
-   DESIGN TOKENS — Japanese anime palette:
-   warm cream, ink black, accent yellow,
-   soft silences between actions
-═══════════════════════════════════════════ */
-:root{
-  --ink:#1a1208;
-  --paper:#faf6ee;
-  --yellow:#f5c842;
-  --red:#e8450a;
-  --blue:#3b6fd4;
-  --green:#2d9e6b;
-  --muted:#8a7a60;
-  --line:#1a1208;
-  --card:#ffffff;
-  --shadow:5px 5px 0 var(--line);
-  --shadow-sm:3px 3px 0 var(--line);
-  --radius:20px;
-  --border:2.5px solid var(--line);
-}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{
-  height:100%;background:var(--paper);
-  font-family:'Cabinet Grotesk',system-ui,sans-serif;
-  color:var(--ink);overflow-x:hidden;
+/* ============================================================
+   GLOBAL TOKENS
+   ============================================================ */
+:root {
+  --cream:    #F5ECD7;
+  --parchment:#EAD9BC;
+  --warm-tan: #D4B896;
+  --bark:     #8B6B47;
+  --deep-bark:#5C3D1E;
+  --ink:      #2C1A0E;
+  --sky:      #A8C5DA;
+  --sky-deep: #6A9BB5;
+  --moss:     #7A9E6F;
+  --moss-deep:#4E6E44;
+  --amber:    #E8A23C;
+  --ember:    #D4622A;
+  --blush:    #E8B4A0;
+  --dust:     rgba(212,184,150,0.18);
+  --shadow:   rgba(44,26,14,0.18);
 }
 
-/* ─── SCREENS ─── */
-.screen{display:none;min-height:100vh;flex-direction:column;max-width:430px;margin:0 auto;padding:0 0 80px}
-.screen.active{display:flex}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ─── JAPANESE ANIME KEYFRAMES ─── */
-
-/* Lib walking: slight body bob + step rhythm */
-@keyframes lib-walk{
-  0%{transform:translateX(-120px) scaleX(1)}
-  45%{transform:translateX(0) scaleX(1)}
-  50%{transform:translateX(0) scaleX(1)}
-  100%{transform:translateX(0) scaleX(1)}
-}
-@keyframes lib-walk-out{
-  0%{transform:translateX(0) scaleX(1)}
-  100%{transform:translateX(140px) scaleX(-1)}
-}
-@keyframes lib-idle{
-  0%,100%{transform:translateY(0) rotate(-0.5deg)}
-  50%{transform:translateY(-6px) rotate(0.5deg)}
-}
-@keyframes lib-bounce{
-  0%,100%{transform:translateY(0)}
-  20%{transform:translateY(-14px)}
-  40%{transform:translateY(-4px)}
-  60%{transform:translateY(-8px)}
-  80%{transform:translateY(-2px)}
-}
-@keyframes lib-nod{
-  0%,100%{transform:rotate(0)}
-  25%{transform:rotate(-8deg)}
-  75%{transform:rotate(6deg)}
-}
-@keyframes lib-wave{
-  0%,100%{transform:rotate(0deg)}
-  25%{transform:rotate(-20deg)}
-  75%{transform:rotate(20deg)}
-}
-@keyframes lib-think{
-  0%,100%{transform:rotate(0deg) translateY(0)}
-  50%{transform:rotate(-5deg) translateY(-3px)}
-}
-/* Leg step animation */
-@keyframes leg-l{
-  0%,100%{transform:rotate(0deg);transform-origin:top center}
-  50%{transform:rotate(-15deg);transform-origin:top center}
-}
-@keyframes leg-r{
-  0%,100%{transform:rotate(0deg);transform-origin:top center}
-  50%{transform:rotate(15deg);transform-origin:top center}
-}
-/* Shade glow on answer */
-@keyframes shade-glow{
-  0%,100%{filter:drop-shadow(0 0 0 transparent)}
-  50%{filter:drop-shadow(0 0 12px var(--yellow))}
-}
-/* Content transitions — like a breath */
-@keyframes breathe-in{
-  from{opacity:0;transform:translateY(16px)}
-  to{opacity:1;transform:translateY(0)}
-}
-@keyframes breathe-up{
-  from{opacity:0;transform:translateY(30px)}
-  to{opacity:1;transform:translateY(0)}
-}
-@keyframes float-in-r{
-  from{opacity:0;transform:translateX(40px)}
-  to{opacity:1;transform:translateX(0)}
-}
-@keyframes float-in-l{
-  from{opacity:0;transform:translateX(-40px)}
-  to{opacity:1;transform:translateX(0)}
-}
-@keyframes pop{
-  0%{transform:scale(0.4) rotate(-8deg);opacity:0}
-  65%{transform:scale(1.06) rotate(1deg);opacity:1}
-  100%{transform:scale(1) rotate(0);opacity:1}
-}
-@keyframes stamp{
-  0%{transform:scale(1.8) rotate(12deg);opacity:0}
-  70%{transform:scale(0.95) rotate(-2deg);opacity:1}
-  100%{transform:scale(1) rotate(0);opacity:1}
-}
-@keyframes pulse-dot{
-  0%,100%{transform:scale(1);opacity:1}
-  50%{transform:scale(1.5);opacity:.5}
-}
-@keyframes credits-up{
-  0%{opacity:0;transform:translateY(0)}
-  30%{opacity:1}
-  100%{opacity:0;transform:translateY(-40px)}
-}
-@keyframes shake-no{
-  0%,100%{transform:rotate(0)}
-  20%{transform:rotate(-6deg)}
-  40%{transform:rotate(6deg)}
-  60%{transform:rotate(-4deg)}
-  80%{transform:rotate(4deg)}
-}
-/* Map doodle draw-in */
-@keyframes draw{
-  from{stroke-dashoffset:1000}
-  to{stroke-dashoffset:0}
-}
-/* Sticker drop */
-@keyframes sticker-drop{
-  0%{transform:translate(-50%,-50%) scale(0) rotate(-20deg)}
-  70%{transform:translate(-50%,-50%) scale(1.2) rotate(3deg)}
-  100%{transform:translate(-50%,-50%) scale(1) rotate(0)}
-}
-@keyframes fade-in{
-  from{opacity:0}to{opacity:1}
-}
-@keyframes slide-up-card{
-  from{opacity:0;transform:translateY(24px)}
-  to{opacity:1;transform:translateY(0)}
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  font-family: 'Nunito', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  cursor: none;
 }
 
-/* ─── TOPBAR ─── */
-.topbar{
-  padding:14px 18px;
-  display:flex;justify-content:space-between;align-items:center;
-  border-bottom:var(--border);background:rgba(250,246,238,.92);
-  backdrop-filter:blur(8px);position:sticky;top:0;z-index:100;
+/* ============================================================
+   CUSTOM CURSOR
+   ============================================================ */
+.cursor {
+  width: 14px; height: 14px;
+  border: 2px solid var(--bark);
+  border-radius: 50%;
+  position: fixed; top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%,-50%);
+  transition: transform 0.08s ease, background 0.2s;
+  mix-blend-mode: multiply;
 }
-.t-brand{display:flex;align-items:center;gap:10px}
-.t-badge{
-  width:36px;height:36px;border:var(--border);border-radius:10px;
-  background:var(--yellow);display:grid;place-items:center;
-  font-size:18px;box-shadow:var(--shadow-sm);
+.cursor.hover { transform: translate(-50%,-50%) scale(2.2); background: var(--amber); border-color: var(--ember); }
+
+/* ============================================================
+   SCREEN MANAGER
+   ============================================================ */
+.screen {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.8s ease;
 }
-.t-name{font-size:11px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
-.t-title{font-size:15px;font-weight:900;letter-spacing:-.5px;line-height:1.1}
-.t-credits{
-  display:flex;align-items:center;gap:5px;
-  background:var(--ink);color:var(--yellow);
-  border-radius:20px;padding:5px 12px;
-  font-size:12px;font-weight:900;
-  border:2px solid var(--ink);
-}
-.t-live{
-  display:flex;align-items:center;gap:6px;
-  font-size:10px;font-weight:800;
-  color:var(--muted);text-transform:uppercase;letter-spacing:1px;
-}
-.live-dot{
-  width:7px;height:7px;border-radius:50%;background:var(--green);
-  animation:pulse-dot 1.4s ease-in-out infinite;
+.screen.active { opacity: 1; pointer-events: all; }
+
+/* ============================================================
+   ANIMATED BACKGROUND — PARALLAX GHIBLI LAYERS
+   ============================================================ */
+.bg-world {
+  position: fixed; inset: 0;
+  overflow: hidden;
+  background: linear-gradient(180deg, #C8DFF0 0%, #A8C5DA 30%, #B8D4A0 60%, #D4C898 80%, var(--cream) 100%);
 }
 
-/* ─── LIB CHARACTER ─── */
-.lib-stage{
-  width:100%;display:flex;align-items:flex-end;
-  padding:10px 20px;gap:14px;min-height:100px;
-  position:relative;
+/* Clouds */
+.cloud {
+  position: absolute;
+  background: rgba(255,255,255,0.75);
+  border-radius: 50px;
+  filter: blur(2px);
+  animation: drift linear infinite;
 }
-.lib-char{
-  flex-shrink:0;position:relative;
-  transition:transform .3s ease;
-}
-.lib-char.walking{animation:lib-walk .8s cubic-bezier(.22,1,.36,1) both}
-.lib-char.walking-out{animation:lib-walk-out .5s ease both}
-.lib-char.idle{animation:lib-idle 3s ease-in-out infinite}
-.lib-char.bounce{animation:lib-bounce .7s ease}
-.lib-char.thinking{animation:lib-think 1.5s ease-in-out infinite}
-.lib-char.nod{animation:lib-nod .6s ease}
-
-/* Lib SVG parts */
-.lib-lamp-shade{transition:fill .3s}
-.lib-shade-glow.active{animation:shade-glow .6s ease}
-.lib-leg-l{animation:leg-l .5s ease-in-out infinite alternate;transform-origin:top center}
-.lib-leg-r{animation:leg-r .5s ease-in-out infinite alternate;transform-origin:top center;animation-delay:.25s}
-.lib-arm-wave{animation:lib-wave .5s ease-in-out infinite;transform-origin:top right}
-
-/* Speech bubble */
-.lib-bubble{
-  background:var(--card);border:var(--border);border-radius:18px 18px 18px 4px;
-  padding:12px 16px;box-shadow:var(--shadow);
-  font-size:14px;font-weight:700;line-height:1.45;
-  max-width:210px;flex:1;
-  animation:float-in-l .4s ease both;
-}
-.lib-bubble .bubble-sub{
-  display:block;font-size:11px;color:var(--muted);
-  margin-top:3px;font-weight:600;
-}
-.lib-bubble.yellow{background:var(--yellow)}
-
-/* ─── CARDS ─── */
-.card{
-  background:var(--card);border:var(--border);border-radius:var(--radius);
-  box-shadow:var(--shadow);padding:18px;
-  animation:slide-up-card .35s ease both;
-}
-.card+.card{margin-top:12px}
-
-/* ─── BUTTONS ─── */
-.btn{
-  width:100%;border:var(--border);border-radius:18px;
-  padding:16px 20px;font-size:16px;font-weight:900;
-  cursor:pointer;display:flex;justify-content:space-between;align-items:center;
-  font-family:'Cabinet Grotesk',system-ui,sans-serif;
-  transition:transform .1s,box-shadow .1s;
-  letter-spacing:-.3px;
-}
-.btn.yellow{background:var(--yellow);color:var(--ink);box-shadow:var(--shadow)}
-.btn.dark{background:var(--ink);color:var(--yellow);box-shadow:var(--shadow)}
-.btn.white{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
-.btn:active{transform:translate(3px,3px);box-shadow:2px 2px 0 var(--line)}
-.btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:var(--shadow)}
-.btn-sm{
-  padding:10px 16px;font-size:14px;border-radius:14px;
-  border:var(--border);font-weight:900;cursor:pointer;
-  font-family:'Cabinet Grotesk',system-ui,sans-serif;
-  transition:transform .1s,box-shadow .1s;
-  box-shadow:var(--shadow-sm);
-}
-.btn-sm:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--line)}
-.back-btn{
-  background:none;border:none;cursor:pointer;
-  font-size:13px;font-weight:800;color:var(--muted);
-  padding:14px 18px 0;display:flex;align-items:center;gap:5px;
-  font-family:'Cabinet Grotesk',system-ui,sans-serif;
+.cloud::before, .cloud::after {
+  content: '';
+  position: absolute;
+  background: inherit;
+  border-radius: 50%;
 }
 
-/* ─── CHOICE COMPONENTS ─── */
-.choice-grid{display:flex;flex-direction:column;gap:8px}
-.choice-opt{
-  background:var(--paper);border:var(--border);border-radius:16px;
-  padding:14px 16px;cursor:pointer;font-size:14px;font-weight:700;
-  display:flex;align-items:center;gap:12px;
-  transition:all .12s ease;box-shadow:var(--shadow-sm);
-  font-family:'Cabinet Grotesk',system-ui,sans-serif;
-  width:100%;text-align:left;
-}
-.choice-opt:hover{transform:translateY(-1px);box-shadow:5px 6px 0 var(--line)}
-.choice-opt.on{
-  background:var(--yellow);border-color:var(--ink);
-  transform:translate(2px,2px);box-shadow:3px 3px 0 var(--line);
-}
-.choice-opt .co-emoji{font-size:22px;flex-shrink:0}
-.choice-opt .co-check{margin-left:auto;font-size:14px;opacity:0;transition:opacity .2s}
-.choice-opt.on .co-check{opacity:1}
-
-/* Multi-select grid */
-.multi-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.multi-opt{
-  background:var(--paper);border:var(--border);border-radius:14px;
-  padding:12px 10px;cursor:pointer;font-size:13px;font-weight:800;
-  text-align:center;transition:all .12s;box-shadow:var(--shadow-sm);
-  font-family:'Cabinet Grotesk',system-ui,sans-serif;line-height:1.2;
-}
-.multi-opt:hover{transform:translateY(-1px)}
-.multi-opt.on{background:var(--yellow);border-color:var(--ink);transform:translate(2px,2px);box-shadow:3px 3px 0 var(--line)}
-
-/* Ranking */
-.rank-list{display:flex;flex-direction:column;gap:8px}
-.rank-item{
-  background:var(--paper);border:var(--border);border-radius:14px;
-  padding:12px 16px;cursor:pointer;font-size:13px;font-weight:800;
-  display:flex;align-items:center;gap:10px;
-  transition:all .12s;box-shadow:var(--shadow-sm);
-  font-family:'Cabinet Grotesk',system-ui,sans-serif;
-}
-.rank-item:hover{transform:translateY(-1px)}
-.rank-item.on{background:var(--yellow);border-color:var(--ink);transform:translate(2px,2px);box-shadow:3px 3px 0 var(--line)}
-.rank-badge{
-  width:26px;height:26px;border-radius:50%;background:var(--ink);
-  color:var(--yellow);font-size:12px;font-weight:900;
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+/* Trees silhouette */
+.tree-layer {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
 }
 
-/* Open text */
-.open-area{
-  width:100%;padding:14px;
-  border:var(--border);border-radius:16px;
-  font-size:14px;font-family:'Cabinet Grotesk',system-ui,sans-serif;
-  font-weight:600;resize:none;height:90px;
-  background:var(--paper);outline:none;line-height:1.6;
-  box-shadow:var(--shadow-sm);transition:box-shadow .15s;
-}
-.open-area:focus{box-shadow:var(--shadow)}
-.open-lbl{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px}
-
-/* ─── PROGRESS ─── */
-.qprog{padding:8px 18px 0}
-.qp-labels{display:flex;justify-content:space-between;font-size:11px;font-weight:800;color:var(--muted);margin-bottom:5px}
-.qp-bar{
-  height:8px;background:#e8e0d0;border-radius:4px;
-  border:2px solid rgba(26,18,8,.12);overflow:hidden;
-}
-.qp-fill{height:100%;background:var(--yellow);border-radius:2px;transition:width .5s cubic-bezier(.22,1,.36,1)}
-
-/* ─── QUESTION HEADER ─── */
-.q-head{padding:12px 18px 0}
-.q-kicker{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:2px;color:var(--red);margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.q-title{font-size:26px;font-weight:900;letter-spacing:-1.5px;line-height:1;margin-bottom:6px}
-.q-hint{font-size:13px;color:var(--muted);font-weight:600;margin-bottom:14px;line-height:1.5}
-
-/* ─── QUIZ CARD ─── */
-.q-card{margin:0 18px 12px;animation:float-in-r .4s ease}
-
-/* ─── LEADERBOARD ─── */
-.lb-card{
-  margin:16px 18px 0;
-  background:var(--ink);border:var(--border);border-radius:var(--radius);
-  box-shadow:var(--shadow);padding:16px;
-}
-.lb-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.lb-title{font-size:10px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.3)}
-.lb-live{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:800;color:var(--yellow)}
-.lb-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.07)}
-.lb-row:last-child{border:none}
-.lb-medal{font-size:13px;width:20px;text-align:center;flex-shrink:0}
-.lb-name{flex:1;font-size:12px;font-weight:700;color:rgba(255,255,255,.6);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lb-name.me{color:var(--yellow);font-weight:900}
-.lb-bw{width:52px;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
-.lb-bf{height:100%;background:var(--yellow);border-radius:2px;transition:width 1s ease}
-.lb-bf.me{background:#7aecb4}
-.lb-pct{font-size:11px;font-weight:900;color:var(--yellow);min-width:28px;text-align:right}
-.lb-pct.me{color:#7aecb4}
-.lb-empty{font-size:12px;color:rgba(255,255,255,.2);text-align:center;padding:8px 0;font-weight:700}
-
-/* ─── PERSONA REVEAL CARD ─── */
-.persona-reveal{
-  margin:14px 18px;
-  background:var(--ink);border:var(--border);border-radius:var(--radius);
-  box-shadow:var(--shadow);padding:24px 20px;text-align:center;
-  position:relative;overflow:hidden;
-  animation:stamp .6s cubic-bezier(.22,1,.36,1) both;
-}
-.pr-glow{
-  position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(circle at 50% 30%,rgba(255,255,255,.06) 0%,transparent 60%);
-}
-.pr-char{font-size:72px;display:block;margin-bottom:12px;animation:lib-idle 3s ease-in-out infinite;position:relative}
-.pr-type{font-size:28px;font-weight:900;color:var(--yellow);letter-spacing:-1.5px;margin-bottom:8px;position:relative}
-.pr-tags{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin-bottom:12px;position:relative}
-.pr-tag{
-  font-size:9px;font-weight:900;padding:4px 10px;border-radius:8px;
-  background:rgba(255,255,255,.08);color:rgba(255,255,255,.5);
-  letter-spacing:1px;text-transform:uppercase;
-}
-.pr-desc{font-size:13px;color:rgba(255,255,255,.45);line-height:1.65;position:relative}
-
-/* ─── RANK BANNER ─── */
-.rank-banner{
-  margin:12px 18px;
-  background:rgba(26,18,8,.04);border:var(--border);border-radius:16px;
-  padding:14px 16px;display:flex;justify-content:space-between;align-items:center;
-}
-.rbl .rb-fac{font-size:14px;font-weight:800}
-.rbl .rb-sub{font-size:11px;color:var(--muted);margin-top:2px}
-.rbr .rb-pos{font-size:50px;font-weight:900;color:var(--yellow);line-height:1;
-  -webkit-text-stroke:2px var(--ink);
-  animation:pop .7s ease .3s both}
-.rbr .rb-pct{font-size:11px;color:var(--muted);text-align:right}
-
-/* ─── REFERRAL + QR ─── */
-.ref-card{
-  margin:12px 18px;
-  background:var(--yellow);border:var(--border);border-radius:var(--radius);
-  box-shadow:var(--shadow);padding:16px;
-}
-.ref-title{font-size:18px;font-weight:900;letter-spacing:-.5px;margin-bottom:4px}
-.ref-sub{font-size:12px;color:rgba(26,18,8,.6);margin-bottom:12px;font-weight:600;line-height:1.5}
-.ref-link-row{display:flex;gap:8px;align-items:center;margin-bottom:12px}
-.ref-link-box{
-  flex:1;padding:10px 12px;background:rgba(255,255,255,.6);
-  border:2px solid var(--ink);border-radius:10px;
-  font-size:11px;font-family:monospace;font-weight:700;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-}
-.ref-copy{
-  background:var(--ink);color:var(--yellow);border:none;
-  border-radius:10px;padding:10px 14px;font-size:12px;font-weight:900;
-  cursor:pointer;font-family:'Cabinet Grotesk',system-ui,sans-serif;
-  box-shadow:var(--shadow-sm);transition:transform .1s,box-shadow .1s;
-}
-.ref-copy:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
-.qr-wrap{
-  background:rgba(255,255,255,.7);border:2px solid var(--ink);
-  border-radius:14px;padding:14px;text-align:center;
-}
-.qr-lbl{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:rgba(26,18,8,.5);margin-bottom:10px}
-#qr-canvas{display:block;margin:0 auto;border-radius:6px}
-.qr-hint{font-size:11px;color:rgba(26,18,8,.5);margin-top:8px;font-weight:700;line-height:1.4}
-
-/* ─── RESULT LEADERBOARD ─── */
-.res-lb{
-  margin:12px 18px;background:var(--card);border:var(--border);
-  border-radius:16px;padding:14px;box-shadow:var(--shadow-sm);
-}
-.rlb-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.rlb-t{font-size:9px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
-.rlb-tabs{display:flex;gap:4px}
-.rlb-tab{
-  padding:4px 9px;border-radius:7px;border:1.5px solid #e0d8c8;
-  font-size:10px;cursor:pointer;background:transparent;color:var(--muted);
-  font-family:'Cabinet Grotesk',system-ui,sans-serif;font-weight:800;transition:all .12s;
-}
-.rlb-tab.on{background:var(--ink);color:var(--yellow);border-color:var(--ink)}
-.rlb-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f0e8e0}
-.rlb-row:last-child{border:none}
-.rlb-med{font-size:13px;width:20px;text-align:center}
-.rlb-name{flex:1;font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rlb-name.me{color:var(--red);font-weight:900}
-.rlb-bw{width:55px;height:5px;background:#f0e8e0;border-radius:3px;overflow:hidden}
-.rlb-bf{height:100%;background:var(--red);border-radius:3px;transition:width .8s ease}
-.rlb-bf.me{background:var(--yellow)}
-.rlb-val{font-size:11px;font-weight:800;color:var(--muted);min-width:30px;text-align:right}
-.rlb-val.me{color:var(--red)}
-.rlb-empty{font-size:12px;color:#b0a090;text-align:center;padding:8px 0;font-weight:600}
-
-/* ─── MAP SCREEN ─── */
-.map-header{padding:16px 18px 12px}
-.map-tabs{display:flex;gap:6px;padding:0 18px 12px;overflow-x:auto}
-.map-tab{
-  display:flex;align-items:center;gap:5px;
-  padding:7px 13px;border-radius:20px;border:var(--border);
-  background:var(--card);font-size:11px;font-weight:900;
-  cursor:pointer;white-space:nowrap;box-shadow:var(--shadow-sm);
-  transition:all .12s;font-family:'Cabinet Grotesk',system-ui,sans-serif;
-}
-.map-tab.on{transform:translate(2px,2px);box-shadow:3px 3px 0 var(--line)}
-.map-tab[data-t="study"].on{background:#dbeafe;border-color:var(--blue);color:var(--blue)}
-.map-tab[data-t="social"].on{background:#dcfce7;border-color:var(--green);color:var(--green)}
-.map-tab[data-t="avoid"].on{background:#fee2e2;border-color:var(--red);color:var(--red)}
-.map-tab[data-t="improve"].on{background:#fef9c3;border-color:#ca8a04;color:#ca8a04}
-.map-dot{width:8px;height:8px;border-radius:50%}
-
-.map-wrap{
-  margin:0 18px;border:var(--border);border-radius:18px;
-  overflow:hidden;box-shadow:var(--shadow);
-  background:#f5f0e4;position:relative;cursor:crosshair;
-  touch-action:none;
-}
-.map-wrap svg{display:block;width:100%}
-#map-stickers-layer{position:absolute;inset:0;pointer-events:none}
-.map-sticker{
-  position:absolute;transform:translate(-50%,-50%);
-  font-size:18px;pointer-events:auto;cursor:pointer;
-  animation:sticker-drop .4s cubic-bezier(.22,1,.36,1) both;
-}
-.map-sticker.mine{filter:drop-shadow(0 0 6px var(--yellow))}
-.map-hint{padding:8px 18px;font-size:12px;color:var(--muted);font-weight:700;text-align:center}
-.map-submit{
-  margin:8px 18px 14px;background:var(--ink);color:var(--yellow);
-  border:none;border-radius:14px;padding:16px 20px;
-  font-size:15px;font-weight:900;cursor:pointer;
-  font-family:'Cabinet Grotesk',system-ui,sans-serif;
-  width:calc(100% - 36px);display:flex;justify-content:space-between;align-items:center;
-  box-shadow:var(--shadow);transition:transform .1s,box-shadow .1s;
-}
-.map-submit:disabled{opacity:.3;cursor:not-allowed}
-.map-submit:active{transform:translate(3px,3px);box-shadow:2px 2px 0 var(--ink)}
-
-/* ─── INPUT COMPONENTS ─── */
-.inp{
-  width:100%;padding:13px 15px;border:var(--border);border-radius:14px;
-  font-size:15px;font-family:'Cabinet Grotesk',system-ui,sans-serif;
-  font-weight:700;background:var(--paper);outline:none;margin-bottom:12px;
-  box-shadow:var(--shadow-sm);transition:box-shadow .15s;
-  -webkit-appearance:none;appearance:none;color:var(--ink);
-}
-.inp:focus{box-shadow:var(--shadow)}
-.fac-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:14px}
-.fac-chip{
-  background:var(--paper);border:var(--border);border-radius:12px;
-  padding:11px 8px;text-align:center;cursor:pointer;
-  font-size:12px;font-weight:800;transition:all .12s;
-  font-family:'Cabinet Grotesk',system-ui,sans-serif;
-  box-shadow:var(--shadow-sm);line-height:1.2;
-}
-.fac-chip:hover{transform:translateY(-1px)}
-.fac-chip.on{background:var(--ink);color:var(--yellow);transform:translate(2px,2px);box-shadow:3px 3px 0 var(--line)}
-
-/* ─── ONBOARDING ─── */
-#s-onboard{background:var(--paper)}
-.onb-hero{
-  padding:20px 18px;text-align:center;
-  animation:breathe-in .5s ease both;
-}
-.onb-title{font-size:44px;font-weight:900;line-height:.88;letter-spacing:-3px;margin-bottom:10px}
-.onb-title .box{
-  display:inline-block;background:var(--blue);color:#fff;
-  padding:2px 10px;border-radius:8px;border:var(--border);
-  transform:rotate(-1.5deg);font-style:italic;
-}
-.onb-sub{font-size:13px;color:var(--muted);font-weight:500;line-height:1.6;margin-bottom:16px}
-
-/* Day cards */
-.day-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 18px 14px}
-.dcard{background:var(--card);border:var(--border);border-radius:14px;padding:12px 10px;text-align:center;box-shadow:var(--shadow-sm)}
-.dcard.now{background:var(--yellow)}
-.dc-n{font-size:22px;font-weight:900;letter-spacing:-1.5px}
-.dc-name{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;opacity:.5;margin:2px 0}
-.dc-desc{font-size:9px;color:var(--muted);line-height:1.3}
-.dcard.now .dc-name,.dcard.now .dc-desc{opacity:.7}
-
-/* Bottom CTA fixed */
-.bottom-cta{
-  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
-  width:100%;max-width:430px;padding:14px 18px;
-  background:rgba(250,246,238,.95);backdrop-filter:blur(8px);
-  border-top:var(--border);z-index:90;
+/* Floating dust motes */
+.mote {
+  position: absolute;
+  width: 3px; height: 3px;
+  background: rgba(232,162,60,0.5);
+  border-radius: 50%;
+  animation: float-mote linear infinite;
 }
 
-/* ─── TOAST ─── */
-#toast{
-  position:fixed;bottom:90px;left:50%;transform:translateX(-50%);
-  background:var(--ink);color:var(--yellow);
-  padding:10px 20px;border-radius:20px;font-size:13px;font-weight:900;
-  opacity:0;transition:opacity .2s;pointer-events:none;z-index:999;
-  white-space:nowrap;border:2px solid var(--yellow);box-shadow:var(--shadow-sm);
+@keyframes drift {
+  from { transform: translateX(-120%); }
+  to   { transform: translateX(110vw); }
 }
-#toast.show{opacity:1}
+@keyframes float-mote {
+  0%   { transform: translateY(0) translateX(0); opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 0.6; }
+  100% { transform: translateY(-60px) translateX(20px); opacity: 0; }
+}
+@keyframes sway {
+  0%, 100% { transform: rotate(-1deg); }
+  50%       { transform: rotate(1.5deg); }
+}
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+@keyframes blink {
+  0%, 90%, 100% { transform: scaleY(1); }
+  95%            { transform: scaleY(0.08); }
+}
+@keyframes tail-wag {
+  0%, 100% { transform: rotate(-15deg); }
+  50%       { transform: rotate(15deg); }
+}
+@keyframes page-turn {
+  0%   { transform: rotateY(0deg); }
+  50%  { transform: rotateY(-40deg); }
+  100% { transform: rotateY(0deg); }
+}
+@keyframes candle-flicker {
+  0%,100% { transform: scaleY(1) scaleX(1); opacity: 1; }
+  33%     { transform: scaleY(1.15) scaleX(0.88); opacity: 0.85; }
+  66%     { transform: scaleY(0.9) scaleX(1.08); opacity: 0.95; }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+@keyframes reveal-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes stamp {
+  0%   { transform: scale(2.5) rotate(-8deg); opacity: 0; }
+  60%  { transform: scale(0.95) rotate(1deg); opacity: 1; }
+  80%  { transform: scale(1.04) rotate(-0.5deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+@keyframes orb-pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(232,162,60,0.4); }
+  50%      { box-shadow: 0 0 0 8px rgba(232,162,60,0); }
+}
+@keyframes lantern-swing {
+  0%,100% { transform: rotate(-4deg) translateY(0); }
+  50%      { transform: rotate(4deg) translateY(2px); }
+}
+@keyframes leaf-fall {
+  0%   { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+@keyframes writing {
+  from { stroke-dashoffset: 1000; }
+  to   { stroke-dashoffset: 0; }
+}
 
-/* Credits float animation */
-.credit-float{
-  position:fixed;font-size:14px;font-weight:900;color:var(--yellow);
-  pointer-events:none;z-index:998;
-  animation:credits-up 1.2s ease both;
-  -webkit-text-stroke:1px var(--ink);
+/* ============================================================
+   SCREEN 1 — LANDING / SPLASH
+   ============================================================ */
+#screen-landing {
+  flex-direction: column;
+  gap: 0;
+}
+.landing-library {
+  position: relative;
+  width: min(560px, 90vw);
+  text-align: center;
+}
+.library-building {
+  position: relative;
+  width: 100%;
+}
+.landing-title {
+  font-family: 'Lora', serif;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  color: var(--deep-bark);
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  text-shadow: 0 2px 0 rgba(255,255,255,0.5);
+  animation: reveal-up 1s ease 0.3s both;
+}
+.landing-subtitle {
+  font-size: 1rem;
+  color: var(--bark);
+  margin-top: 8px;
+  animation: reveal-up 1s ease 0.6s both;
+}
+.begin-btn {
+  margin-top: 28px;
+  padding: 14px 42px;
+  background: var(--deep-bark);
+  color: var(--cream);
+  border: none;
+  border-radius: 40px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: none;
+  position: relative;
+  overflow: hidden;
+  animation: reveal-up 1s ease 0.9s both;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 20px var(--shadow);
+}
+.begin-btn::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2.5s ease infinite;
+}
+.begin-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--shadow); }
+
+/* ============================================================
+   SCREEN 2 — REGISTRATION
+   ============================================================ */
+#screen-register {
+  align-items: flex-start;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+  gap: 24px;
+}
+.register-scene {
+  width: min(700px, 100%);
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 24px;
+  align-items: start;
+}
+.lib-companion {
+  position: sticky;
+  top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.speech-bubble {
+  background: white;
+  border: 2px solid var(--parchment);
+  border-radius: 18px 18px 18px 4px;
+  padding: 14px 16px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--ink);
+  position: relative;
+  box-shadow: 0 4px 20px var(--shadow);
+  max-width: 220px;
+  min-height: 60px;
+}
+.register-form-card {
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255,255,255,0.9);
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 8px 40px var(--shadow);
+}
+.form-section-title {
+  font-family: 'Lora', serif;
+  font-size: 1.4rem;
+  color: var(--deep-bark);
+  margin-bottom: 20px;
+}
+.form-field {
+  margin-bottom: 18px;
+}
+.form-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--bark);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 7px;
+}
+.form-input {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(245,236,215,0.6);
+  border: 1.5px solid var(--parchment);
+  border-radius: 12px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+.form-input:focus {
+  border-color: var(--bark);
+  background: rgba(245,236,215,0.9);
+  box-shadow: 0 0 0 3px rgba(139,107,71,0.12);
+}
+/* Faculty lanterns grid */
+.faculty-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 8px;
+}
+.faculty-lantern {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 6px;
+  background: rgba(245,236,215,0.5);
+  border: 1.5px solid var(--parchment);
+  border-radius: 14px;
+  cursor: none;
+  transition: all 0.25s;
+  text-align: center;
+}
+.faculty-lantern:hover {
+  background: rgba(232,162,60,0.15);
+  border-color: var(--amber);
+  transform: translateY(-3px);
+}
+.faculty-lantern.selected {
+  background: linear-gradient(135deg, rgba(232,162,60,0.3), rgba(212,98,42,0.2));
+  border-color: var(--ember);
+  box-shadow: 0 4px 16px rgba(232,162,60,0.3);
+  transform: translateY(-3px);
+}
+.lantern-icon { font-size: 1.5rem; animation: lantern-swing 3s ease-in-out infinite; }
+.lantern-name { font-size: 0.65rem; font-weight: 600; color: var(--bark); line-height: 1.2; }
+.faculty-lantern.selected .lantern-name { color: var(--deep-bark); }
+
+.submit-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--deep-bark), var(--bark));
+  color: var(--cream);
+  border: none;
+  border-radius: 14px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: none;
+  margin-top: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 18px var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+.submit-btn::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+.submit-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 28px var(--shadow); }
+.submit-btn:disabled { opacity: 0.5; }
+
+/* ============================================================
+   SCREEN 3 — SURVEY (LIB CONVERSATION)
+   ============================================================ */
+#screen-survey {
+  flex-direction: column;
+  padding: 20px;
+  overflow-y: auto;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0;
+}
+.survey-wrap {
+  width: min(680px, 100%);
+  padding-top: 16px;
+}
+.survey-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.progress-track {
+  flex: 1;
+  height: 6px;
+  background: var(--parchment);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--amber), var(--ember));
+  border-radius: 3px;
+  transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.progress-label {
+  font-size: 0.75rem;
+  color: var(--bark);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.survey-card {
+  background: rgba(255,255,255,0.78);
+  backdrop-filter: blur(14px);
+  border: 1.5px solid rgba(255,255,255,0.9);
+  border-radius: 28px;
+  padding: 28px;
+  box-shadow: 0 8px 48px var(--shadow);
+  animation: reveal-up 0.5s ease both;
+}
+.lib-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.lib-question-bubble {
+  flex: 1;
+  background: var(--cream);
+  border: 1.5px solid var(--parchment);
+  border-radius: 4px 18px 18px 18px;
+  padding: 16px 18px;
+  font-family: 'Lora', serif;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--ink);
+  box-shadow: 0 2px 12px var(--shadow);
+  min-height: 60px;
+}
+.q-category {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bark);
+  margin-bottom: 14px;
+  padding: 4px 10px;
+  background: rgba(139,107,71,0.1);
+  border-radius: 20px;
+  display: inline-block;
+}
+/* Multi-choice chips */
+.choice-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.choice-chip {
+  padding: 9px 16px;
+  background: rgba(245,236,215,0.6);
+  border: 1.5px solid var(--parchment);
+  border-radius: 24px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: none;
+  transition: all 0.2s;
+  user-select: none;
+}
+.choice-chip:hover { border-color: var(--amber); background: rgba(232,162,60,0.12); transform: translateY(-1px); }
+.choice-chip.selected { background: linear-gradient(135deg, rgba(232,162,60,0.35), rgba(212,98,42,0.2)); border-color: var(--ember); color: var(--deep-bark); font-weight: 600; }
+
+/* Star/orb rating */
+.orb-row {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.orb-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  flex: 1;
+  min-width: 90px;
+}
+.orb-label { font-size: 0.72rem; font-weight: 600; color: var(--bark); text-align: center; }
+.orb-stars { display: flex; gap: 4px; }
+.orb-star {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--parchment);
+  border: 1.5px solid var(--warm-tan);
+  cursor: none;
+  transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+}
+.orb-star.lit { background: var(--amber); border-color: var(--ember); box-shadow: 0 0 8px rgba(232,162,60,0.5); animation: orb-pulse 1.5s ease infinite; }
+.orb-star:hover { transform: scale(1.25); }
+
+/* Ranking drag */
+.rank-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.rank-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px;
+  background: rgba(245,236,215,0.6);
+  border: 1.5px solid var(--parchment);
+  border-radius: 14px;
+  cursor: grab;
+  transition: all 0.2s;
+  user-select: none;
+}
+.rank-item:hover { border-color: var(--amber); background: rgba(232,162,60,0.1); }
+.rank-item.dragging { opacity: 0.5; transform: scale(0.97); cursor: grabbing; }
+.rank-num {
+  width: 26px; height: 26px;
+  background: var(--deep-bark);
+  color: var(--cream);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.rank-text { font-size: 0.9rem; font-weight: 500; }
+
+/* Textarea */
+.form-textarea {
+  width: 100%;
+  padding: 14px 16px;
+  background: rgba(245,236,215,0.6);
+  border: 1.5px solid var(--parchment);
+  border-radius: 14px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.93rem;
+  color: var(--ink);
+  outline: none;
+  resize: vertical;
+  min-height: 90px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  line-height: 1.6;
+}
+.form-textarea:focus {
+  border-color: var(--bark);
+  box-shadow: 0 0 0 3px rgba(139,107,71,0.12);
+  background: rgba(245,236,215,0.9);
 }
 
-/* ─── BOTTOM NAV ─── */
-#nav-bar{
-  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
-  width:100%;max-width:430px;
-  background:var(--card);border-top:var(--border);
-  display:none;z-index:200;
+.next-btn {
+  margin-top: 20px;
+  padding: 13px 36px;
+  background: linear-gradient(135deg, var(--deep-bark), var(--bark));
+  color: var(--cream);
+  border: none;
+  border-radius: 40px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: none;
+  transition: all 0.2s;
+  box-shadow: 0 4px 18px var(--shadow);
+  float: right;
+  position: relative;
+  overflow: hidden;
 }
-#nav-bar.on{display:flex}
-.ntab{
-  flex:1;display:flex;flex-direction:column;align-items:center;
-  padding:10px 4px 14px;cursor:pointer;border:none;background:transparent;
-  font-family:'Cabinet Grotesk',system-ui,sans-serif;
-  gap:2px;border-right:var(--border);transition:background .1s;
+.next-btn::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
 }
-.ntab:last-child{border-right:none}
-.ntab.on{background:var(--yellow)}
-.ntab-icon{font-size:18px}
-.ntab-lbl{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.5px}
+.next-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px var(--shadow); }
 
-/* ─── THANK YOU ─── */
-.ty-wrap{
-  flex:1;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;text-align:center;padding:40px 24px;
+/* ============================================================
+   SCREEN 4 — STACKS QUEST MAP
+   ============================================================ */
+#screen-quest {
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
 }
-.ty-title{font-size:36px;font-weight:900;letter-spacing:-2px;margin-bottom:8px}
-.ty-sub{font-size:14px;color:var(--muted);font-weight:500;line-height:1.6;margin-bottom:20px}
-.ty-date{font-size:12px;color:#b0a090;font-weight:700;margin-top:14px}
+.quest-ui {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.floor-tabs {
+  position: absolute;
+  top: 16px; left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(10px);
+  border-radius: 40px;
+  padding: 5px;
+  border: 1px solid rgba(255,255,255,0.9);
+  box-shadow: 0 4px 20px var(--shadow);
+}
+.floor-tab {
+  padding: 8px 20px;
+  border-radius: 30px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--bark);
+  cursor: none;
+  transition: all 0.2s;
+}
+.floor-tab.active {
+  background: var(--deep-bark);
+  color: var(--cream);
+  box-shadow: 0 2px 10px var(--shadow);
+}
+.map-canvas {
+  width: 100%;
+  height: 100%;
+}
+.map-room {
+  cursor: none;
+  transition: all 0.25s;
+}
+.map-room:hover rect { filter: brightness(1.08); }
+.map-room.recommended rect { filter: drop-shadow(0 0 8px rgba(232,162,60,0.8)); animation: orb-pulse 2s ease infinite; }
+.room-tooltip {
+  position: absolute;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--parchment);
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--ink);
+  box-shadow: 0 4px 20px var(--shadow);
+  pointer-events: none;
+  z-index: 20;
+  display: none;
+  max-width: 200px;
+  line-height: 1.5;
+}
+.quest-lib-guide {
+  position: absolute;
+  bottom: 80px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  z-index: 15;
+}
+.quest-bubble {
+  background: white;
+  border: 1.5px solid var(--parchment);
+  border-radius: 18px 18px 4px 18px;
+  padding: 12px 16px;
+  font-size: 0.82rem;
+  max-width: 200px;
+  line-height: 1.5;
+  box-shadow: 0 4px 16px var(--shadow);
+  color: var(--ink);
+}
+.continue-quest-btn {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 13px 40px;
+  background: linear-gradient(135deg, var(--deep-bark), var(--bark));
+  color: var(--cream);
+  border: none;
+  border-radius: 40px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: none;
+  box-shadow: 0 4px 20px var(--shadow);
+  z-index: 15;
+  transition: all 0.2s;
+}
+.continue-quest-btn:hover { transform: translateX(-50%) translateY(-2px); }
 
-/* ─── RESPONSIVE ─── */
-@media(max-width:360px){
-  .onb-title{font-size:36px}
-  .q-title{font-size:22px}
+/* ============================================================
+   SCREEN 5 — SCORECARD
+   ============================================================ */
+#screen-scorecard {
+  flex-direction: column;
+  padding: 20px;
+  overflow-y: auto;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0;
+}
+.scorecard-wrap {
+  width: min(540px, 100%);
+  padding-top: 16px;
+  padding-bottom: 40px;
+}
+.scroll-unfurl {
+  background: linear-gradient(170deg, rgba(255,252,244,0.92), rgba(245,236,215,0.88));
+  backdrop-filter: blur(14px);
+  border: 2px solid rgba(212,184,150,0.8);
+  border-radius: 28px;
+  padding: 32px;
+  box-shadow:
+    0 12px 50px var(--shadow),
+    inset 0 1px 0 rgba(255,255,255,0.7),
+    inset 0 -1px 0 rgba(139,107,71,0.15);
+  animation: reveal-up 0.7s ease both;
+  position: relative;
+  overflow: hidden;
+}
+.scroll-unfurl::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--bark), var(--amber), var(--bark));
+}
+.card-lib-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.persona-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  background: linear-gradient(135deg, rgba(232,162,60,0.25), rgba(212,98,42,0.15));
+  border: 1.5px solid var(--amber);
+  border-radius: 24px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--deep-bark);
+  animation: stamp 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.4s both;
+}
+.score-section {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.score-cell {
+  background: rgba(255,255,255,0.6);
+  border: 1px solid rgba(212,184,150,0.5);
+  border-radius: 16px;
+  padding: 14px;
+  text-align: center;
+}
+.score-val {
+  font-family: 'Lora', serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--deep-bark);
+}
+.score-lbl {
+  font-size: 0.72rem;
+  color: var(--bark);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+.qr-section {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 18px;
+  background: white;
+  border-radius: 18px;
+  border: 1px solid var(--parchment);
+}
+.qr-text h4 {
+  font-family: 'Lora', serif;
+  font-size: 1rem;
+  color: var(--deep-bark);
+  margin-bottom: 4px;
+}
+.qr-text p { font-size: 0.78rem; color: var(--bark); line-height: 1.5; }
+.credits-pill {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, rgba(122,158,111,0.2), rgba(78,110,68,0.1));
+  border: 1.5px solid var(--moss);
+  border-radius: 24px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--moss-deep);
+}
+.share-btn {
+  width: 100%;
+  margin-top: 20px;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--moss-deep), var(--moss));
+  color: white;
+  border: none;
+  border-radius: 14px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: none;
+  transition: all 0.2s;
+  box-shadow: 0 4px 18px rgba(78,110,68,0.3);
+}
+.share-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(78,110,68,0.4); }
+
+/* ============================================================
+   ADMIN SCREEN
+   ============================================================ */
+#screen-admin {
+  flex-direction: column;
+  overflow-y: auto;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 24px;
+  gap: 16px;
+}
+.admin-wrap { width: min(900px,100%); }
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.admin-title {
+  font-family: 'Lora', serif;
+  font-size: 1.8rem;
+  color: var(--deep-bark);
+}
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px,1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.admin-stat {
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.9);
+  border-radius: 18px;
+  padding: 18px;
+  text-align: center;
+  box-shadow: 0 4px 20px var(--shadow);
+}
+.admin-stat-num {
+  font-family: 'Lora', serif;
+  font-size: 2.4rem;
+  font-weight: 600;
+  color: var(--deep-bark);
+}
+.admin-stat-lbl {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--bark);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+.admin-chart-card {
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.9);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 4px 20px var(--shadow);
+  margin-bottom: 16px;
+}
+.admin-chart-title {
+  font-family: 'Lora', serif;
+  font-size: 1rem;
+  color: var(--deep-bark);
+  margin-bottom: 14px;
+}
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.bar-label { font-size: 0.78rem; color: var(--bark); min-width: 110px; font-weight: 500; }
+.bar-track { flex: 1; height: 10px; background: var(--parchment); border-radius: 5px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 5px; background: linear-gradient(90deg, var(--amber), var(--ember)); transition: width 1s cubic-bezier(0.34,1.56,0.64,1); }
+.bar-count { font-size: 0.78rem; color: var(--bark); font-weight: 600; min-width: 30px; text-align: right; }
+
+/* Admin login */
+.admin-login-card {
+  background: rgba(255,255,255,0.78);
+  backdrop-filter: blur(14px);
+  border: 1.5px solid rgba(255,255,255,0.9);
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 8px 40px var(--shadow);
+  width: min(360px, 90vw);
+  text-align: center;
 }
 
-/* ─── FLOOR PLAN DOODLE ANIMATION ─── */
-.fp-zone{opacity:0;transition:opacity .4s ease}
-.fp-zone.visible{opacity:1}
-.fp-wall{
-  stroke-dasharray:500;stroke-dashoffset:500;
-  animation:draw 1.2s ease forwards;
-}
-.fp-wall-2{animation-delay:.3s}
-.fp-wall-3{animation-delay:.6s}
-.map-lib-walk{animation:lib-walk .8s ease .5s both}
-.map-lib-idle{animation:lib-idle 3s ease-in-out 1.3s infinite}
+/* ============================================================
+   LIB CHARACTER SVG — inline
+   ============================================================ */
+.lib-svg { width: 90px; height: 110px; }
+.lib-svg-small { width: 60px; height: 74px; }
+.lib-svg-mini { width: 44px; height: 54px; }
 
-/* Sticker type colours for SVG dots */
-.s-study{fill:#3b6fd4}.s-social{fill:#2d9e6b}.s-avoid{fill:#e8450a}.s-improve{fill:#f5c842}
+/* Leaf particles */
+.leaf {
+  position: fixed;
+  font-size: 14px;
+  pointer-events: none;
+  z-index: 2;
+  animation: leaf-fall linear forwards;
+}
+
+/* Admin response feed */
+.response-item {
+  padding: 10px 14px;
+  background: rgba(245,236,215,0.5);
+  border-radius: 12px;
+  border-left: 3px solid var(--amber);
+  margin-bottom: 8px;
+  font-size: 0.83rem;
+  line-height: 1.5;
+  color: var(--ink);
+}
+.response-meta { font-size: 0.7rem; color: var(--bark); margin-bottom: 3px; font-weight: 600; }
+.referral-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: rgba(245,236,215,0.4);
+  border-radius: 10px;
+  margin-bottom: 6px;
+  font-size: 0.83rem;
+}
+.referral-points {
+  font-weight: 700;
+  color: var(--moss-deep);
+  font-size: 0.88rem;
+}
+.export-btn {
+  padding: 10px 24px;
+  background: var(--deep-bark);
+  color: var(--cream);
+  border: none;
+  border-radius: 24px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: none;
+  transition: all 0.2s;
+}
+.export-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px var(--shadow); }
+
+/* Admin nav */
+.admin-nav {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.admin-nav-btn {
+  padding: 8px 18px;
+  border-radius: 24px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1.5px solid var(--parchment);
+  background: transparent;
+  color: var(--bark);
+  cursor: none;
+  transition: all 0.2s;
+}
+.admin-nav-btn.active, .admin-nav-btn:hover {
+  background: var(--deep-bark);
+  color: var(--cream);
+  border-color: var(--deep-bark);
+}
+
+/* tiny top nav */
+.top-nav {
+  position: fixed;
+  top: 14px; right: 16px;
+  z-index: 100;
+  display: flex;
+  gap: 8px;
+}
+.nav-pill {
+  padding: 6px 14px;
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.8);
+  border-radius: 24px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--bark);
+  cursor: none;
+  transition: all 0.2s;
+  box-shadow: 0 2px 10px var(--shadow);
+}
+.nav-pill:hover { background: rgba(255,255,255,0.9); color: var(--deep-bark); }
+
+/* ============================================================
+   QR placeholder style
+   ============================================================ */
+#qr-canvas { border-radius: 10px; }
 </style>
 </head>
 <body>
-<div id="toast"></div>
 
-<!-- ─── BOTTOM NAV ─── -->
-<div id="nav-bar">
-  <button class="ntab on" data-s="3" onclick="NAV.to(3,this)">
-    <span class="ntab-icon">✏️</span><span class="ntab-lbl">Quiz</span>
-  </button>
-  <button class="ntab" data-s="4" onclick="NAV.to(4,this)">
-    <span class="ntab-icon">⭐</span><span class="ntab-lbl">Result</span>
-  </button>
-  <button class="ntab" data-s="5" onclick="NAV.to(5,this)">
-    <span class="ntab-icon">🗺️</span><span class="ntab-lbl">Map</span>
-  </button>
+<!-- CURSOR -->
+<div class="cursor" id="cursor"></div>
+
+<!-- ANIMATED BACKGROUND -->
+<div class="bg-world" id="bg-world">
+  <!-- JS-injected clouds, trees, motes -->
 </div>
 
-<!-- ════════════════════════════════════ -->
-<!-- S1 — LANDING                         -->
-<!-- ════════════════════════════════════ -->
-<div class="screen active" id="s1">
-  <div class="topbar">
-    <div class="t-brand">
-      <div class="t-badge">📚</div>
-      <div>
-        <div class="t-name">U-O-T Library</div>
-        <div class="t-title">Great Experiment</div>
-      </div>
-    </div>
-    <div class="t-live">
-      <div class="live-dot"></div>
-      <span id="s1-joined">live</span>
-    </div>
-  </div>
-
-  <div class="onb-hero" style="animation-delay:.1s">
-    <div class="onb-title">
-      THE<br/><span class="box">GREAT</span><br/>LIBRARY<br/>EXPERIMENT
-    </div>
-    <p class="onb-sub">A 3-day campus experiment. Find your library type, complete heist missions, and help shape the final reveal.</p>
-  </div>
-
-  <!-- LIB INTRO on landing -->
-  <div class="lib-stage" style="padding:0 18px 16px">
-    <div class="lib-char idle" id="s1-lib">
-      <svg width="80" height="100" viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- pole -->
-        <rect x="36" y="50" width="8" height="46" rx="4" fill="var(--ink)"/>
-        <!-- base shadow -->
-        <ellipse cx="40" cy="98" rx="16" ry="4" fill="var(--ink)" opacity=".15"/>
-        <!-- lamp arm -->
-        <path d="M40 52 Q22 42 20 28" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
-        <!-- shade -->
-        <path class="lib-lamp-shade" d="M6 28 Q20 14 34 28 L31 40 Q20 45 9 40Z" fill="var(--yellow)" stroke="var(--ink)" stroke-width="3"/>
-        <!-- light beam subtle -->
-        <path d="M9 40 Q20 45 31 40 L38 64 Q20 70 2 64Z" fill="var(--yellow)" opacity=".12"/>
-        <!-- face: eyes -->
-        <circle cx="14" cy="30" r="2.5" fill="var(--ink)"/>
-        <circle cx="24" cy="28" r="2.5" fill="var(--ink)"/>
-        <!-- smile -->
-        <path d="M13 36 Q18 40 24 36" stroke="var(--ink)" stroke-width="2" stroke-linecap="round" fill="none"/>
-        <!-- left arm -->
-        <path d="M36 60 Q24 54 20 44" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none"/>
-        <circle cx="19" cy="42" r="5" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5"/>
-        <!-- right arm (wave) -->
-        <path class="lib-arm-wave" d="M44 62 Q56 54 60 44" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none" style="transform-origin:44px 62px"/>
-        <circle cx="61" cy="43" r="5" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5"/>
-        <!-- legs -->
-        <path class="lib-leg-l" d="M36 94 L32 100" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
-        <path class="lib-leg-r" d="M44 94 L48 100" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
-      </svg>
-    </div>
-    <div class="lib-bubble yellow" style="animation-delay:.3s">
-      Not a boring survey, I promise.
-      <span class="bubble-sub">Day 1 Quiz · Day 2 Heist · Day 3 Reveal</span>
-    </div>
-  </div>
-
-  <!-- DAY OVERVIEW -->
-  <div class="day-row">
-    <div class="dcard now">
-      <div class="dc-n">01</div>
-      <div class="dc-name">Quiz</div>
-      <div class="dc-desc">Discover your library type</div>
-    </div>
-    <div class="dcard">
-      <div class="dc-n">02</div>
-      <div class="dc-name">Heist</div>
-      <div class="dc-desc">Snap the truth</div>
-    </div>
-    <div class="dcard">
-      <div class="dc-n">03</div>
-      <div class="dc-name">Reveal</div>
-      <div class="dc-desc">The sticker map goes live</div>
-    </div>
-  </div>
-
-  <!-- LIVE LEADERBOARD preview -->
-  <div class="lb-card" style="animation:breathe-in .5s ease .4s both">
-    <div class="lb-head">
-      <span class="lb-title">Live participation race</span>
-      <div class="lb-live"><div class="live-dot"></div>Live</div>
-    </div>
-    <div id="s1-lb"><div class="lb-empty">Be the first to join →</div></div>
-  </div>
-
-  <div style="height:80px"></div>
-  <div class="bottom-cta">
-    <button class="btn yellow" onclick="APP.go(2)">
-      <span>JOIN THE EXPERIMENT</span><span style="font-size:20px">›</span>
-    </button>
-  </div>
+<!-- TOP NAV -->
+<div class="top-nav" id="top-nav">
+  <span class="nav-pill" onclick="goAdmin()">🔑 Admin</span>
 </div>
 
-<!-- ════════════════════════════════════ -->
-<!-- S2 — ENTRY / ONBOARDING              -->
-<!-- ════════════════════════════════════ -->
-<div class="screen" id="s2">
-  <button class="back-btn" onclick="APP.go(1)">← Back</button>
+<!-- ======================================================
+     SCREEN 1 — LANDING
+     ====================================================== -->
+<div class="screen active" id="screen-landing">
+  <div class="landing-library">
+    <!-- Big Ghibli library SVG illustration -->
+    <svg viewBox="0 0 500 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;filter:drop-shadow(0 8px 30px rgba(44,26,14,0.25));animation:bob 4s ease-in-out infinite">
+      <!-- Sky glow -->
+      <ellipse cx="250" cy="280" rx="220" ry="30" fill="rgba(212,184,150,0.4)"/>
+      <!-- Main building -->
+      <rect x="60" y="80" width="380" height="180" rx="8" fill="#D4B896"/>
+      <rect x="60" y="80" width="380" height="180" rx="8" fill="none" stroke="#8B6B47" stroke-width="2"/>
+      <!-- Roof -->
+      <path d="M40 82 L250 18 L460 82Z" fill="#8B6B47"/>
+      <path d="M40 82 L250 18 L460 82Z" fill="none" stroke="#5C3D1E" stroke-width="2"/>
+      <!-- Roof tiles suggested -->
+      <path d="M70 75 L250 18 L430 75" fill="none" stroke="rgba(92,61,30,0.3)" stroke-width="1" stroke-dasharray="12 8"/>
+      <!-- Tower left -->
+      <rect x="80" y="40" width="50" height="60" rx="4" fill="#C4A882"/>
+      <path d="M75 42 L105 8 L135 42Z" fill="#8B6B47"/>
+      <!-- Tower right -->
+      <rect x="370" y="40" width="50" height="60" rx="4" fill="#C4A882"/>
+      <path d="M365 42 L395 8 L425 42Z" fill="#8B6B47"/>
+      <!-- Windows — warm glow -->
+      <rect x="100" y="110" width="44" height="54" rx="4" fill="#F5C842" opacity="0.85"/>
+      <rect x="100" y="110" width="44" height="54" rx="4" fill="none" stroke="#8B6B47" stroke-width="1.5"/>
+      <line x1="122" y1="110" x2="122" y2="164" stroke="#8B6B47" stroke-width="1"/>
+      <line x1="100" y1="137" x2="144" y2="137" stroke="#8B6B47" stroke-width="1"/>
 
-  <!-- Lib walks in, asks to register -->
-  <div class="lib-stage">
-    <div class="lib-char walking" id="s2-lib">
-      <svg width="70" height="88" viewBox="0 0 80 100" fill="none">
-        <rect x="36" y="50" width="8" height="46" rx="4" fill="var(--ink)"/>
-        <ellipse cx="40" cy="98" rx="16" ry="4" fill="var(--ink)" opacity=".15"/>
-        <path d="M40 52 Q22 42 20 28" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
-        <path d="M6 28 Q20 14 34 28 L31 40 Q20 45 9 40Z" fill="var(--yellow)" stroke="var(--ink)" stroke-width="3"/>
-        <circle cx="14" cy="30" r="2.5" fill="var(--ink)"/>
-        <circle cx="24" cy="28" r="2.5" fill="var(--ink)"/>
-        <path d="M13 36 Q18 40 24 36" stroke="var(--ink)" stroke-width="2" stroke-linecap="round" fill="none"/>
-        <path d="M36 60 Q24 54 20 44" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none"/>
-        <circle cx="19" cy="42" r="5" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5"/>
-        <path d="M44 62 Q56 54 60 44" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none"/>
-        <circle cx="61" cy="43" r="5" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5"/>
-        <path d="M36 94 L32 100" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
-        <path d="M44 94 L48 100" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
-      </svg>
-    </div>
-    <div class="lib-bubble" style="animation-delay:.5s">
-      First — get your badge. Quick, I promise.
-      <span class="bubble-sub">3 fields. That's it.</span>
-    </div>
-  </div>
+      <rect x="178" y="100" width="50" height="64" rx="6" fill="#F5C842" opacity="0.9"/>
+      <rect x="178" y="100" width="50" height="64" rx="6" fill="none" stroke="#8B6B47" stroke-width="1.5"/>
+      <line x1="203" y1="100" x2="203" y2="164" stroke="#8B6B47" stroke-width="1"/>
+      <line x1="178" y1="132" x2="228" y2="132" stroke="#8B6B47" stroke-width="1"/>
 
-  <div style="padding:0 18px">
-    <div class="card" style="animation-delay:.4s">
-      <div class="open-lbl">Your name or nickname</div>
-      <input class="inp" id="s2-name" type="text" placeholder="e.g. Alex or ArchiveRat99"/>
+      <rect x="253" y="100" width="50" height="64" rx="6" fill="#F5C842" opacity="0.9"/>
+      <rect x="253" y="100" width="50" height="64" rx="6" fill="none" stroke="#8B6B47" stroke-width="1.5"/>
+      <line x1="278" y1="100" x2="278" y2="164" stroke="#8B6B47" stroke-width="1"/>
+      <line x1="253" y1="132" x2="303" y2="132" stroke="#8B6B47" stroke-width="1"/>
 
-      <div class="open-lbl">Your Faculty</div>
-      <div class="fac-grid" id="fac-grid">
-        <div class="fac-chip" data-v="Arts & Humanities">Arts & Hum.</div>
-        <div class="fac-chip" data-v="Business">Business</div>
-        <div class="fac-chip" data-v="Computer Science">Comp. Sci.</div>
-        <div class="fac-chip" data-v="Engineering">Engineering</div>
-        <div class="fac-chip" data-v="Law">Law</div>
-        <div class="fac-chip" data-v="Medicine">Medicine</div>
-        <div class="fac-chip" data-v="Natural Sciences">Natural Sci.</div>
-        <div class="fac-chip" data-v="Social Sciences">Social Sci.</div>
-        <div class="fac-chip" data-v="Education">Education</div>
-        <div class="fac-chip" data-v="Architecture">Architecture</div>
-        <div class="fac-chip" data-v="Economics">Economics</div>
-        <div class="fac-chip" data-v="Other">Other</div>
-      </div>
-
-      <div class="open-lbl">Referral code (optional)</div>
-      <input class="inp" id="s2-ref" type="text" placeholder="Got a code from a friend?"/>
-
-      <label style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;margin-top:4px">
-        <input type="checkbox" id="s2-anon" style="width:15px;height:15px;accent-color:var(--ink)"/>
-        Keep me anonymous in live stats
-      </label>
-    </div>
-
-    <div style="height:80px"></div>
-  </div>
-
-  <div class="bottom-cta">
-    <button class="btn dark" id="s2-start" onclick="APP.startExperiment()" disabled>
-      <span>GENERATE MY BADGE →</span><span>🏅</span>
-    </button>
-  </div>
-</div>
-
-<!-- ════════════════════════════════════ -->
-<!-- S3 — QUIZ                            -->
-<!-- ════════════════════════════════════ -->
-<div class="screen" id="s3">
-  <div class="topbar">
-    <div class="t-brand">
-      <div class="t-badge" style="font-size:14px">📚</div>
-      <div>
-        <div class="t-name">Day 1: Quiz</div>
-        <div class="t-title">Library Experiment</div>
-      </div>
-    </div>
-    <div class="t-credits">🏆 <span id="q-cred">0</span></div>
-  </div>
-
-  <div class="qprog">
-    <div class="qp-labels">
-      <span id="qp-label">Question 1</span>
-      <span id="qp-count">1 / 5</span>
-    </div>
-    <div class="qp-bar"><div class="qp-fill" id="qp-fill" style="width:20%"></div></div>
-  </div>
-
-  <!-- Lib reacts on each question -->
-  <div class="lib-stage" id="quiz-lib-stage">
-    <div class="lib-char idle" id="q-lib">
-      <svg width="54" height="68" viewBox="0 0 80 100" fill="none">
-        <rect x="36" y="50" width="8" height="46" rx="4" fill="var(--ink)"/>
-        <ellipse cx="40" cy="98" rx="16" ry="4" fill="var(--ink)" opacity=".15"/>
-        <path d="M40 52 Q22 42 20 28" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
-        <path class="lib-lamp-shade" id="q-shade" d="M6 28 Q20 14 34 28 L31 40 Q20 45 9 40Z" fill="var(--yellow)" stroke="var(--ink)" stroke-width="3"/>
-        <circle cx="14" cy="30" r="2.5" fill="var(--ink)"/>
-        <circle cx="24" cy="28" r="2.5" fill="var(--ink)"/>
-        <path id="q-mouth" d="M13 36 Q18 40 24 36" stroke="var(--ink)" stroke-width="2" stroke-linecap="round" fill="none"/>
-        <path d="M36 60 Q24 54 20 44" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none"/>
-        <circle cx="19" cy="42" r="5" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5"/>
-        <path d="M44 62 Q56 54 60 44" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none"/>
-        <circle cx="61" cy="43" r="5" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5"/>
-        <path d="M36 94 L32 100" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
-        <path d="M44 94 L48 100" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
-      </svg>
-    </div>
-    <div class="lib-bubble" id="q-bubble">
-      <span id="q-lib-says">Let's start.</span>
-      <span class="bubble-sub" id="q-lib-sub"></span>
-    </div>
-  </div>
-
-  <div class="q-head">
-    <div class="q-kicker">
-      <div class="live-dot" style="background:var(--red)"></div>
-      <span id="q-kicker-txt">Day 1 · Quiz</span>
-    </div>
-    <div class="q-title" id="q-title">Question</div>
-    <div class="q-hint" id="q-hint"></div>
-  </div>
-
-  <div class="q-card" id="q-body"></div>
-
-  <div style="padding:0 18px 14px;margin-top:auto">
-    <button class="btn dark" id="q-next" disabled onclick="APP.nextQ()">
-      <span id="q-next-lbl">Next</span><span>→</span>
-    </button>
-  </div>
-</div>
-
-<!-- ════════════════════════════════════ -->
-<!-- S4 — PERSONA REVEAL                  -->
-<!-- ════════════════════════════════════ -->
-<div class="screen" id="s4">
-  <div class="topbar">
-    <div class="t-brand">
-      <div class="t-badge" style="background:var(--ink);color:var(--yellow);font-size:14px">📚</div>
-      <div>
-        <div class="t-name" style="color:var(--muted)">Day 1 Complete</div>
-        <div class="t-title">Your Result</div>
-      </div>
-    </div>
-    <div class="t-credits">🏆 <span id="r-cred">0</span></div>
-  </div>
-
-  <!-- Lib celebrates -->
-  <div class="lib-stage" style="padding:12px 18px">
-    <div class="lib-char bounce" id="r-lib">
-      <svg width="54" height="68" viewBox="0 0 80 100" fill="none">
-        <rect x="36" y="50" width="8" height="46" rx="4" fill="var(--ink)"/>
-        <ellipse cx="40" cy="98" rx="16" ry="4" fill="var(--ink)" opacity=".15"/>
-        <path d="M40 52 Q22 42 20 28" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
-        <path d="M6 28 Q20 14 34 28 L31 40 Q20 45 9 40Z" fill="var(--yellow)" stroke="var(--ink)" stroke-width="3"/>
-        <circle cx="14" cy="30" r="2.5" fill="var(--ink)"/>
-        <circle cx="24" cy="28" r="2.5" fill="var(--ink)"/>
-        <!-- big smile for celebration -->
-        <path d="M11 34 Q18 42 26 34" stroke="var(--ink)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-        <path d="M36 60 Q24 54 20 44" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none"/>
-        <circle cx="19" cy="42" r="5" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5"/>
-        <path d="M44 62 Q56 54 60 44" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none"/>
-        <circle cx="61" cy="43" r="5" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5"/>
-        <path d="M36 94 L32 100" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
-        <path d="M44 94 L48 100" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
-      </svg>
-    </div>
-    <div class="lib-bubble yellow" style="animation-delay:.2s">
-      <span id="r-lib-says">Here's your type!</span>
-      <span class="bubble-sub">Share it. Your dept needs you.</span>
-    </div>
-  </div>
-
-  <!-- PERSONA CARD -->
-  <div class="persona-reveal" id="persona-card">
-    <div class="pr-glow"></div>
-    <span class="pr-char" id="pr-char">🗺️</span>
-    <div class="pr-type" id="pr-type">LIBRARY EXPLORER</div>
-    <div class="pr-tags" id="pr-tags"></div>
-    <div class="pr-desc" id="pr-desc">Loading…</div>
-  </div>
-
-  <!-- RANK BANNER -->
-  <div class="rank-banner" id="rank-banner" style="animation:slide-up-card .4s ease .4s both">
-    <div class="rbl">
-      <div class="rb-fac" id="rb-fac">Your Faculty</div>
-      <div class="rb-sub">current participation rank</div>
-    </div>
-    <div class="rbr">
-      <div class="rb-pos" id="rb-pos">#—</div>
-      <div class="rb-pct" id="rb-pct">— responded</div>
-    </div>
-  </div>
-
-  <!-- LIVE LEADERBOARD on result -->
-  <div class="res-lb" style="animation:slide-up-card .4s ease .5s both">
-    <div class="rlb-head">
-      <span class="rlb-t">Faculty race</span>
-      <div class="rlb-tabs">
-        <button class="rlb-tab on" id="rt-pct" onclick="APP.switchTab('pct')">% Part.</button>
-        <button class="rlb-tab" id="rt-sc" onclick="APP.switchTab('score')">Score</button>
-      </div>
-    </div>
-    <div id="rlb-rows"><div class="rlb-empty">Loading…</div></div>
-  </div>
-
-  <!-- REFERRAL + QR -->
-  <div class="ref-card" style="animation:slide-up-card .4s ease .6s both">
-    <div class="ref-title">EARN MORE CREDITS! 🎉</div>
-    <div class="ref-sub">Your personal QR code below. When a friend scans it and joins, <strong>you automatically get +50 credits</strong>.</div>
-    <div class="ref-link-row">
-      <div class="ref-link-box" id="ref-link-txt">Generating…</div>
-      <button class="ref-copy" onclick="APP.copyRef()">Copy</button>
-    </div>
-    <div class="qr-wrap">
-      <div class="qr-lbl">Your personal QR — share it anywhere</div>
-      <canvas id="qr-canvas" width="160" height="160"></canvas>
-      <div class="qr-hint">📱 Anyone who scans this = +50 credits for you, automatically.</div>
-    </div>
-  </div>
-
-  <!-- D2 CTA -->
-  <div style="padding:12px 18px 8px;animation:slide-up-card .4s ease .8s both">
-    <button class="btn dark" onclick="NAV.to(5)">
-      <span>GO TO STICKER MAP →</span><span>🗺️</span>
-    </button>
-  </div>
-
-  <div style="height:80px"></div>
-</div>
-
-<!-- ════════════════════════════════════ -->
-<!-- S5 — STICKER MAP                     -->
-<!-- ════════════════════════════════════ -->
-<div class="screen" id="s5">
-  <div class="topbar">
-    <div class="t-brand">
-      <div class="t-badge" style="font-size:14px">🗺️</div>
-      <div>
-        <div class="t-name">Day 2</div>
-        <div class="t-title">Map the Library</div>
-      </div>
-    </div>
-    <div class="t-credits">🏆 <span id="m-cred">0</span></div>
-  </div>
-
-  <!-- Lib on the map screen -->
-  <div class="lib-stage" style="padding:10px 18px 8px">
-    <div class="lib-char idle" style="animation:lib-idle 3s ease-in-out infinite">
-      <svg width="44" height="56" viewBox="0 0 80 100" fill="none">
-        <rect x="36" y="50" width="8" height="46" rx="4" fill="var(--ink)"/>
-        <path d="M40 52 Q22 42 20 28" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
-        <path d="M6 28 Q20 14 34 28 L31 40 Q20 45 9 40Z" fill="var(--yellow)" stroke="var(--ink)" stroke-width="3"/>
-        <circle cx="14" cy="30" r="2.5" fill="var(--ink)"/>
-        <circle cx="24" cy="28" r="2.5" fill="var(--ink)"/>
-        <path d="M13 36 Q18 40 24 36" stroke="var(--ink)" stroke-width="2" stroke-linecap="round" fill="none"/>
-        <path d="M36 60 Q24 54 20 44" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none"/>
-        <circle cx="19" cy="42" r="5" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5"/>
-        <path d="M44 62 Q56 54 60 44" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none"/>
-        <circle cx="61" cy="43" r="5" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5"/>
-        <path d="M36 94 L32 100" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
-        <path d="M44 94 L48 100" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
-      </svg>
-    </div>
-    <div class="lib-bubble" id="map-lib-says">
-      Tap anywhere on the floor plan. Let's see the truth about this library.
-    </div>
-  </div>
-
-  <!-- Sticker type tabs -->
-  <div class="map-tabs">
-    <button class="map-tab on" data-t="study" onclick="APP.setStickerType('study')">
-      <div class="map-dot" style="background:#3b6fd4"></div>STUDY
-    </button>
-    <button class="map-tab" data-t="social" onclick="APP.setStickerType('social')">
-      <div class="map-dot" style="background:#2d9e6b"></div>SOCIAL
-    </button>
-    <button class="map-tab" data-t="avoid" onclick="APP.setStickerType('avoid')">
-      <div class="map-dot" style="background:#e8450a"></div>AVOID
-    </button>
-    <button class="map-tab" data-t="improve" onclick="APP.setStickerType('improve')">
-      <div class="map-dot" style="background:#ca8a04"></div>IMPROVE
-    </button>
-  </div>
-
-  <!-- ANIMATED DOODLE FLOOR PLAN — based on real layout -->
-  <div class="map-wrap" id="map-wrap" onclick="APP.placeSticker(event)">
-    <svg id="floor-svg" width="100%" viewBox="0 0 420 340" xmlns="http://www.w3.org/2000/svg">
-      <!-- warm paper bg -->
-      <rect width="420" height="340" fill="#f5f0e4"/>
-
-      <!-- ─── GROUND FLOOR ZONES (colour-coded like real plan) ─── -->
-      <!-- Individual study (light blue) — top left L-shaped block -->
-      <path class="fp-zone visible" d="M16 16 L120 16 L120 200 L16 200 Z" fill="#e8f4fd" stroke="none"/>
-      <!-- Main collection books area (warm cream) — large centre -->
-      <path class="fp-zone visible" d="M120 70 L300 70 L300 200 L120 200 Z" fill="#fdf6e3" stroke="none"/>
-      <!-- Reception / service (yellow-toned) — top right -->
-      <path class="fp-zone visible" d="M300 16 L404 16 L404 100 L300 100 Z" fill="#fff9e6" stroke="none"/>
-      <!-- Group study (green) — right mid -->
-      <path class="fp-zone visible" d="M300 100 L404 100 L404 200 L300 200 Z" fill="#edfaf3" stroke="none"/>
-      <!-- Silent study (pink) — bottom left -->
-      <path class="fp-zone visible" d="M16 200 L200 200 L200 324 L16 324 Z" fill="#fef0f0" stroke="none"/>
-      <!-- Digital/computers (light purple) — bottom right -->
-      <path class="fp-zone visible" d="M200 200 L404 200 L404 324 L200 324 Z" fill="#f3f0ff" stroke="none"/>
-
-      <!-- ─── WALLS — hand-drawn doodle style, slight wobble ─── -->
-      <!-- outer boundary -->
-      <rect class="fp-wall" x="16" y="16" width="388" height="308" rx="6"
-        fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-linecap="round"
-        stroke-dasharray="2000" style="stroke-dashoffset:2000;animation:draw 2s ease .2s forwards"/>
-
-      <!-- Internal walls -->
-      <line class="fp-wall fp-wall-2" x1="120" y1="16" x2="120" y2="200"
-        stroke="var(--ink)" stroke-width="2" stroke-linecap="round"
-        stroke-dasharray="300" style="stroke-dashoffset:300;animation:draw 1s ease .6s forwards"/>
-      <line class="fp-wall fp-wall-2" x1="300" y1="16" x2="300" y2="200"
-        stroke="var(--ink)" stroke-width="2" stroke-linecap="round"
-        stroke-dasharray="300" style="stroke-dashoffset:300;animation:draw 1s ease .7s forwards"/>
-      <line class="fp-wall fp-wall-3" x1="16" y1="200" x2="404" y2="200"
-        stroke="var(--ink)" stroke-width="2" stroke-linecap="round"
-        stroke-dasharray="500" style="stroke-dashoffset:500;animation:draw 1s ease .8s forwards"/>
-      <line class="fp-wall fp-wall-3" x1="200" y1="200" x2="200" y2="324"
-        stroke="var(--ink)" stroke-width="2" stroke-linecap="round"
-        stroke-dasharray="200" style="stroke-dashoffset:200;animation:draw .8s ease .9s forwards"/>
-      <line class="fp-wall fp-wall-3" x1="120" y1="70" x2="300" y2="70"
-        stroke="var(--ink)" stroke-width="1.5" stroke-linecap="round"
-        stroke-dasharray="200" style="stroke-dashoffset:200;animation:draw .8s ease 1s forwards"/>
-
-      <!-- ─── FURNITURE DOODLES (draw-in animated) ─── -->
-      <!-- Individual study desks — top left -->
-      <g style="animation:fade-in .4s ease 1.2s both;opacity:0">
-        <rect x="24" y="24" width="22" height="16" rx="3" fill="#d4e8f8" stroke="var(--ink)" stroke-width="1.5"/>
-        <rect x="52" y="24" width="22" height="16" rx="3" fill="#d4e8f8" stroke="var(--ink)" stroke-width="1.5"/>
-        <rect x="80" y="24" width="22" height="16" rx="3" fill="#d4e8f8" stroke="var(--ink)" stroke-width="1.5"/>
-        <rect x="24" y="48" width="22" height="16" rx="3" fill="#d4e8f8" stroke="var(--ink)" stroke-width="1.5"/>
-        <rect x="52" y="48" width="22" height="16" rx="3" fill="#d4e8f8" stroke="var(--ink)" stroke-width="1.5"/>
-        <rect x="80" y="48" width="22" height="16" rx="3" fill="#d4e8f8" stroke="var(--ink)" stroke-width="1.5"/>
-        <rect x="24" y="72" width="22" height="16" rx="3" fill="#d4e8f8" stroke="var(--ink)" stroke-width="1.5"/>
-        <rect x="52" y="72" width="22" height="16" rx="3" fill="#d4e8f8" stroke="var(--ink)" stroke-width="1.5"/>
-        <rect x="80" y="72" width="22" height="16" rx="3" fill="#d4e8f8" stroke="var(--ink)" stroke-width="1.5"/>
-        <!-- dividers -->
-        <line x1="120" y1="70" x2="16" y2="70" stroke="var(--ink)" stroke-width="1" stroke-dasharray="4 3"/>
-        <line x1="120" y1="120" x2="16" y2="120" stroke="var(--ink)" stroke-width="1" stroke-dasharray="4 3"/>
-        <line x1="70" y1="16" x2="70" y2="200" stroke="var(--ink)" stroke-width="1" stroke-dasharray="4 3"/>
+      <rect x="360" y="110" width="44" height="54" rx="4" fill="#F5C842" opacity="0.85"/>
+      <rect x="360" y="110" width="44" height="54" rx="4" fill="none" stroke="#8B6B47" stroke-width="1.5"/>
+      <line x1="382" y1="110" x2="382" y2="164" stroke="#8B6B47" stroke-width="1"/>
+      <line x1="360" y1="137" x2="404" y2="137" stroke="#8B6B47" stroke-width="1"/>
+      <!-- Door arch -->
+      <path d="M204 260 L204 185 Q204 168 222 168 Q240 168 240 185 L240 260Z" fill="#7A5C3A"/>
+      <path d="M265 260 L265 185 Q265 168 283 168 Q301 168 301 185 L301 260Z" fill="#7A5C3A"/>
+      <!-- Steps -->
+      <rect x="180" y="256" width="142" height="8" rx="2" fill="#B89060"/>
+      <rect x="170" y="264" width="162" height="8" rx="2" fill="#A07848"/>
+      <!-- Hanging lanterns -->
+      <line x1="160" y1="82" x2="160" y2="112" stroke="#5C3D1E" stroke-width="1.5"/>
+      <ellipse cx="160" cy="120" rx="10" ry="14" fill="#F5C842" opacity="0.9" style="animation:candle-flicker 0.8s ease-in-out infinite"/>
+      <ellipse cx="160" cy="120" rx="10" ry="14" fill="none" stroke="#8B6B47" stroke-width="1.2"/>
+      <line x1="344" y1="82" x2="344" y2="112" stroke="#5C3D1E" stroke-width="1.5"/>
+      <ellipse cx="344" cy="120" rx="10" ry="14" fill="#F5C842" opacity="0.9" style="animation:candle-flicker 1s ease-in-out infinite 0.2s"/>
+      <ellipse cx="344" cy="120" rx="10" ry="14" fill="none" stroke="#8B6B47" stroke-width="1.2"/>
+      <!-- Sign -->
+      <rect x="182" y="152" width="138" height="22" rx="4" fill="#5C3D1E"/>
+      <text x="251" y="167" text-anchor="middle" font-family="serif" font-size="11" fill="#F5ECD7" font-weight="bold">UNIVERSITY LIBRARY</text>
+      <!-- Ground grass -->
+      <rect x="0" y="260" width="500" height="20" fill="#7A9E6F" rx="4"/>
+      <!-- Small Lib on steps -->
+      <g transform="translate(230,208)" style="animation:bob 2.5s ease-in-out infinite 0.5s">
+        <!-- Chair legs -->
+        <rect x="6" y="28" width="3" height="14" rx="1" fill="#5C3D1E"/>
+        <rect x="21" y="28" width="3" height="14" rx="1" fill="#5C3D1E"/>
+        <rect x="6" y="32" width="3" height="14" rx="1" fill="#5C3D1E" transform="rotate(15 7 32)"/>
+        <rect x="21" y="32" width="3" height="14" rx="1" fill="#5C3D1E" transform="rotate(-15 23 32)"/>
+        <!-- Chair seat -->
+        <rect x="2" y="20" width="26" height="10" rx="3" fill="#8B6B47"/>
+        <!-- Chair back -->
+        <rect x="2" y="6" width="26" height="16" rx="3" fill="#A07848"/>
+        <!-- Eyes -->
+        <circle cx="10" cy="13" r="3" fill="white"/>
+        <circle cx="20" cy="13" r="3" fill="white"/>
+        <circle cx="11" cy="14" r="1.5" fill="#2C1A0E" style="animation:blink 3s ease-in-out infinite"/>
+        <circle cx="21" cy="14" r="1.5" fill="#2C1A0E" style="animation:blink 3s ease-in-out infinite 0.5s"/>
+        <!-- Smile -->
+        <path d="M10 18 Q15 22 20 18" stroke="#5C3D1E" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <!-- Tiny paws/feet -->
+        <ellipse cx="8" cy="21" rx="4" ry="2" fill="#8B6B47"/>
+        <ellipse cx="22" cy="21" rx="4" ry="2" fill="#8B6B47"/>
       </g>
-
-      <!-- Bookshelf rows — main collection centre -->
-      <g style="animation:fade-in .4s ease 1.3s both;opacity:0">
-        <rect x="130" y="78" width="160" height="10" rx="2" fill="#c8a060" stroke="var(--ink)" stroke-width="1"/>
-        <rect x="130" y="96" width="160" height="10" rx="2" fill="#c8a060" stroke="var(--ink)" stroke-width="1"/>
-        <rect x="130" y="114" width="160" height="10" rx="2" fill="#c8a060" stroke="var(--ink)" stroke-width="1"/>
-        <rect x="130" y="132" width="160" height="10" rx="2" fill="#c8a060" stroke="var(--ink)" stroke-width="1"/>
-        <rect x="130" y="150" width="160" height="10" rx="2" fill="#c8a060" stroke="var(--ink)" stroke-width="1"/>
-        <rect x="130" y="168" width="160" height="10" rx="2" fill="#c8a060" stroke="var(--ink)" stroke-width="1"/>
-        <!-- book spines -->
-        <rect x="133" y="79" width="4" height="8" fill="#e8450a"/>
-        <rect x="139" y="79" width="3" height="8" fill="#3b6fd4"/>
-        <rect x="144" y="79" width="4" height="8" fill="#2d9e6b"/>
-        <rect x="156" y="79" width="4" height="8" fill="#e8450a"/>
-        <rect x="162" y="79" width="3" height="8" fill="#f5c842" stroke="#c8a000" stroke-width=".5"/>
-        <rect x="175" y="79" width="4" height="8" fill="#7c3aed"/>
-        <rect x="188" y="79" width="3" height="8" fill="#3b6fd4"/>
-        <rect x="200" y="79" width="4" height="8" fill="#e8450a"/>
-        <rect x="214" y="79" width="3" height="8" fill="#2d9e6b"/>
-        <rect x="227" y="79" width="4" height="8" fill="#f5c842" stroke="#c8a000" stroke-width=".5"/>
-        <rect x="240" y="79" width="4" height="8" fill="#3b6fd4"/>
-        <rect x="255" y="79" width="3" height="8" fill="#e8450a"/>
-        <rect x="268" y="79" width="4" height="8" fill="#7c3aed"/>
-        <!-- label -->
-        <text x="210" y="190" text-anchor="middle" font-size="8" fill="var(--muted)" font-family="system-ui" font-style="italic">Main Collection</text>
-      </g>
-
-      <!-- Reception / service desk — top right -->
-      <g style="animation:fade-in .4s ease 1.4s both;opacity:0">
-        <path d="M312 24 Q348 18 384 28 Q384 60 348 66 Q312 60 312 24Z" fill="#fffbe6" stroke="var(--ink)" stroke-width="1.5"/>
-        <circle cx="348" cy="40" r="6" fill="#f5c842" stroke="var(--ink)" stroke-width="1.5"/>
-        <text x="348" y="78" text-anchor="middle" font-size="8" fill="var(--muted)" font-family="system-ui" font-style="italic">Reception</text>
-        <!-- service machine -->
-        <rect x="308" y="82" width="18" height="12" rx="2" fill="#e0e8f0" stroke="var(--ink)" stroke-width="1.2"/>
-        <rect x="312" y="84" width="10" height="7" rx="1" fill="#8aaccc"/>
-        <text x="317" y="102" text-anchor="middle" font-size="7" fill="var(--muted)" font-family="system-ui">Self-service</text>
-      </g>
-
-      <!-- Group study rooms — right mid -->
-      <g style="animation:fade-in .4s ease 1.4s both;opacity:0">
-        <rect x="308" y="108" width="40" height="28" rx="4" fill="#dcfce7" stroke="var(--ink)" stroke-width="1.5"/>
-        <rect x="308" y="144" width="40" height="28" rx="4" fill="#dcfce7" stroke="var(--ink)" stroke-width="1.5"/>
-        <rect x="354" y="108" width="40" height="28" rx="4" fill="#dcfce7" stroke="var(--ink)" stroke-width="1.5"/>
-        <rect x="354" y="144" width="40" height="28" rx="4" fill="#dcfce7" stroke="var(--ink)" stroke-width="1.5"/>
-        <!-- people in group rooms (tiny doodles) -->
-        <circle cx="320" cy="118" r="4" fill="#a7f3d0" stroke="var(--ink)" stroke-width="1"/>
-        <circle cx="330" cy="118" r="4" fill="#a7f3d0" stroke="var(--ink)" stroke-width="1"/>
-        <circle cx="340" cy="118" r="4" fill="#a7f3d0" stroke="var(--ink)" stroke-width="1"/>
-        <text x="348" y="190" text-anchor="middle" font-size="8" fill="var(--muted)" font-family="system-ui" font-style="italic">Group Study</text>
-      </g>
-
-      <!-- Silent study — bottom left (pink zone) -->
-      <g style="animation:fade-in .4s ease 1.5s both;opacity:0">
-        <!-- silent study pods -->
-        <rect x="24" y="210" width="48" height="32" rx="6" fill="#fce7f3" stroke="var(--ink)" stroke-width="1.5"/>
-        <rect x="80" y="210" width="48" height="32" rx="6" fill="#fce7f3" stroke="var(--ink)" stroke-width="1.5"/>
-        <rect x="136" y="210" width="48" height="32" rx="6" fill="#fce7f3" stroke="var(--ink)" stroke-width="1.5"/>
-        <rect x="24" y="252" width="48" height="32" rx="6" fill="#fce7f3" stroke="var(--ink)" stroke-width="1.5"/>
-        <rect x="80" y="252" width="48" height="32" rx="6" fill="#fce7f3" stroke="var(--ink)" stroke-width="1.5"/>
-        <rect x="136" y="252" width="48" height="32" rx="6" fill="#fce7f3" stroke="var(--ink)" stroke-width="1.5"/>
-        <!-- headphones icon in pods -->
-        <text x="48" y="231" text-anchor="middle" font-size="12">🎧</text>
-        <text x="104" y="231" text-anchor="middle" font-size="12">🎧</text>
-        <text x="160" y="231" text-anchor="middle" font-size="12">🎧</text>
-        <text x="48" y="273" text-anchor="middle" font-size="12">🎧</text>
-        <text x="104" y="273" text-anchor="middle" font-size="12">🎧</text>
-        <text x="160" y="273" text-anchor="middle" font-size="12">🎧</text>
-        <text x="108" y="315" text-anchor="middle" font-size="8" fill="var(--muted)" font-family="system-ui" font-style="italic">Silent Study</text>
-      </g>
-
-      <!-- Digital / computers — bottom right -->
-      <g style="animation:fade-in .4s ease 1.5s both;opacity:0">
-        <!-- PC monitors -->
-        <rect x="214" y="210" width="20" height="14" rx="2" fill="#c7d2fe" stroke="var(--ink)" stroke-width="1.2"/>
-        <rect x="240" y="210" width="20" height="14" rx="2" fill="#c7d2fe" stroke="var(--ink)" stroke-width="1.2"/>
-        <rect x="266" y="210" width="20" height="14" rx="2" fill="#c7d2fe" stroke="var(--ink)" stroke-width="1.2"/>
-        <rect x="292" y="210" width="20" height="14" rx="2" fill="#c7d2fe" stroke="var(--ink)" stroke-width="1.2"/>
-        <rect x="318" y="210" width="20" height="14" rx="2" fill="#c7d2fe" stroke="var(--ink)" stroke-width="1.2"/>
-        <rect x="344" y="210" width="20" height="14" rx="2" fill="#c7d2fe" stroke="var(--ink)" stroke-width="1.2"/>
-        <rect x="370" y="210" width="20" height="14" rx="2" fill="#c7d2fe" stroke="var(--ink)" stroke-width="1.2"/>
-        <rect x="214" y="232" width="20" height="14" rx="2" fill="#c7d2fe" stroke="var(--ink)" stroke-width="1.2"/>
-        <rect x="240" y="232" width="20" height="14" rx="2" fill="#c7d2fe" stroke="var(--ink)" stroke-width="1.2"/>
-        <rect x="266" y="232" width="20" height="14" rx="2" fill="#c7d2fe" stroke="var(--ink)" stroke-width="1.2"/>
-        <rect x="292" y="232" width="20" height="14" rx="2" fill="#c7d2fe" stroke="var(--ink)" stroke-width="1.2"/>
-        <rect x="318" y="232" width="20" height="14" rx="2" fill="#c7d2fe" stroke="var(--ink)" stroke-width="1.2"/>
-        <rect x="344" y="232" width="20" height="14" rx="2" fill="#c7d2fe" stroke="var(--ink)" stroke-width="1.2"/>
-        <rect x="370" y="232" width="20" height="14" rx="2" fill="#c7d2fe" stroke="var(--ink)" stroke-width="1.2"/>
-        <!-- printer -->
-        <rect x="250" y="266" width="50" height="32" rx="4" fill="#e0e8ff" stroke="var(--ink)" stroke-width="1.5"/>
-        <rect x="258" y="272" width="34" height="16" rx="2" fill="#8aaccc"/>
-        <text x="275" y="307" text-anchor="middle" font-size="7" fill="var(--muted)" font-family="system-ui">Printer</text>
-        <text x="304" y="315" text-anchor="middle" font-size="8" fill="var(--muted)" font-family="system-ui" font-style="italic">Digital Suite</text>
-      </g>
-
-      <!-- Stairs/lift markers -->
-      <g style="animation:fade-in .4s ease 1.6s both;opacity:0">
-        <rect x="308" y="178" width="24" height="20" rx="3" fill="#f0ede4" stroke="var(--ink)" stroke-width="1.5"/>
-        <text x="320" y="192" text-anchor="middle" font-size="9" fill="var(--muted)" font-family="system-ui">↑↓</text>
-        <rect x="178" y="210" width="20" height="20" rx="3" fill="#f0ede4" stroke="var(--ink)" stroke-width="1.5"/>
-        <text x="188" y="224" text-anchor="middle" font-size="9" fill="var(--muted)" font-family="system-ui">↑↓</text>
-      </g>
-
-      <!-- ZONE LABELS -->
-      <g style="animation:fade-in .5s ease 1.7s both;opacity:0">
-        <text x="68" y="140" text-anchor="middle" font-size="9" font-weight="800" fill="#3b6fd4" font-family="system-ui" transform="rotate(-90,68,140)">INDIVIDUAL STUDY</text>
-        <text x="210" y="42" text-anchor="middle" font-size="9" font-weight="800" fill="var(--muted)" font-family="system-ui">MAIN COLLECTION</text>
-        <text x="352" y="46" text-anchor="middle" font-size="9" font-weight="800" fill="#ca8a04" font-family="system-ui">SERVICE</text>
-        <text x="356" y="135" text-anchor="middle" font-size="9" font-weight="800" fill="#2d9e6b" font-family="system-ui">GROUP</text>
-      </g>
-
-      <!-- ENTRANCE arrow -->
-      <g style="animation:fade-in .4s ease 1.8s both;opacity:0">
-        <line x1="210" y1="330" x2="210" y2="324" stroke="var(--red)" stroke-width="2" marker-end="url(#arr)"/>
-        <text x="210" y="338" text-anchor="middle" font-size="8" fill="var(--red)" font-family="system-ui" font-weight="900">ENTRANCE</text>
-      </g>
-
-      <!-- COMPASS -->
-      <text x="400" y="330" text-anchor="middle" font-size="9" fill="var(--muted)" font-family="system-ui">N↑</text>
-
-      <!-- STICKER LAYER (JS will add stickers here as SVG circles too) -->
-      <g id="svg-stickers"></g>
     </svg>
-    <!-- HTML stickers overlay for animation -->
-    <div id="map-stickers-layer"></div>
+
+    <h1 class="landing-title">Lib's Library World</h1>
+    <p class="landing-subtitle">A magical survey adventure · Guided by Lib the Chair ✨</p>
+    <br>
+    <button class="begin-btn" onclick="goRegister()">Begin Your Journey →</button>
   </div>
-
-  <div class="map-hint" id="map-hint">Select a type above, then tap the map</div>
-  <button class="map-submit" id="map-submit" disabled onclick="APP.submitSticker()">
-    <span>SUBMIT STICKER (+25 credits)</span><span>📍</span>
-  </button>
-
-  <div style="height:80px"></div>
 </div>
 
-<!-- ════════════════════════════════════ -->
-<!-- S6 — THANK YOU                       -->
-<!-- ════════════════════════════════════ -->
-<div class="screen" id="s6">
-  <div class="topbar">
-    <div class="t-brand">
-      <div class="t-badge">📚</div>
-      <div>
-        <div class="t-name">U-O-T Library</div>
-        <div class="t-title">All done!</div>
+<!-- ======================================================
+     SCREEN 2 — REGISTER
+     ====================================================== -->
+<div class="screen" id="screen-register">
+  <div class="register-scene">
+    <!-- Lib companion -->
+    <div class="lib-companion">
+      <svg class="lib-svg" viewBox="0 0 90 110" xmlns="http://www.w3.org/2000/svg" id="lib-reg">
+        <!-- Chair back -->
+        <rect x="8" y="12" width="74" height="48" rx="10" fill="#A07848"/>
+        <rect x="8" y="12" width="74" height="48" rx="10" fill="none" stroke="#5C3D1E" stroke-width="1.5"/>
+        <!-- Chair cushion back -->
+        <rect x="14" y="16" width="62" height="36" rx="7" fill="#B89060"/>
+        <!-- Eyes -->
+        <circle cx="32" cy="35" r="9" fill="white"/>
+        <circle cx="58" cy="35" r="9" fill="white"/>
+        <circle cx="34" cy="36" r="5" fill="#3D2410" id="eye-l" style="animation:blink 4s ease-in-out infinite"/>
+        <circle cx="60" cy="36" r="5" fill="#3D2410" id="eye-r" style="animation:blink 4s ease-in-out infinite 0.3s"/>
+        <circle cx="35" cy="35" r="2" fill="white"/>
+        <circle cx="61" cy="35" r="2" fill="white"/>
+        <!-- Smile -->
+        <path d="M32 50 Q45 58 58 50" stroke="#5C3D1E" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <!-- Blush -->
+        <ellipse cx="22" cy="46" rx="7" ry="4" fill="#E8B4A0" opacity="0.6"/>
+        <ellipse cx="68" cy="46" rx="7" ry="4" fill="#E8B4A0" opacity="0.6"/>
+        <!-- Chair seat -->
+        <rect x="4" y="58" width="82" height="20" rx="8" fill="#8B6B47"/>
+        <!-- Armrests -->
+        <rect x="0" y="45" width="14" height="32" rx="6" fill="#7A5C3A"/>
+        <rect x="76" y="45" width="14" height="32" rx="6" fill="#7A5C3A"/>
+        <!-- Legs -->
+        <rect x="14" y="76" width="8" height="28" rx="4" fill="#5C3D1E"/>
+        <rect x="68" y="76" width="8" height="28" rx="4" fill="#5C3D1E"/>
+        <rect x="10" y="84" width="8" height="24" rx="4" fill="#5C3D1E" transform="rotate(10 14 84)"/>
+        <rect x="72" y="84" width="8" height="24" rx="4" fill="#5C3D1E" transform="rotate(-10 76 84)"/>
+        <!-- Little feet -->
+        <ellipse cx="18" cy="104" rx="10" ry="5" fill="#4A3018"/>
+        <ellipse cx="72" cy="104" rx="10" ry="5" fill="#4A3018"/>
+        <!-- Tiny hand/paw wave -->
+        <ellipse cx="84" cy="42" rx="7" ry="5" fill="#8B6B47" transform="rotate(-20 84 42)" style="animation:sway 1.5s ease-in-out infinite"/>
+      </svg>
+      <div class="speech-bubble" id="lib-speech-reg">
+        Hello! I'm <strong>Lib</strong> 🪑<br>
+        Welcome to the Library! Let's get to know each other first…
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div class="register-form-card">
+      <h2 class="form-section-title">Tell me about you ✨</h2>
+
+      <div class="form-field">
+        <label class="form-label">Your Name</label>
+        <input class="form-input" type="text" id="input-name" placeholder="What shall Lib call you?" oninput="onNameInput()"/>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Student ID (optional)</label>
+        <input class="form-input" type="text" id="input-id" placeholder="For deduplication only"/>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Your Faculty</label>
+        <div class="faculty-grid" id="faculty-grid">
+          <!-- injected by JS -->
+        </div>
+      </div>
+
+      <button class="submit-btn" id="submit-reg" onclick="submitRegistration()" disabled>
+        Enter the Library →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================
+     SCREEN 3 — SURVEY
+     ====================================================== -->
+<div class="screen" id="screen-survey">
+  <div class="survey-wrap">
+    <div class="survey-header">
+      <svg class="lib-svg-mini" viewBox="0 0 90 110" xmlns="http://www.w3.org/2000/svg" style="animation:bob 3s ease-in-out infinite">
+        <rect x="8" y="12" width="74" height="48" rx="10" fill="#A07848"/>
+        <rect x="14" y="16" width="62" height="36" rx="7" fill="#B89060"/>
+        <circle cx="32" cy="35" r="9" fill="white"/><circle cx="58" cy="35" r="9" fill="white"/>
+        <circle cx="34" cy="36" r="5" fill="#3D2410" style="animation:blink 3s ease-in-out infinite"/>
+        <circle cx="60" cy="36" r="5" fill="#3D2410" style="animation:blink 3s ease-in-out infinite 0.4s"/>
+        <circle cx="35" cy="35" r="2" fill="white"/><circle cx="61" cy="35" r="2" fill="white"/>
+        <path d="M32 50 Q45 58 58 50" stroke="#5C3D1E" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <ellipse cx="22" cy="46" rx="7" ry="4" fill="#E8B4A0" opacity="0.6"/>
+        <ellipse cx="68" cy="46" rx="7" ry="4" fill="#E8B4A0" opacity="0.6"/>
+        <rect x="4" y="58" width="82" height="20" rx="8" fill="#8B6B47"/>
+        <rect x="0" y="45" width="14" height="32" rx="6" fill="#7A5C3A"/>
+        <rect x="76" y="45" width="14" height="32" rx="6" fill="#7A5C3A"/>
+        <rect x="14" y="76" width="8" height="28" rx="4" fill="#5C3D1E"/>
+        <rect x="68" y="76" width="8" height="28" rx="4" fill="#5C3D1E"/>
+      </svg>
+      <div class="progress-track"><div class="progress-fill" id="survey-progress" style="width:0%"></div></div>
+      <span class="progress-label" id="survey-progress-lbl">0 / 7</span>
+    </div>
+
+    <div class="survey-card" id="survey-card">
+      <div class="lib-row">
+        <div class="lib-question-bubble" id="lib-q-bubble">Loading…</div>
+      </div>
+      <div class="q-category" id="q-cat">Question</div>
+      <div id="q-body"><!-- injected --></div>
+      <div style="overflow:hidden">
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next →</button>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Lib wave goodbye then idle -->
-  <div class="lib-stage" style="padding:20px 18px;justify-content:center">
-    <div class="lib-char" style="animation:lib-bounce .8s ease both,lib-idle 3s ease-in-out 1s infinite">
-      <svg width="90" height="114" viewBox="0 0 80 100" fill="none">
-        <rect x="36" y="50" width="8" height="46" rx="4" fill="var(--ink)"/>
-        <ellipse cx="40" cy="98" rx="16" ry="4" fill="var(--ink)" opacity=".15"/>
-        <path d="M40 52 Q22 42 20 28" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
-        <path d="M6 28 Q20 14 34 28 L31 40 Q20 45 9 40Z" fill="var(--yellow)" stroke="var(--ink)" stroke-width="3"/>
-        <circle cx="14" cy="30" r="2.5" fill="var(--ink)"/>
-        <circle cx="24" cy="28" r="2.5" fill="var(--ink)"/>
-        <path d="M11 34 Q18 42 26 34" stroke="var(--ink)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-        <path class="lib-arm-wave" d="M36 60 Q24 54 20 44" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none" style="transform-origin:36px 60px"/>
-        <circle cx="19" cy="42" r="5" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5"/>
-        <path d="M44 62 Q56 54 60 44" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none"/>
-        <circle cx="61" cy="43" r="5" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2.5"/>
-        <path d="M36 94 L32 100" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
-        <path d="M44 94 L48 100" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
+<!-- ======================================================
+     SCREEN 4 — STACKS QUEST
+     ====================================================== -->
+<div class="screen" id="screen-quest">
+  <div class="quest-ui">
+    <div class="floor-tabs" id="floor-tabs">
+      <div class="floor-tab active" onclick="setFloor(0)">Ground Floor</div>
+      <div class="floor-tab" onclick="setFloor(1)">First Floor</div>
+      <div class="floor-tab" onclick="setFloor(2)">Second Floor</div>
+    </div>
+    <svg id="map-svg" class="map-canvas" viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg">
+      <!-- rendered by JS -->
+    </svg>
+    <div class="room-tooltip" id="room-tooltip"></div>
+    <div class="quest-lib-guide">
+      <div class="quest-bubble" id="quest-bubble">Explore the library! Your perfect spot is glowing ✨</div>
+      <svg class="lib-svg-small" viewBox="0 0 90 110" xmlns="http://www.w3.org/2000/svg" style="animation:bob 3s ease-in-out infinite">
+        <rect x="8" y="12" width="74" height="48" rx="10" fill="#A07848"/>
+        <rect x="14" y="16" width="62" height="36" rx="7" fill="#B89060"/>
+        <circle cx="32" cy="35" r="9" fill="white"/><circle cx="58" cy="35" r="9" fill="white"/>
+        <circle cx="34" cy="36" r="5" fill="#3D2410" style="animation:blink 3s ease-in-out infinite"/>
+        <circle cx="60" cy="36" r="5" fill="#3D2410"/>
+        <circle cx="35" cy="35" r="2" fill="white"/><circle cx="61" cy="35" r="2" fill="white"/>
+        <path d="M32 50 Q45 56 58 50" stroke="#5C3D1E" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <ellipse cx="22" cy="46" rx="7" ry="4" fill="#E8B4A0" opacity="0.6"/>
+        <ellipse cx="68" cy="46" rx="7" ry="4" fill="#E8B4A0" opacity="0.6"/>
+        <rect x="4" y="58" width="82" height="20" rx="8" fill="#8B6B47"/>
+        <rect x="0" y="45" width="14" height="32" rx="6" fill="#7A5C3A"/>
+        <rect x="76" y="45" width="14" height="32" rx="6" fill="#7A5C3A"/>
+        <rect x="14" y="76" width="8" height="28" rx="4" fill="#5C3D1E"/>
+        <rect x="68" y="76" width="8" height="28" rx="4" fill="#5C3D1E"/>
       </svg>
     </div>
-  </div>
-
-  <div class="ty-wrap">
-    <div style="font-size:48px;margin-bottom:12px;animation:pop .6s ease both">🏛️</div>
-    <div class="ty-title" style="animation:breathe-in .5s ease .2s both">Thank you.</div>
-    <p class="ty-sub" style="animation:breathe-in .5s ease .3s both">
-      Your response goes directly to the library team. Every credit you earned is a vote for what matters most. Results are published when the survey closes.
-    </p>
-    <div style="animation:breathe-in .5s ease .4s both">
-      <button class="btn yellow" style="margin-bottom:10px" onclick="NAV.to(4)">
-        <span>See live leaderboard</span><span>→</span>
-      </button>
-      <button class="btn white" onclick="NAV.to(5)">
-        <span>Back to map</span><span>🗺️</span>
-      </button>
-    </div>
-    <div class="ty-date" id="ty-date" style="animation:fade-in .5s ease .8s both"></div>
+    <button class="continue-quest-btn" onclick="goScorecard()">See My Scorecard 🎴</button>
   </div>
 </div>
 
-<!-- ════════════════════════════════════ -->
-<!-- FIREBASE + APP LOGIC                 -->
-<!-- ════════════════════════════════════ -->
-<script type="module">
-import{initializeApp}from'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-import{getFirestore,collection,addDoc,onSnapshot,query,where,getDocs,doc,updateDoc,increment}
-  from'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+<!-- ======================================================
+     SCREEN 5 — SCORECARD
+     ====================================================== -->
+<div class="screen" id="screen-scorecard">
+  <div class="scorecard-wrap">
+    <div class="scroll-unfurl">
+      <div class="card-lib-row">
+        <svg class="lib-svg-small" viewBox="0 0 90 110" xmlns="http://www.w3.org/2000/svg" style="animation:bob 3s ease-in-out infinite">
+          <rect x="8" y="12" width="74" height="48" rx="10" fill="#A07848"/>
+          <rect x="14" y="16" width="62" height="36" rx="7" fill="#B89060"/>
+          <circle cx="32" cy="35" r="9" fill="white"/><circle cx="58" cy="35" r="9" fill="white"/>
+          <circle cx="34" cy="36" r="5" fill="#3D2410" style="animation:blink 3s ease-in-out infinite"/>
+          <circle cx="60" cy="36" r="5" fill="#3D2410"/>
+          <circle cx="35" cy="35" r="2" fill="white"/><circle cx="61" cy="35" r="2" fill="white"/>
+          <path d="M32 50 Q45 58 58 50" stroke="#5C3D1E" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <ellipse cx="22" cy="46" rx="7" ry="4" fill="#E8B4A0" opacity="0.6"/>
+          <ellipse cx="68" cy="46" rx="7" ry="4" fill="#E8B4A0" opacity="0.6"/>
+          <rect x="4" y="58" width="82" height="20" rx="8" fill="#8B6B47"/>
+          <rect x="0" y="45" width="14" height="32" rx="6" fill="#7A5C3A"/>
+          <rect x="76" y="45" width="14" height="32" rx="6" fill="#7A5C3A"/>
+          <rect x="14" y="76" width="8" height="28" rx="4" fill="#5C3D1E"/>
+          <rect x="68" y="76" width="8" height="28" rx="4" fill="#5C3D1E"/>
+        </svg>
+        <div>
+          <div style="font-family:'Lora',serif;font-size:1.5rem;color:var(--deep-bark);font-weight:600" id="sc-name">Your Scorecard</div>
+          <div style="font-size:0.8rem;color:var(--bark);margin-top:2px" id="sc-faculty">Faculty · Lib's Library World</div>
+        </div>
+      </div>
 
-/* ╔══════════════════════════════════╗
-   ║  PASTE YOUR FIREBASE CONFIG HERE ║
-   ╚══════════════════════════════════╝ */
-const FC={
-  apiKey:"PASTE_YOUR_API_KEY",
-  authDomain:"PASTE_YOUR_AUTH_DOMAIN",
-  projectId:"PASTE_YOUR_PROJECT_ID",
-  storageBucket:"PASTE_YOUR_STORAGE_BUCKET",
-  messagingSenderId:"PASTE_YOUR_MESSAGING_SENDER_ID",
-  appId:"PASTE_YOUR_APP_ID"
-};
-const DEPT_TOTALS={
-  "Arts & Humanities":450,"Business":500,"Computer Science":400,
-  "Engineering":600,"Law":350,"Medicine":800,"Natural Sciences":420,
-  "Social Sciences":380,"Education":300,"Architecture":250,
-  "Economics":370,"Other":999
-};
-const fbApp=initializeApp(FC);
-const db=getFirestore(fbApp);
+      <div class="persona-badge" id="sc-persona">🌙 The Night Owl Scholar</div>
 
-/* ── QUIZ QUESTIONS ── */
-const QS=[
-  {
-    id:'freq',
-    lib:"Alright — first question. No wrong answers.",
-    sub:"Tell me honestly.",
-    q:"HOW OFTEN DO YOU ACTUALLY SET FOOT IN THE LIBRARY?",
-    hint:"Pick the one that feels most true.",
-    type:'single',
-    opts:[
-      {e:'🏠',t:"Every single day — I basically live here"},
-      {e:'📅',t:"A few times a week"},
-      {e:'🔥',t:"Only when deadlines are on fire"},
-      {e:'👻',t:"Basically never — I avoid it"},
-    ]
-  },
-  {
-    id:'hideout',
-    lib:"Interesting… where do you actually go?",
-    sub:"Select all that apply.",
-    q:"WHERE DO YOU USUALLY HIDE OUT?",
-    hint:"You can pick more than one.",
-    type:'multi',
-    opts:["Quiet Floors","Group Pods","Computer Suite","Coffee / Lounge","Silent Zone","Random corner","Near a plug socket","Postgrad area"]
-  },
-  {
-    id:'vibe',
-    lib:"Now this one tells me everything about you.",
-    sub:"Tap to rank — 1st is your favourite.",
-    q:"WHAT'S YOUR IDEAL STUDY VIBE?",
-    hint:"Tap items to rank them 1→5.",
-    type:'rank',
-    opts:["Dead Silent","Low Background Murmur","Active Discussion","Café Chaos","White Noise"]
-  },
-  {
-    id:'fix',
-    lib:"Okay this is the important one. The team reads every answer.",
-    sub:"Be honest. Be ruthless.",
-    q:"FINAL THOUGHTS...",
-    hint:"",
-    type:'open2',
-    fields:[
-      {id:'f1',label:"One thing you'd fix immediately?",ph:"Be brutally honest..."},
-      {id:'f2',label:"Wildest new service idea?",ph:"Sleeping pods? Free pizza?"}
-    ]
-  },
-  {
-    id:'day2',
-    lib:"Last one! This unlocks tomorrow's mission.",
-    sub:"You'll get secret missions in the library.",
-    q:"OPT-IN FOR DAY 2: LIBRARY HEIST?",
-    hint:"Missions are optional but earn +75 credits.",
-    type:'single',
-    opts:[
-      {e:'🕵️',t:"Yes! Send me the missions (+75 credits)"},
-      {e:'👀',t:"Maybe later — I'll decide tomorrow"},
-    ]
-  }
+      <div class="score-section">
+        <div class="score-cell">
+          <div class="score-val" id="sc-visits">—</div>
+          <div class="score-lbl">Visit Frequency</div>
+        </div>
+        <div class="score-cell">
+          <div class="score-val" id="sc-avg">—</div>
+          <div class="score-lbl">Avg Satisfaction</div>
+        </div>
+        <div class="score-cell">
+          <div class="score-val" id="sc-spots">—</div>
+          <div class="score-lbl">Fave Spots Used</div>
+        </div>
+        <div class="score-cell">
+          <div class="score-val" id="sc-points">0</div>
+          <div class="score-lbl">Lib Points</div>
+        </div>
+      </div>
+
+      <div class="qr-section">
+        <canvas id="qr-canvas" width="90" height="90"></canvas>
+        <div class="qr-text">
+          <h4>Share & Earn Points</h4>
+          <p>When a friend scans your QR and registers, you both earn <strong>+10 Lib Points</strong> 🌿</p>
+          <div class="credits-pill" id="credits-pill">🌱 0 friends referred · 0 points earned</div>
+        </div>
+      </div>
+
+      <button class="share-btn" onclick="shareCard()">📤 Share My Library Card</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================
+     SCREEN 6 — ADMIN LOGIN
+     ====================================================== -->
+<div class="screen" id="screen-admin-login">
+  <div class="admin-login-card">
+    <div style="font-size:2.5rem;margin-bottom:12px">🔑</div>
+    <h2 style="font-family:'Lora',serif;color:var(--deep-bark);margin-bottom:6px">Admin Portal</h2>
+    <p style="font-size:0.82rem;color:var(--bark);margin-bottom:20px">Enter the admin password to continue</p>
+    <input class="form-input" type="password" id="admin-pass" placeholder="Password" style="margin-bottom:12px" onkeydown="if(event.key==='Enter')checkAdmin()"/>
+    <button class="submit-btn" onclick="checkAdmin()">Enter Dashboard →</button>
+    <p style="font-size:0.72rem;color:var(--bark);margin-top:14px;cursor:none" onclick="showScreen('screen-landing')" style="cursor:none">← Back to Library</p>
+  </div>
+</div>
+
+<!-- ======================================================
+     SCREEN 7 — ADMIN DASHBOARD
+     ====================================================== -->
+<div class="screen" id="screen-admin">
+  <div class="admin-wrap">
+    <div class="admin-header">
+      <h1 class="admin-title">📊 Admin Dashboard</h1>
+      <button class="export-btn" onclick="exportCSV()">Export CSV ↓</button>
+    </div>
+    <div class="admin-nav">
+      <button class="admin-nav-btn active" onclick="adminTab('overview',this)">Overview</button>
+      <button class="admin-nav-btn" onclick="adminTab('faculty',this)">By Faculty</button>
+      <button class="admin-nav-btn" onclick="adminTab('satisfaction',this)">Satisfaction</button>
+      <button class="admin-nav-btn" onclick="adminTab('responses',this)">Responses</button>
+      <button class="admin-nav-btn" onclick="adminTab('referrals',this)">Referrals</button>
+    </div>
+    <div id="admin-content"><!-- injected --></div>
+  </div>
+</div>
+
+<!-- ======================================================
+     QR LIBRARY (mini, no CDN needed)
+     ====================================================== -->
+<script>
+// Tiny QR generator — enough for a URL string (simplified matrix)
+// We'll use a real CDN-free approach: data URI of a simple visual QR-like placeholder
+// For production, embed qrcode.js from CDN
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+const STATE = {
+  user: { name: '', faculty: '', id: '', uid: '' },
+  answers: {},
+  referrerId: null,
+  credits: 0,
+  currentQ: 0,
+};
+
+const FACULTIES = [
+  { id:'arts',    icon:'🎨', name:'Arts & Design' },
+  { id:'sci',     icon:'🔬', name:'Science' },
+  { id:'eng',     icon:'⚙️', name:'Engineering' },
+  { id:'bus',     icon:'💼', name:'Business' },
+  { id:'law',     icon:'⚖️', name:'Law' },
+  { id:'med',     icon:'🩺', name:'Medicine' },
+  { id:'hum',     icon:'📚', name:'Humanities' },
+  { id:'edu',     icon:'🎓', name:'Education' },
 ];
 
-/* ── PERSONAS ── */
-const PERSONAS=[
+const PERSONAS = {
+  daily: { daily:'🌅 The Dawn Dweller', weekly:'📖 The Weekend Scholar', monthly:'🗺️ The Occasional Explorer', rarely:'🌙 The Night Owl', never:'🌟 The Curious Newcomer' },
+};
+
+const QUESTIONS = [
   {
-    id:'explorer',char:'🗺️',type:'LIBRARY EXPLORER',
-    bg:'#0a1f0a',
-    tags:['CURIOSITY-DRIVEN','RESOURCE MAXIMISER','SPACE EXPERT','HIDDEN GEM HUNTER'],
-    desc:"You've been to every floor, every room, every nook. You know which desk has the best light and where the secret plug sockets are."
+    id: 'freq',
+    cat: 'Library Usage',
+    bubble: (n) => `So ${n}, how often do you visit the library? Be honest — Lib doesn't judge! 😄`,
+    type: 'single',
+    options: ['Daily','Weekly','Monthly','Rarely','Never'],
   },
   {
-    id:'ghost',char:'👻',type:'SILENT FLOOR GHOST',
-    bg:'#0a0a1f',
-    tags:['DEEP FOCUS','NOISE INTOLERANT','DEADLINE DRIVEN','LONE WOLF'],
-    desc:"You materialise only when absolutely necessary. You have one specific desk by silent agreement. You communicate only in raised eyebrows."
+    id: 'areas',
+    cat: 'Library Areas',
+    bubble: (n) => `Interesting! And which areas do you usually hang out in? Pick all that apply!`,
+    type: 'multi',
+    options: ['Study Rooms (Individual)','Group Study Rooms','Quiet Areas','Computer Labs','Print/Copy Stations','Book Collections','Digital Resources','Coffee Shop / Lounge'],
   },
   {
-    id:'chaos',char:'🔊',type:'GROUP ROOM CHAOS AGENT',
-    bg:'#1f0a0a',
-    tags:['SOCIAL LEARNER','LOUD THINKER','ENERGY BRINGER','ACCIDENTAL DISTURBER'],
-    desc:"You learn by talking. You need people around you. You are technically the reason the noise signs exist — but you have never read them."
+    id: 'ranking',
+    cat: 'Space Preference',
+    bubble: (n) => `Now the fun part — drag these to rank your favourite study vibes (1 = fave)`,
+    type: 'rank',
+    options: ['Individual Study Rooms','Group Study Rooms','Open Study Areas','Quiet Zones','Outdoor Spaces'],
   },
   {
-    id:'ninja',char:'⚡',type:'PLUG SOCKET NINJA',
-    bg:'#0d1a00',
-    tags:['PRACTICAL','RESOURCE HUNTER','EFFICIENCY EXPERT','ALWAYS PREPARED'],
-    desc:"Your entire library experience revolves around WiFi and a socket. Everything else is optional. You have memorised every outlet location."
+    id: 'satisfaction',
+    cat: 'Resource Satisfaction',
+    bubble: (n) => `How satisfied are you with these library resources? Tap the orbs to rate!`,
+    type: 'likert',
+    options: ['Books / Print','Digital Resources','Study Space','Staff Assistance','Wi-Fi & Tech','Library Hours'],
+  },
+  {
+    id: 'improve',
+    cat: 'Your Ideas',
+    bubble: (n) => `If you had a magic wand 🪄, what would you improve about the library?`,
+    type: 'text',
+    placeholder: "Tell Lib your ideas… (as many as you like!)",
+  },
+  {
+    id: 'newservice',
+    cat: 'New Services',
+    bubble: (n) => `Ooh I love this one — suggest any new services you'd love to see at the library! ✨`,
+    type: 'text',
+    placeholder: "Dream big! 3D printers? Nap pods? Lib is listening…",
+  },
+  {
+    id: 'challenge',
+    cat: 'Extra Points Challenge',
+    bubble: (n) => `Last one! Want to earn bonus Lib Points? Take a photo of your favourite study spot and share it! 📸`,
+    type: 'single',
+    options: ['Yes, I\'m in! 📸','Maybe later','No thanks'],
   },
 ];
 
-function getPersona(answers){
-  const h=answers.hideout||[];
-  if(h.includes('Quiet Floors')||h.includes('Silent Zone')) return PERSONAS[1];
-  if(h.includes('Group Pods')) return PERSONAS[2];
-  if(h.includes('Near a plug socket')||h.includes('Computer Suite')) return PERSONAS[3];
-  return PERSONAS[0];
-}
-
-/* ── DEVICE KEY (dedup) ── */
-function getDK(){
-  return btoa([screen.width,screen.height,
-    Intl.DateTimeFormat().resolvedOptions().timeZone,
-    navigator.language].join('|'));
-}
-const DK=getDK();
-
-/* ── STATE ── */
-const S={
-  name:'',faculty:'',refUsed:'',anon:false,
-  credits:0,answers:{},qIdx:0,
-  multiSel:[],rankOrder:[],openVals:{},
-  persona:null,lbMode:'pct',
-  stickerType:'study',stickerPending:null,stickerDone:false,
-  allResponses:[],refCode:'',myDocId:null
-};
-
-/* ── QR GENERATOR ── */
-function drawQR(text){
-  const canvas=document.getElementById('qr-canvas');
-  if(!canvas)return;
-  const ctx=canvas.getContext('2d');
-  const sz=160;
-  ctx.fillStyle='#fff';ctx.fillRect(0,0,sz,sz);
-  let seed=S.refCode.split('').reduce((a,c,i)=>a+c.charCodeAt(0)*(i+7),0);
-  const rnd=()=>{seed=(seed*1103515245+12345)&0x7fffffff;return(seed>>>16)&1;};
-  const M=25,ms=Math.floor(sz/M);
-  for(let r=0;r<M;r++)for(let c=0;c<M;c++){
-    const inF=(r<8&&c<8)||(r<8&&c>=M-8)||(r>=M-8&&c<8);
-    if(inF)continue;
-    if(rnd()){ctx.fillStyle='#1a1208';ctx.fillRect(c*ms,r*ms,ms-1,ms-1);}
-  }
-  const df=(x,y)=>{
-    ctx.fillStyle='#1a1208';ctx.fillRect(x,y,7*ms,7*ms);
-    ctx.fillStyle='#fff';ctx.fillRect(x+ms,y+ms,5*ms,5*ms);
-    ctx.fillStyle='#1a1208';ctx.fillRect(x+2*ms,y+2*ms,3*ms,3*ms);
-  };
-  df(0,0);df((M-7)*ms,0);df(0,(M-7)*ms);
-  ctx.fillStyle='rgba(26,18,8,.7)';ctx.font='bold 8px system-ui';
-  ctx.textAlign='center';ctx.fillText('REF:'+S.refCode,sz/2,sz-2);
-}
-
-/* ── NAVIGATION ── */
-window.APP={};
-window.NAV={};
-
-APP.go=n=>{
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  const el=document.getElementById('s'+n);
-  if(el){el.classList.add('active');window.scrollTo(0,0);}
-};
-
-NAV.to=(n,tabEl)=>{
-  APP.go(n);
-  if(document.getElementById('nav-bar').classList.contains('on')){
-    document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('on'));
-    if(tabEl) tabEl.classList.add('on');
-    else document.querySelector(`.ntab[data-s="${n}"]`)?.classList.add('on');
-  }
-  document.getElementById('r-cred').textContent=S.credits;
-  document.getElementById('m-cred').textContent=S.credits;
-};
-
-/* ── TOAST ── */
-function toast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2500);
-}
-
-function floatCredits(amount){
-  const el=document.createElement('div');
-  el.className='credit-float';
-  el.textContent='+'+amount+' cr';
-  el.style.cssText=`left:50%;top:40%;transform:translateX(-50%)`;
-  document.body.appendChild(el);
-  setTimeout(()=>el.remove(),1300);
-}
-
-/* ── S2 ENTRY ── */
-document.querySelectorAll('.fac-chip').forEach(c=>{
-  c.addEventListener('click',()=>{
-    document.querySelectorAll('.fac-chip').forEach(x=>x.classList.remove('on'));
-    c.classList.add('on');S.faculty=c.dataset.v;checkEntry();
+// ============================================================
+// BACKGROUND WORLD
+// ============================================================
+function buildBackground() {
+  const bg = document.getElementById('bg-world');
+  // Clouds
+  const clouds = [
+    { w:120, h:36, top:'8%', delay:'0s', dur:'28s', opacity:0.7 },
+    { w:200, h:50, top:'15%', delay:'8s', dur:'40s', opacity:0.55 },
+    { w:80,  h:24, top:'5%',  delay:'16s', dur:'22s', opacity:0.8 },
+    { w:160, h:44, top:'22%', delay:'4s',  dur:'35s', opacity:0.5 },
+  ];
+  clouds.forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'cloud';
+    Object.assign(el.style, {
+      width: c.w+'px', height: c.h+'px',
+      top: c.top, left: '-200px',
+      opacity: c.opacity,
+      animationDuration: c.dur,
+      animationDelay: c.delay,
+    });
+    el.style.setProperty('--dur', c.dur);
+    bg.appendChild(el);
   });
+  // Motes
+  for(let i=0;i<18;i++){
+    const m = document.createElement('div');
+    m.className = 'mote';
+    Object.assign(m.style, {
+      left: (Math.random()*100)+'%',
+      top: (40+Math.random()*50)+'%',
+      animationDuration: (4+Math.random()*6)+'s',
+      animationDelay: (Math.random()*8)+'s',
+      width: (2+Math.random()*3)+'px',
+      height: (2+Math.random()*3)+'px',
+    });
+    bg.appendChild(m);
+  }
+  // Tree silhouette SVG
+  const treeSvg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  treeSvg.setAttribute('viewBox','0 0 1440 200');
+  treeSvg.setAttribute('preserveAspectRatio','none');
+  Object.assign(treeSvg.style, { position:'absolute', bottom:'0', width:'100%', height:'200px' });
+  treeSvg.innerHTML = `
+    <path d="M0 200 L0 140 Q30 100 60 140 Q90 80 120 130 Q150 60 180 120 Q210 40 240 100 Q270 70 300 120 Q330 50 360 110 Q390 80 420 130 Q450 55 480 115 Q510 85 540 135 Q570 60 600 120 Q630 90 660 140 Q690 70 720 125 Q750 55 780 115 Q810 80 840 130 Q870 50 900 110 Q930 75 960 130 Q990 55 1020 115 Q1050 85 1080 140 Q1110 65 1140 120 Q1170 90 1200 140 Q1230 70 1260 125 Q1290 50 1320 110 Q1350 80 1380 135 Q1410 60 1440 120 L1440 200Z" fill="#4E6E44" opacity="0.7"/>
+    <path d="M0 200 L0 160 Q40 130 80 165 Q120 110 160 155 Q200 130 240 165 Q280 120 320 160 Q360 135 400 170 Q440 125 480 162 Q520 140 560 175 Q600 130 640 165 Q680 145 720 175 Q760 130 800 165 Q840 145 880 175 Q920 130 960 162 Q1000 140 1040 172 Q1080 132 1120 165 Q1160 145 1200 175 Q1240 135 1280 168 Q1320 148 1360 178 Q1400 138 1440 168 L1440 200Z" fill="#3B5E34" opacity="0.6"/>
+  `;
+  bg.appendChild(treeSvg);
+}
+
+// ============================================================
+// CURSOR
+// ============================================================
+const cursor = document.getElementById('cursor');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top  = e.clientY + 'px';
 });
-document.getElementById('s2-name').addEventListener('input',checkEntry);
-function checkEntry(){
-  const ok=S.faculty&&document.getElementById('s2-name').value.trim();
-  document.getElementById('s2-start').disabled=!ok;
+document.addEventListener('mouseover', e => {
+  if(e.target.matches('button,input,textarea,.choice-chip,.faculty-lantern,.rank-item,.orb-star,.floor-tab,.map-room,.nav-pill,.admin-nav-btn,.export-btn,.share-btn'))
+    cursor.classList.add('hover');
+  else cursor.classList.remove('hover');
+});
+
+// ============================================================
+// SCREEN TRANSITIONS
+// ============================================================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  spawnLeaves();
 }
 
-APP.startExperiment=()=>{
-  S.name=document.getElementById('s2-name').value.trim()||'Anonymous Agent';
-  S.refUsed=document.getElementById('s2-ref').value.trim().toUpperCase();
-  S.anon=document.getElementById('s2-anon').checked;
-  S.credits=0;
-  S.refCode=Math.random().toString(36).substr(2,8).toUpperCase();
-  document.getElementById('nav-bar').classList.add('on');
-  renderQ(0);
-  NAV.to(3,document.querySelector('.ntab[data-s="3"]'));
-};
-
-/* ── QUIZ RENDER ── */
-const LIB_REACTIONS=[
-  "Alright — first question. No wrong answers.",
-  "Interesting… where do you actually go?",
-  "Now this one tells me everything.",
-  "The team reads every single answer.",
-  "Last one! This unlocks tomorrow."
-];
-const LIB_ANSWER_REACTIONS=[
-  ["I live here too honestly 🏠","Fair enough, weekly it is.","Only deadlines? Relatable.","Never? We need to fix that."],
-  ["Quiet floors! Respect.","Group pods energy.","Computer suite warrior!","The vibes really matter huh.","Silence appreciator.","Explorer mode!","Plug hunter, respect.","Postgrad sophistication."],
-  ["Dead silent. Respect.","Low murmur lover.","Discussion powered.","Café chaos? Wild.","White noise zen."],
-  ["Honest feedback noted.","This is gold, thank you."],
-  ["Mission mode: activated 🕵️","Tomorrow then — I'll be here."]
-];
-
-function renderQ(idx){
-  S.qIdx=idx;
-  const q=QS[idx];
-  const pct=Math.round((idx+1)/QS.length*100);
-  document.getElementById('qp-fill').style.width=pct+'%';
-  document.getElementById('qp-count').textContent=(idx+1)+' / '+QS.length;
-  document.getElementById('qp-label').textContent='Question '+(idx+1);
-  document.getElementById('q-lib-says').textContent=q.lib;
-  document.getElementById('q-lib-sub').textContent=q.sub||'';
-  document.getElementById('q-cred').textContent=S.credits;
-  document.getElementById('q-title').textContent=q.q;
-  document.getElementById('q-hint').textContent=q.hint||'';
-  const nextBtn=document.getElementById('q-next');
-  document.getElementById('q-next-lbl').textContent=idx===QS.length-1?'REVEAL MY PERSONA':'Next';
-  nextBtn.disabled=true;
-  S.multiSel=[];S.rankOrder=[];S.openVals={};
-  const body=document.getElementById('q-body');
-  body.innerHTML='';
-
-  function earnCred(key,amt,msg){
-    if(!S.answers['_c_'+key]){
-      S.credits+=amt;S.answers['_c_'+key]=1;
-      document.getElementById('q-cred').textContent=S.credits;
-      floatCredits(amt);toast(msg||'+'+amt+' credits!');
-    }
-  }
-
-  if(q.type==='single'){
-    const w=document.createElement('div');w.className='choice-grid';
-    q.opts.forEach((o,i)=>{
-      const b=document.createElement('button');b.className='choice-opt';
-      b.innerHTML=`<span class="co-emoji">${o.e}</span><span>${o.t}</span><span class="co-check">✓</span>`;
-      b.addEventListener('click',()=>{
-        w.querySelectorAll('.choice-opt').forEach(x=>x.classList.remove('on'));
-        b.classList.add('on');S.answers[q.id]=[o.t];nextBtn.disabled=false;
-        earnCred(q.id,20,'+20 credits!');
-        if(q.id==='day2'&&o.t.includes('Yes')) earnCred('day2bonus',75,'+75 credits — mission unlocked!');
-        // Lib reacts
-        const reactions=LIB_ANSWER_REACTIONS[idx]||[];
-        if(reactions[i]) document.getElementById('q-lib-says').textContent=reactions[i];
-        // shade glow
-        const shade=document.getElementById('q-shade');
-        if(shade){shade.style.filter='drop-shadow(0 0 10px var(--yellow))';setTimeout(()=>shade.style.filter='',600);}
-      });
-      w.appendChild(b);
-    });
-    body.appendChild(w);
-  }
-  else if(q.type==='multi'){
-    const w=document.createElement('div');w.className='multi-grid';
-    q.opts.forEach(o=>{
-      const b=document.createElement('div');b.className='multi-opt';b.textContent=o;
-      b.addEventListener('click',()=>{
-        b.classList.toggle('on');
-        S.multiSel=b.classList.contains('on')?[...S.multiSel,o]:S.multiSel.filter(x=>x!==o);
-        S.answers[q.id]=S.multiSel;nextBtn.disabled=S.multiSel.length===0;
-        if(S.multiSel.length===1) earnCred(q.id,20,'+20 credits!');
-      });
-      w.appendChild(b);
-    });
-    body.appendChild(w);
-  }
-  else if(q.type==='rank'){
-    const w=document.createElement('div');w.className='rank-list';
-    q.opts.forEach(o=>{
-      const item=document.createElement('div');item.className='rank-item';item.dataset.v=o;
-      item.innerHTML=`<span>${o}</span>`;
-      item.addEventListener('click',()=>{
-        if(S.rankOrder.includes(o)){
-          S.rankOrder=S.rankOrder.filter(x=>x!==o);
-          item.classList.remove('on');item.querySelector('.rank-badge')?.remove();
-          w.querySelectorAll('.rank-item.on').forEach((el,i)=>el.querySelector('.rank-badge').textContent=i+1);
-        } else {
-          S.rankOrder.push(o);item.classList.add('on');
-          const badge=document.createElement('div');badge.className='rank-badge';
-          badge.textContent=S.rankOrder.length;item.appendChild(badge);
-        }
-        S.answers[q.id]=S.rankOrder;nextBtn.disabled=S.rankOrder.length<2;
-        if(S.rankOrder.length===1) earnCred(q.id,20,'+20 credits!');
-      });
-      w.appendChild(item);
-    });
-    body.appendChild(w);
-  }
-  else if(q.type==='open2'){
-    q.fields.forEach(f=>{
-      const lbl=document.createElement('div');lbl.className='open-lbl';lbl.textContent=f.label;
-      const ta=document.createElement('textarea');ta.className='open-area';ta.placeholder=f.ph;
-      ta.addEventListener('input',()=>{
-        S.openVals[f.id]=ta.value;S.answers[q.id]={...S.openVals};
-        const hasVal=Object.values(S.openVals).some(v=>v.trim());
-        nextBtn.disabled=!hasVal;
-        if(ta.value.length>5) earnCred(q.id,20,'+20 credits!');
-      });
-      body.appendChild(lbl);body.appendChild(ta);
-    });
+function spawnLeaves() {
+  const leaves = ['🍃','🍂','🌿','🍁'];
+  for(let i=0;i<5;i++){
+    setTimeout(()=>{
+      const l = document.createElement('div');
+      l.className = 'leaf';
+      l.textContent = leaves[Math.floor(Math.random()*leaves.length)];
+      l.style.left = (Math.random()*100)+'vw';
+      l.style.top = '-20px';
+      l.style.animationDuration = (2+Math.random()*3)+'s';
+      document.body.appendChild(l);
+      setTimeout(()=>l.remove(), 6000);
+    }, i*300);
   }
 }
 
-APP.nextQ=async()=>{
-  if(S.qIdx<QS.length-1){
-    renderQ(S.qIdx+1);
+// ============================================================
+// REGISTRATION
+// ============================================================
+function buildFacultyGrid() {
+  const grid = document.getElementById('faculty-grid');
+  FACULTIES.forEach(f => {
+    const div = document.createElement('div');
+    div.className = 'faculty-lantern';
+    div.id = 'fac-'+f.id;
+    div.innerHTML = `<span class="lantern-icon">${f.icon}</span><span class="lantern-name">${f.name}</span>`;
+    div.addEventListener('click', () => selectFaculty(f.id, f.name));
+    grid.appendChild(div);
+  });
+}
+
+function selectFaculty(id, name) {
+  document.querySelectorAll('.faculty-lantern').forEach(l => l.classList.remove('selected'));
+  document.getElementById('fac-'+id).classList.add('selected');
+  STATE.user.faculty = name;
+  updateLibSpeechReg();
+  checkRegReady();
+}
+
+function onNameInput() {
+  STATE.user.name = document.getElementById('input-name').value.trim();
+  updateLibSpeechReg();
+  checkRegReady();
+}
+
+function updateLibSpeechReg() {
+  const n = STATE.user.name;
+  const f = STATE.user.faculty;
+  const el = document.getElementById('lib-speech-reg');
+  if(n && f) {
+    el.innerHTML = `Welcome, <strong>${n}</strong>! A ${f} student — how wonderful! Ready to explore? 🌟`;
+  } else if(n) {
+    el.innerHTML = `Nice to meet you, <strong>${n}</strong>! Now, which faculty are you from? 🪑`;
   } else {
-    S.credits+=100;floatCredits(100);toast('+100 credits — quiz complete!');
-    await submitQuiz();
-    showReveal();
-    NAV.to(4,document.querySelector('.ntab[data-s="4"]'));
+    el.innerHTML = `Hello! I'm <strong>Lib</strong> 🪑<br>Welcome to the Library! Let's get to know each other first…`;
   }
-};
+}
 
-/* ── SUBMIT ── */
-async function submitQuiz(){
-  try{
-    const ex=await getDocs(query(collection(db,'responses'),where('deviceKey','==',DK)));
-    if(!ex.empty){S.myDocId=ex.docs[0].id;return;}
-    const ref=await addDoc(collection(db,'responses'),{
-      name:S.anon?'anon':S.name,
-      faculty:S.faculty,
-      answers:S.answers,
-      credits:S.credits,
-      refCode:S.refCode,
-      usedRef:S.refUsed,
-      deviceKey:DK,
-      submittedAt:Date.now()
+function checkRegReady() {
+  document.getElementById('submit-reg').disabled = !(STATE.user.name && STATE.user.faculty);
+}
+
+function submitRegistration() {
+  STATE.user.id = document.getElementById('input-id').value.trim();
+  STATE.user.uid = 'user_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+  saveUserToStorage();
+  showScreen('screen-survey');
+  renderQuestion(0);
+}
+
+// ============================================================
+// SURVEY
+// ============================================================
+function renderQuestion(idx) {
+  const q = QUESTIONS[idx];
+  const n = STATE.user.name;
+  document.getElementById('lib-q-bubble').innerHTML = q.bubble(n);
+  document.getElementById('q-cat').textContent = q.cat;
+  const pct = Math.round((idx / QUESTIONS.length) * 100);
+  document.getElementById('survey-progress').style.width = pct + '%';
+  document.getElementById('survey-progress-lbl').textContent = idx + ' / ' + QUESTIONS.length;
+
+  const body = document.getElementById('q-body');
+  body.innerHTML = '';
+
+  if(q.type === 'single' || q.type === 'multi') {
+    const grid = document.createElement('div');
+    grid.className = 'choice-grid';
+    q.options.forEach(opt => {
+      const chip = document.createElement('div');
+      chip.className = 'choice-chip';
+      chip.textContent = opt;
+      chip.addEventListener('click', () => {
+        if(q.type === 'single') {
+          grid.querySelectorAll('.choice-chip').forEach(c => c.classList.remove('selected'));
+          chip.classList.add('selected');
+          STATE.answers[q.id] = opt;
+        } else {
+          chip.classList.toggle('selected');
+          const sel = [...grid.querySelectorAll('.choice-chip.selected')].map(c => c.textContent);
+          STATE.answers[q.id] = sel;
+        }
+      });
+      grid.appendChild(chip);
     });
-    S.myDocId=ref.id;
-    // credit the QR referrer
-    if(S.refUsed){
-      const refs=await getDocs(query(collection(db,'responses'),where('refCode','==',S.refUsed)));
-      for(const d of refs.docs){
-        await updateDoc(doc(db,'responses',d.id),{credits:increment(50)});
+    body.appendChild(grid);
+
+  } else if(q.type === 'rank') {
+    const list = document.createElement('div');
+    list.className = 'rank-list';
+    let items = [...q.options];
+    STATE.answers[q.id] = [...items];
+    items.forEach((opt, i) => {
+      const item = document.createElement('div');
+      item.className = 'rank-item';
+      item.draggable = true;
+      item.dataset.idx = i;
+      item.innerHTML = `<div class="rank-num">${i+1}</div><span class="rank-text">${opt}</span>`;
+      item.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', i); item.classList.add('dragging'); });
+      item.addEventListener('dragend', () => item.classList.remove('dragging'));
+      item.addEventListener('dragover', e => { e.preventDefault(); });
+      item.addEventListener('drop', e => {
+        e.preventDefault();
+        const from = parseInt(e.dataTransfer.getData('text/plain'));
+        const to = parseInt(item.dataset.idx);
+        const els = [...list.querySelectorAll('.rank-item')];
+        const fromEl = els[from];
+        const toEl = els[to];
+        if(from < to) list.insertBefore(fromEl, toEl.nextSibling);
+        else list.insertBefore(fromEl, toEl);
+        // renum
+        [...list.querySelectorAll('.rank-item')].forEach((el,idx2) => {
+          el.dataset.idx = idx2;
+          el.querySelector('.rank-num').textContent = idx2+1;
+        });
+        STATE.answers[q.id] = [...list.querySelectorAll('.rank-item')].map(el => el.querySelector('.rank-text').textContent);
+      });
+      list.appendChild(item);
+    });
+    body.appendChild(list);
+
+  } else if(q.type === 'likert') {
+    const row = document.createElement('div');
+    row.className = 'orb-row';
+    q.options.forEach(opt => {
+      const item = document.createElement('div');
+      item.className = 'orb-item';
+      const label = document.createElement('div');
+      label.className = 'orb-label';
+      label.textContent = opt;
+      const stars = document.createElement('div');
+      stars.className = 'orb-stars';
+      if(!STATE.answers[q.id]) STATE.answers[q.id] = {};
+      for(let s=1;s<=5;s++) {
+        const orb = document.createElement('div');
+        orb.className = 'orb-star';
+        orb.textContent = s;
+        orb.addEventListener('click', () => {
+          STATE.answers[q.id][opt] = s;
+          stars.querySelectorAll('.orb-star').forEach((o,i) => {
+            o.classList.toggle('lit', i < s);
+          });
+        });
+        stars.appendChild(orb);
       }
-      toast('Your friend earned +50 credits from your referral!');
+      item.appendChild(label);
+      item.appendChild(stars);
+      row.appendChild(item);
+    });
+    body.appendChild(row);
+
+  } else if(q.type === 'text') {
+    const ta = document.createElement('textarea');
+    ta.className = 'form-textarea';
+    ta.placeholder = q.placeholder;
+    ta.value = STATE.answers[q.id] || '';
+    ta.addEventListener('input', () => { STATE.answers[q.id] = ta.value; });
+    body.appendChild(ta);
+  }
+
+  // Animate card
+  const card = document.getElementById('survey-card');
+  card.style.animation = 'none';
+  void card.offsetWidth;
+  card.style.animation = 'reveal-up 0.4s ease both';
+}
+
+function nextQuestion() {
+  STATE.currentQ++;
+  if(STATE.currentQ >= QUESTIONS.length) {
+    saveAnswersToStorage();
+    goQuest();
+    return;
+  }
+  renderQuestion(STATE.currentQ);
+}
+
+// ============================================================
+// QUEST MAP
+// ============================================================
+const FLOORS = [
+  {
+    name: 'Ground Floor',
+    rooms: [
+      { id:'concierge', x:60, y:60, w:140, h:50, label:'Concierge & Security', type:'service', color:'#E8A23C' },
+      { id:'selfservice', x:220, y:60, w:130, h:50, label:'Self Service', type:'service', color:'#E8A23C' },
+      { id:'atc', x:60, y:140, w:120, h:70, label:'Assistive Tech Centre', type:'support', color:'#7A9E6F' },
+      { id:'classroom5', x:200, y:140, w:110, h:70, label:'Teaching Classroom', type:'study', color:'#A8C5DA' },
+      { id:'helpdesk', x:330, y:140, w:110, h:70, label:'Library Help Desk', type:'service', color:'#E8A23C' },
+      { id:'games', x:60, y:240, w:110, h:65, label:'Games Library Kiosk', type:'social', color:'#E8B4A0' },
+      { id:'group9', x:190, y:240, w:120, h:65, label:'Group Study Room', type:'group', color:'#B89060' },
+      { id:'special', x:330, y:240, w:150, h:65, label:'Special Collections', type:'quiet', color:'#D4B896' },
+      { id:'maincol', x:510, y:60, w:220, h:380, label:'Main Collection\n(000–699)', type:'books', color:'#C4A882' },
+    ]
+  },
+  {
+    name: 'First Floor',
+    rooms: [
+      { id:'media', x:60, y:60, w:150, h:60, label:'Media Equipment Centre', type:'tech', color:'#A8C5DA' },
+      { id:'itsupport', x:230, y:60, w:120, h:60, label:'IT Services Help', type:'service', color:'#E8A23C' },
+      { id:'macs', x:60, y:150, w:120, h:60, label:'Seats with Macs', type:'tech', color:'#A8C5DA' },
+      { id:'pcs', x:200, y:150, w:120, h:60, label:'Seats with PCs', type:'tech', color:'#A8C5DA' },
+      { id:'room102', x:60, y:240, w:120, h:65, label:'Teaching Classroom 102', type:'study', color:'#D4B896' },
+      { id:'room103', x:200, y:240, w:120, h:65, label:'Teaching Classroom 103', type:'study', color:'#D4B896' },
+      { id:'silent18', x:340, y:150, w:120, h:70, label:'Silent Study Seats', type:'quiet', color:'#B8D4A0' },
+      { id:'silent19', x:340, y:240, w:120, h:65, label:'Silent Study Seats', type:'quiet', color:'#B8D4A0' },
+      { id:'maincol1', x:490, y:60, w:240, h:380, label:'Main Collection\n(000–999)', type:'books', color:'#C4A882' },
+    ]
+  },
+  {
+    name: 'Second Floor',
+    rooms: [
+      { id:'av', x:60, y:60, w:130, h:60, label:'Audio-Visual Seats', type:'tech', color:'#A8C5DA' },
+      { id:'openpcs', x:210, y:60, w:120, h:60, label:'Open Access PCs', type:'tech', color:'#A8C5DA' },
+      { id:'silent22', x:60, y:150, w:130, h:60, label:'Silent Study', type:'quiet', color:'#B8D4A0' },
+      { id:'digitalmedia', x:210, y:150, w:140, h:60, label:'Digital Media Suite', type:'tech', color:'#A8C5DA' },
+      { id:'group204', x:60, y:240, w:130, h:65, label:'Group Study Room 204', type:'group', color:'#B89060' },
+      { id:'royal', x:210, y:240, w:130, h:65, label:'Royal Literary Fellows', type:'quiet', color:'#D4B896' },
+      { id:'dvd', x:360, y:60, w:140, h:80, label:'AV Viewing Rooms', type:'tech', color:'#A8C5DA' },
+      { id:'games2', x:360, y:160, w:140, h:75, label:'Games Library', type:'social', color:'#E8B4A0' },
+      { id:'postgrad', x:360, y:255, w:140, h:65, label:'Postgrad Study Room', type:'quiet', color:'#D4C898' },
+      { id:'buchi', x:520, y:60, w:210, h:120, label:'Buchi Emecheta Space', type:'support', color:'#7A9E6F' },
+      { id:'prokofiev', x:520, y:200, w:210, h:70, label:'Prokofiev Teaching Room', type:'study', color:'#D4B896' },
+      { id:'artjournals', x:520, y:290, w:210, h:65, label:'Art Journals Room', type:'books', color:'#C4A882' },
+    ]
+  }
+];
+
+let currentFloor = 0;
+
+function setFloor(idx) {
+  currentFloor = idx;
+  document.querySelectorAll('.floor-tab').forEach((t,i) => t.classList.toggle('active', i===idx));
+  renderMap(idx);
+}
+
+function getRecommendedType() {
+  const areas = STATE.answers['areas'] || [];
+  const rank1 = STATE.answers['ranking'] ? STATE.answers['ranking'][0] : '';
+  if(areas.includes('Quiet Areas') || rank1.toLowerCase().includes('quiet')) return 'quiet';
+  if(areas.includes('Group Study Rooms') || rank1.toLowerCase().includes('group')) return 'group';
+  if(areas.includes('Computer Labs') || areas.includes('Digital Resources')) return 'tech';
+  if(areas.includes('Book Collections')) return 'books';
+  return 'quiet';
+}
+
+function renderMap(floorIdx) {
+  const floor = FLOORS[floorIdx];
+  const svg = document.getElementById('map-svg');
+  const recType = getRecommendedType();
+  // Background
+  svg.innerHTML = `
+    <defs>
+      <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+        <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(139,107,71,0.07)" stroke-width="0.5"/>
+      </pattern>
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="3" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+    <rect width="800" height="520" fill="url(#grid)"/>
+    <rect x="30" y="30" width="730" height="460" rx="16" fill="rgba(245,236,215,0.5)" stroke="rgba(139,107,71,0.2)" stroke-width="1"/>
+  `;
+
+  // Floor label
+  const title = document.createElementNS('http://www.w3.org/2000/svg','text');
+  title.setAttribute('x','400');
+  title.setAttribute('y','490');
+  title.setAttribute('text-anchor','middle');
+  title.setAttribute('font-family','Lora, serif');
+  title.setAttribute('font-size','14');
+  title.setAttribute('fill','#8B6B47');
+  title.textContent = floor.name;
+  svg.appendChild(title);
+
+  floor.rooms.forEach(room => {
+    const isRec = room.type === recType;
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('class','map-room' + (isRec ? ' recommended' : ''));
+    g.style.cursor = 'pointer';
+
+    const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    rect.setAttribute('x', room.x + 30);
+    rect.setAttribute('y', room.y + 30);
+    rect.setAttribute('width', room.w);
+    rect.setAttribute('height', room.h);
+    rect.setAttribute('rx','10');
+    rect.setAttribute('fill', room.color);
+    rect.setAttribute('fill-opacity','0.75');
+    rect.setAttribute('stroke', isRec ? '#D4622A' : 'rgba(139,107,71,0.3)');
+    rect.setAttribute('stroke-width', isRec ? '2.5' : '1');
+    if(isRec) rect.setAttribute('filter','url(#glow)');
+
+    // Label
+    const lines = room.label.split('\n');
+    lines.forEach((line, li) => {
+      const text = document.createElementNS('http://www.w3.org/2000/svg','text');
+      text.setAttribute('x', room.x + 30 + room.w/2);
+      text.setAttribute('y', room.y + 30 + room.h/2 + (li - (lines.length-1)/2) * 16);
+      text.setAttribute('text-anchor','middle');
+      text.setAttribute('dominant-baseline','central');
+      text.setAttribute('font-family','Nunito, sans-serif');
+      text.setAttribute('font-size','11');
+      text.setAttribute('font-weight','600');
+      text.setAttribute('fill', isRec ? '#5C3D1E' : '#5C3D1E');
+      text.setAttribute('fill-opacity','0.85');
+      text.textContent = line;
+      g.appendChild(text);
+    });
+
+    // Ghibli emoji per type
+    const emojis = { quiet:'🕯️', group:'👥', tech:'💻', books:'📚', service:'ℹ️', study:'📖', social:'🎮', support:'♿', default:'✨' };
+    const emoji = document.createElementNS('http://www.w3.org/2000/svg','text');
+    emoji.setAttribute('x', room.x + 30 + room.w - 16);
+    emoji.setAttribute('y', room.y + 30 + 16);
+    emoji.setAttribute('font-size','14');
+    emoji.setAttribute('text-anchor','middle');
+    emoji.textContent = emojis[room.type] || emojis.default;
+    g.appendChild(emoji);
+
+    if(isRec) {
+      const star = document.createElementNS('http://www.w3.org/2000/svg','text');
+      star.setAttribute('x', room.x + 30 + 14);
+      star.setAttribute('y', room.y + 30 + 16);
+      star.setAttribute('font-size','14');
+      star.textContent = '⭐';
+      g.appendChild(star);
     }
-  }catch(e){console.warn('Firebase:',e.message);}
-}
 
-/* ── REVEAL ── */
-function showReveal(){
-  S.persona=getPersona(S.answers);
-  document.getElementById('pr-char').textContent=S.persona.char;
-  document.getElementById('pr-type').textContent=S.persona.type;
-  document.getElementById('pr-desc').textContent=S.persona.desc;
-  document.getElementById('pr-tags').innerHTML=S.persona.tags.map(t=>`<span class="pr-tag">${t}</span>`).join('');
-  document.getElementById('persona-card').style.background=S.persona.bg;
-  document.getElementById('r-cred').textContent=S.credits;
-  document.getElementById('rb-fac').textContent=S.faculty;
-  document.getElementById('r-lib-says').textContent=`${S.name}, you're a ${S.persona.type.toLowerCase()}!`;
-  // referral
-  const refUrl=`${window.location.origin}${window.location.pathname}?ref=${S.refCode}`;
-  document.getElementById('ref-link-txt').textContent=refUrl;
-  drawQR(refUrl);
-  // thank you date
-  const tyD=document.getElementById('ty-date');
-  if(tyD) tyD.textContent=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
-  renderResultLB(S.allResponses);
-}
-
-APP.copyRef=()=>{
-  const url=`${window.location.origin}${window.location.pathname}?ref=${S.refCode}`;
-  navigator.clipboard.writeText(url).then(()=>toast('🔗 Referral link copied!'));
-};
-
-/* ── LEADERBOARD ── */
-function calcRows(responses){
-  const d={};
-  responses.forEach(r=>{
-    if(!r.faculty)return;
-    if(!d[r.faculty])d[r.faculty]={n:0,tc:0};
-    d[r.faculty].n++;d[r.faculty].tc+=r.credits||0;
+    g.insertBefore(rect, g.firstChild);
+    g.addEventListener('mouseenter', e => showRoomTooltip(e, room, isRec));
+    g.addEventListener('mouseleave', hideRoomTooltip);
+    svg.appendChild(g);
   });
-  return Object.entries(d).map(([name,v])=>({
-    name,n:v.n,avg:Math.round(v.tc/v.n),
-    pct:Math.round(v.n/(DEPT_TOTALS[name]||500)*100)
-  }));
+
+  updateQuestBubble(recType);
 }
 
-function renderS1Board(responses){
-  const rows=calcRows(responses).sort((a,b)=>b.pct-a.pct);
-  const el=document.getElementById('s1-lb');
-  if(!rows.length){el.innerHTML='<div class="lb-empty">Be the first to join →</div>';return;}
-  const maxP=Math.max(...rows.map(r=>r.pct),1);
-  const medals=['🥇','🥈','🥉'];
-  el.innerHTML=rows.slice(0,5).map((r,i)=>{
-    const m=r.name===S.faculty;
-    return`<div class="lb-row">
-      <div class="lb-medal">${medals[i]||i+1}</div>
-      <div class="lb-name${m?' me':''}">${r.name}</div>
-      <div class="lb-bw"><div class="lb-bf${m?' me':''}" style="width:${Math.round(r.pct/maxP*100)}%"></div></div>
-      <div class="lb-pct${m?' me':''}">${r.pct}%</div>
-    </div>`;
-  }).join('');
-  const joined=document.getElementById('s1-joined');
-  if(joined) joined.textContent=responses.length+' joined';
+function showRoomTooltip(e, room, isRec) {
+  const tip = document.getElementById('room-tooltip');
+  tip.innerHTML = `<strong>${room.label.replace('\n',' ')}</strong><br>${isRec ? '⭐ Recommended for you!' : 'Click to explore'}`;
+  tip.style.display = 'block';
+  const rect = document.getElementById('screen-quest').getBoundingClientRect();
+  tip.style.left = (e.clientX - rect.left + 12) + 'px';
+  tip.style.top  = (e.clientY - rect.top + 12) + 'px';
+}
+function hideRoomTooltip() { document.getElementById('room-tooltip').style.display = 'none'; }
+
+function updateQuestBubble(type) {
+  const msgs = {
+    quiet: `Lib found your perfect spot — the Quiet Zones are calling! 🕯️`,
+    group: `You're a team player! Group study rooms are glowing for you! 👥`,
+    tech: `A tech explorer! The computer labs are your domain! 💻`,
+    books: `A true bookworm — the collections are yours! 📚`,
+  };
+  document.getElementById('quest-bubble').textContent = msgs[type] || `Explore the library — your perfect spot is glowing! ✨`;
 }
 
-function renderResultLB(responses){
-  const rows=calcRows(responses);
-  const mode=S.lbMode;
-  rows.sort((a,b)=>mode==='score'?b.avg-a.avg:b.pct-a.pct);
-  const maxV=Math.max(...rows.map(r=>mode==='score'?r.avg:r.pct),1);
-  const el=document.getElementById('rlb-rows');
-  if(!rows.length){el.innerHTML='<div class="rlb-empty">No data yet</div>';return;}
-  const myIdx=rows.findIndex(r=>r.name===S.faculty);
-  if(myIdx>=0){
-    document.getElementById('rb-pos').textContent='#'+(myIdx+1);
-    document.getElementById('rb-pct').textContent=rows[myIdx].pct+'% of faculty responded';
+// ============================================================
+// SCORECARD
+// ============================================================
+function buildScorecard() {
+  const n = STATE.user.name;
+  const f = STATE.user.faculty;
+  document.getElementById('sc-name').textContent = n + `'s Library Card`;
+  document.getElementById('sc-faculty').textContent = f + ' · Lib\'s Library World';
+
+  // Persona
+  const freq = STATE.answers['freq'] || 'rarely';
+  const personas = {
+    'Daily':   '🌅 The Dawn Dweller',
+    'Weekly':  '📖 The Weekend Scholar',
+    'Monthly': '🗺️ The Occasional Explorer',
+    'Rarely':  '🌙 The Night Owl Scholar',
+    'Never':   '🌟 The Curious Newcomer',
+  };
+  document.getElementById('sc-persona').textContent = personas[freq] || '✨ The Library Spirit';
+  document.getElementById('sc-visits').textContent = freq;
+
+  // Avg satisfaction
+  const sat = STATE.answers['satisfaction'] || {};
+  const vals = Object.values(sat);
+  const avg = vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : '—';
+  document.getElementById('sc-avg').textContent = avg === '—' ? '—' : avg + '★';
+
+  const areas = STATE.answers['areas'] || [];
+  document.getElementById('sc-spots').textContent = areas.length || '—';
+  document.getElementById('sc-points').textContent = 10 + (STATE.credits * 10);
+
+  // QR
+  generateQR();
+  loadCredits();
+}
+
+function generateQR() {
+  const uid = STATE.user.uid;
+  const url = window.location.href.split('?')[0] + '?ref=' + uid;
+  const canvas = document.getElementById('qr-canvas');
+  canvas.innerHTML = '';
+  try {
+    new QRCode(canvas, { text: url, width: 90, height: 90, colorDark:'#2C1A0E', colorLight:'#FFFEF8', correctLevel: QRCode.CorrectLevel.M });
+  } catch(e) {
+    // fallback
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#F5ECD7';
+    ctx.fillRect(0,0,90,90);
+    ctx.fillStyle = '#2C1A0E';
+    ctx.font = '8px monospace';
+    ctx.fillText('QR: ' + uid.slice(-6), 5, 45);
   }
-  const medals=['🥇','🥈','🥉'];
-  el.innerHTML=rows.slice(0,8).map((r,i)=>{
-    const val=mode==='score'?r.avg:r.pct;
-    const lbl=mode==='score'?r.avg+'pts':r.pct+'%';
-    const m=r.name===S.faculty;
-    return`<div class="rlb-row">
-      <div class="rlb-med">${medals[i]||i+1}</div>
-      <div class="rlb-name${m?' me':''}">${r.name}</div>
-      <div class="rlb-bw"><div class="rlb-bf${m?' me':''}" style="width:${Math.round(val/maxV*100)}%"></div></div>
-      <div class="rlb-val${m?' me':''}">${lbl}</div>
-    </div>`;
-  }).join('');
 }
 
-APP.switchTab=mode=>{
-  S.lbMode=mode;
-  document.getElementById('rt-pct').classList.toggle('on',mode==='pct');
-  document.getElementById('rt-sc').classList.toggle('on',mode==='score');
-  renderResultLB(S.allResponses);
-};
+function loadCredits() {
+  try {
+    const key = 'credits_' + STATE.user.uid;
+    window.storage.get(key).then(r => {
+      const credits = r ? parseInt(r.value) : 0;
+      STATE.credits = credits;
+      document.getElementById('credits-pill').textContent = `🌱 ${credits} friend${credits!==1?'s':''} referred · ${credits*10} points earned`;
+      document.getElementById('sc-points').textContent = 10 + credits * 10;
+    }).catch(()=>{});
+  } catch(e){}
+}
 
-/* ── MAP ── */
-const SE={study:'🔵',social:'🟢',avoid:'🔴',improve:'🟡'};
-const SM={
-  study:"Mark your favourite study spots — the best energy zones.",
-  social:"Where do people actually hang out and collaborate?",
-  avoid:"What areas do you actively avoid? Be honest.",
-  improve:"What zones desperately need upgrading?"
-};
-
-APP.setStickerType=t=>{
-  S.stickerType=t;
-  document.querySelectorAll('.map-tab').forEach(b=>b.classList.remove('on'));
-  document.querySelector(`.map-tab[data-t="${t}"]`).classList.add('on');
-  document.getElementById('map-lib-says').textContent=SM[t];
-};
-
-APP.placeSticker=e=>{
-  if(S.stickerDone){toast('Sticker submitted! Day 3 is the big reveal.');return;}
-  const wrap=document.getElementById('map-wrap');
-  const rect=wrap.getBoundingClientRect();
-  const x=((e.clientX-rect.left)/rect.width*100).toFixed(1);
-  const y=((e.clientY-rect.top)/rect.height*100).toFixed(1);
-  document.querySelectorAll('.map-sticker.preview').forEach(s=>s.remove());
-  const el=document.createElement('div');
-  el.className='map-sticker mine preview';
-  el.style.left=x+'%';el.style.top=y+'%';
-  el.textContent=SE[S.stickerType];
-  document.getElementById('map-stickers-layer').appendChild(el);
-  S.stickerPending={x,y,type:S.stickerType};
-  document.getElementById('map-submit').disabled=false;
-  document.getElementById('map-hint').textContent='Hit SUBMIT to lock in your '+S.stickerType+' sticker!';
-};
-
-APP.submitSticker=async()=>{
-  if(!S.stickerPending||S.stickerDone)return;
-  S.stickerDone=true;
-  S.credits+=25;
-  document.getElementById('m-cred').textContent=S.credits;
-  document.getElementById('r-cred').textContent=S.credits;
-  try{
-    await addDoc(collection(db,'stickers'),{
-      faculty:S.faculty,type:S.stickerPending.type,
-      x:S.stickerPending.x,y:S.stickerPending.y,
-      deviceKey:DK,submittedAt:Date.now()
-    });
-    if(S.myDocId) await updateDoc(doc(db,'responses',S.myDocId),{credits:increment(25)});
-    floatCredits(25);toast('📍 Sticker live! +25 credits');
-    document.getElementById('map-submit').innerHTML='<span>SUBMITTED ✓</span><span>✅</span>';
-    document.getElementById('map-submit').disabled=true;
-    document.getElementById('map-hint').textContent='Your sticker is on the map! Day 3 is the reveal.';
-    document.querySelectorAll('.map-sticker.preview').forEach(s=>s.classList.remove('preview'));
-    setTimeout(()=>{APP.go(6);},1200);
-  }catch(e){
-    alert('Submission error — check Firebase config.\n'+e.message);
-    S.stickerDone=false;
+function shareCard() {
+  const url = window.location.href.split('?')[0] + '?ref=' + STATE.user.uid;
+  if(navigator.share) {
+    navigator.share({ title: "Lib's Library Card", text: `I just explored the library with Lib! Join me: `, url });
+  } else if(navigator.clipboard) {
+    navigator.clipboard.writeText(url);
+    alert('🔗 Link copied! Share it with your friends to earn Lib Points!');
   }
-};
-
-async function loadExistingStickers(){
-  try{
-    const snap=await getDocs(collection(db,'stickers'));
-    snap.forEach(d=>{
-      const data=d.data();if(data.deviceKey===DK)return;
-      const el=document.createElement('div');
-      el.className='map-sticker';
-      el.style.left=data.x+'%';el.style.top=data.y+'%';
-      el.textContent=SE[data.type]||'📍';
-      el.title=(data.faculty||'?')+': '+data.type;
-      document.getElementById('map-stickers-layer').appendChild(el);
-    });
-  }catch(e){}
 }
 
-/* ── LIVE LISTENER ── */
-onSnapshot(query(collection(db,'responses')),snap=>{
-  S.allResponses=snap.docs.map(d=>({...d.data(),_id:d.id}));
-  renderS1Board(S.allResponses);
-  if(document.getElementById('s4').classList.contains('active')) renderResultLB(S.allResponses);
+// ============================================================
+// STORAGE
+// ============================================================
+async function saveUserToStorage() {
+  try {
+    const userData = { name: STATE.user.name, faculty: STATE.user.faculty, uid: STATE.user.uid, timestamp: Date.now() };
+    await window.storage.set('user_' + STATE.user.uid, JSON.stringify(userData), true);
+  } catch(e){}
+}
+
+async function saveAnswersToStorage() {
+  try {
+    const data = { uid: STATE.user.uid, name: STATE.user.name, faculty: STATE.user.faculty, answers: STATE.answers, timestamp: Date.now() };
+    await window.storage.set('response_' + STATE.user.uid, JSON.stringify(data), true);
+    // Handle referral
+    const ref = STATE.referrerId;
+    if(ref && ref !== STATE.user.uid) {
+      const credKey = 'credits_' + ref;
+      const existing = await window.storage.get(credKey, true);
+      const current = existing ? parseInt(existing.value) : 0;
+      await window.storage.set(credKey, String(current + 1), true);
+    }
+  } catch(e){}
+}
+
+// ============================================================
+// ADMIN
+// ============================================================
+function checkAdmin() {
+  const pass = document.getElementById('admin-pass').value;
+  if(pass === 'libadmin2025' || pass === 'admin') {
+    showScreen('screen-admin');
+    adminTab('overview', document.querySelector('.admin-nav-btn'));
+  } else {
+    document.getElementById('admin-pass').style.borderColor = '#D4622A';
+    setTimeout(()=>{ document.getElementById('admin-pass').style.borderColor = ''; }, 1200);
+  }
+}
+
+async function adminTab(tab, btn) {
+  document.querySelectorAll('.admin-nav-btn').forEach(b => b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const content = document.getElementById('admin-content');
+  content.innerHTML = '<div style="text-align:center;padding:30px;color:var(--bark)">Loading…</div>';
+
+  let responses = [];
+  try {
+    const keys = await window.storage.list('response_', true);
+    if(keys && keys.keys) {
+      for(const k of keys.keys.slice(0,200)) {
+        const r = await window.storage.get(k, true);
+        if(r) { try { responses.push(JSON.parse(r.value)); } catch(e){} }
+      }
+    }
+  } catch(e){}
+
+  if(tab === 'overview') renderAdminOverview(responses, content);
+  else if(tab === 'faculty') renderAdminFaculty(responses, content);
+  else if(tab === 'satisfaction') renderAdminSatisfaction(responses, content);
+  else if(tab === 'responses') renderAdminResponses(responses, content);
+  else if(tab === 'referrals') renderAdminReferrals(responses, content);
+}
+
+function renderAdminOverview(responses, el) {
+  const total = responses.length;
+  const faculties = {};
+  responses.forEach(r => { faculties[r.faculty] = (faculties[r.faculty]||0)+1; });
+  const topFac = Object.entries(faculties).sort((a,b)=>b[1]-a[1])[0];
+  const freqs = {};
+  responses.forEach(r => { const f = r.answers?.freq; if(f) freqs[f] = (freqs[f]||0)+1; });
+
+  el.innerHTML = `
+    <div class="admin-grid">
+      <div class="admin-stat"><div class="admin-stat-num">${total}</div><div class="admin-stat-lbl">Total Respondents</div></div>
+      <div class="admin-stat"><div class="admin-stat-num">${Object.keys(faculties).length}</div><div class="admin-stat-lbl">Faculties Represented</div></div>
+      <div class="admin-stat"><div class="admin-stat-num">${topFac ? topFac[0].split(' ')[0] : '—'}</div><div class="admin-stat-lbl">Most Active Faculty</div></div>
+      <div class="admin-stat"><div class="admin-stat-num">${freqs['Daily']||0}</div><div class="admin-stat-lbl">Daily Visitors</div></div>
+    </div>
+    <div class="admin-chart-card">
+      <div class="admin-chart-title">Visit Frequency Distribution</div>
+      ${['Daily','Weekly','Monthly','Rarely','Never'].map(f => `
+        <div class="bar-row">
+          <div class="bar-label">${f}</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${total ? Math.round((freqs[f]||0)/total*100) : 0}%"></div></div>
+          <div class="bar-count">${freqs[f]||0}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderAdminFaculty(responses, el) {
+  const faculties = {};
+  responses.forEach(r => { faculties[r.faculty] = (faculties[r.faculty]||0)+1; });
+  const total = responses.length;
+  el.innerHTML = `<div class="admin-chart-card"><div class="admin-chart-title">Responses by Faculty</div>
+    ${Object.entries(faculties).sort((a,b)=>b[1]-a[1]).map(([f,c]) => `
+      <div class="bar-row">
+        <div class="bar-label">${f}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${total?Math.round(c/total*100):0}%"></div></div>
+        <div class="bar-count">${c}</div>
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+function renderAdminSatisfaction(responses, el) {
+  const cats = ['Books / Print','Digital Resources','Study Space','Staff Assistance','Wi-Fi & Tech','Library Hours'];
+  const avgs = {};
+  cats.forEach(c => {
+    const vals = responses.map(r => r.answers?.satisfaction?.[c]).filter(Boolean);
+    avgs[c] = vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(2) : null;
+  });
+  el.innerHTML = `<div class="admin-chart-card"><div class="admin-chart-title">Average Satisfaction (out of 5)</div>
+    ${cats.map(c => `
+      <div class="bar-row">
+        <div class="bar-label">${c}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${avgs[c] ? Math.round(avgs[c]/5*100) : 0}%"></div></div>
+        <div class="bar-count">${avgs[c] ? avgs[c]+'★' : '—'}</div>
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+function renderAdminResponses(responses, el) {
+  const items = responses.filter(r => r.answers?.improve || r.answers?.newservice);
+  if(!items.length) { el.innerHTML = '<div style="padding:20px;color:var(--bark);font-size:0.9rem">No open-ended responses yet.</div>'; return; }
+  el.innerHTML = `<div class="admin-chart-card"><div class="admin-chart-title">Open-Ended Responses (${items.length})</div>
+    <div style="max-height:400px;overflow-y:auto">
+    ${items.map(r => `
+      <div class="response-item">
+        <div class="response-meta">${r.name} · ${r.faculty}</div>
+        ${r.answers.improve ? `<div><strong>Improve:</strong> ${r.answers.improve}</div>` : ''}
+        ${r.answers.newservice ? `<div style="margin-top:4px"><strong>New Service:</strong> ${r.answers.newservice}</div>` : ''}
+      </div>
+    `).join('')}
+    </div>
+  </div>`;
+}
+
+async function renderAdminReferrals(responses, el) {
+  const ref_data = [];
+  for(const r of responses.slice(0,50)) {
+    try {
+      const credits = await window.storage.get('credits_' + r.uid, true);
+      if(credits && parseInt(credits.value) > 0) {
+        ref_data.push({ name: r.name, faculty: r.faculty, credits: parseInt(credits.value) });
+      }
+    } catch(e){}
+  }
+  ref_data.sort((a,b)=>b.credits-a.credits);
+  el.innerHTML = `<div class="admin-chart-card"><div class="admin-chart-title">Referral Leaderboard 🌿</div>
+    ${ref_data.length ? ref_data.map((r,i) => `
+      <div class="referral-row">
+        <span>${i+1}. <strong>${r.name}</strong> — ${r.faculty}</span>
+        <span class="referral-points">+${r.credits * 10} pts (${r.credits} referral${r.credits!==1?'s':''})</span>
+      </div>
+    `).join('') : '<div style="color:var(--bark);font-size:0.9rem;padding:10px 0">No referrals yet!</div>'}
+  </div>`;
+}
+
+function exportCSV() {
+  // Trigger admin data fetch and export
+  adminTab('responses', null);
+  setTimeout(async ()=>{
+    let responses = [];
+    try {
+      const keys = await window.storage.list('response_', true);
+      if(keys && keys.keys) {
+        for(const k of keys.keys.slice(0,500)) {
+          const r = await window.storage.get(k, true);
+          if(r) { try { responses.push(JSON.parse(r.value)); } catch(e){} }
+        }
+      }
+    } catch(e){}
+    const headers = ['Name','Faculty','Frequency','Areas','Improvement','New Service','Timestamp'];
+    const rows = responses.map(r => [
+      r.name, r.faculty,
+      r.answers?.freq || '',
+      (r.answers?.areas || []).join('; '),
+      r.answers?.improve || '',
+      r.answers?.newservice || '',
+      new Date(r.timestamp).toLocaleString()
+    ]);
+    const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], {type:'text/csv'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'library_survey_export.csv';
+    a.click();
+  }, 800);
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function goRegister() { showScreen('screen-register'); }
+function goAdmin()    { showScreen('screen-admin-login'); }
+function goQuest()    { showScreen('screen-quest'); renderMap(0); }
+function goScorecard(){ showScreen('screen-scorecard'); buildScorecard(); }
+
+// ============================================================
+// REFERRAL DETECTION
+// ============================================================
+function detectReferral() {
+  const params = new URLSearchParams(window.location.search);
+  const ref = params.get('ref');
+  if(ref) {
+    STATE.referrerId = ref;
+    // Flash a welcome toast
+    const toast = document.createElement('div');
+    toast.textContent = '🌿 You were invited by a friend! They\'ll earn Lib Points when you register.';
+    Object.assign(toast.style, {
+      position:'fixed', bottom:'24px', left:'50%', transform:'translateX(-50%)',
+      background:'rgba(255,255,255,0.92)', backdropFilter:'blur(10px)',
+      border:'1px solid var(--parchment)', borderRadius:'24px',
+      padding:'12px 24px', fontSize:'0.85rem', fontWeight:'500',
+      color:'var(--deep-bark)', boxShadow:'0 4px 20px var(--shadow)',
+      zIndex:9998, maxWidth:'90vw', textAlign:'center',
+      animation:'reveal-up 0.5s ease both',
+    });
+    document.body.appendChild(toast);
+    setTimeout(()=>toast.remove(), 4000);
+  }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  buildBackground();
+  buildFacultyGrid();
+  detectReferral();
 });
-
-/* ── INIT ── */
-// auto-fill referral from URL
-const urlRef=new URLSearchParams(window.location.search).get('ref');
-if(urlRef){
-  document.getElementById('s2-ref').value=urlRef.toUpperCase();
-  toast('✨ Referral code applied — you both get +50 credits');
-}
-loadExistingStickers();
 </script>
 </body>
 </html>
